@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
 }
 
 datasource db {
@@ -7,33 +7,15 @@ datasource db {
 }
 
 model AuthUser {
-  id           String    @id @default(uuid())
-  serviceId    String    @unique
-  username     String    @unique
+  id        String @id @default(uuid())
+  serviceId String @unique
+  profileId String @unique
+
   accessToken  String
   refreshToken String?
-  user         User?     @relation(fields: [username], references: [username], onDelete: Cascade)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  @@map("auth_users")
-}
 
-model User {
-  id              String     @id @default(cuid())
-  nickname        String
-  username        String     @unique
-  avatar          String?
-  bio             String?
-  isProfilePublic Boolean    @default(true)
-  status          UserStatus @default(OFFLINE)
-  lastSeenAt      DateTime?  @default(now())
-  authUser        AuthUser?
-  sentMessages    Message[]
-  chatMemberships ChatMember[]
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-
-  messageReadReceipts MessageReadReceipt[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserStatus {
@@ -43,16 +25,23 @@ enum UserStatus {
   ONLINE
 }
 
-model Chat {
-  id        String   @id @default(cuid())
-  name      String?
-  chatname  String?  @unique
-  type      ChatType @default(GROUP)
-  rights    Json?
-  members   ChatMember[]
-  messages  Message[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id String @id @default(uuid())
+
+  nickname String
+  username String @unique
+
+  avatar String?
+  bio    String?
+
+  isProfilePublic Boolean    @default(true)
+  status          UserStatus @default(OFFLINE)
+  lastSeenAt      DateTime?  @default(now())
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  chats Chat[]
 }
 
 enum ChatType {
@@ -60,40 +49,37 @@ enum ChatType {
   GROUP
 }
 
-model ChatMember {
-  id        String   @id @default(cuid())
-  chatId    String
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt  DateTime @default(now())
-  @@unique([chatId, userId])
+model Chat {
+  id       String  @id @default(uuid())
+  name     String
+  chatname String? @unique
+
+  type ChatType @default(GROUP)
+
+  rights Json?
+
+  members  User[]
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Message {
-  id         String   @id @default(cuid())
-  text       String
-  senderId   String
-  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  chatId     String
-  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  deliveredAt DateTime?
-  readAt      DateTime?
-  isDeleted   Boolean  @default(false)
-  deletedAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  messageReadReceipts MessageReadReceipt[]
+  id   String @id @default(uuid())
+  text String
+
+  senderId String
+
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  deliveredTo String[]
+  readedBy    String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([chatId, createdAt])
   @@index([senderId, createdAt])
-}
-
-model MessageReadReceipt {
-  id         String   @id @default(cuid())
-  messageId  String
-  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  readAt     DateTime @default(now())
-  @@unique([messageId, userId])
 }
