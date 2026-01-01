@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import type { ButtonHTMLAttributes, DetailedHTMLProps, ReactNode } from "react";
 
