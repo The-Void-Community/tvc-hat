@@ -5,7 +5,7 @@ import { Human } from "@/components/human.component";
 import { HeaderLayout } from "@/layout/header.layout";
 import { FooterLayout } from "@/layout/footer.layout";
 
-import "./globals.css";
+import "./styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Markdown Редактор",

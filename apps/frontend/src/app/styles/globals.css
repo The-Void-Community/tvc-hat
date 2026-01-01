@@ -15,7 +15,7 @@
   --bg-smooth: #111111;
   --bg-card: #27272790;
 
-  --image-bg: url("./assets/background.png");
+  --image-bg: url("/background.png");
 
   --fg-default: #ededed;
   --fg-text: #ededed;
