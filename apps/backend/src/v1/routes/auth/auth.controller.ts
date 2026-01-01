@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import {
   Controller,
   Get,
+  HttpException,
   HttpStatus,
   Injectable,
   Next,
@@ -20,7 +21,7 @@ import AuthService from "@1/services/auth.service";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { PrismaService } from "@/database/prisma.service";
 
-import { compressToEncodedURIComponent } from "lz-string";
+import { compressToBase64 } from "lz-string";
 
 @Injectable()
 @Controller(ROUTE)
@@ -54,12 +55,24 @@ export class AuthController {
 
   @Get(ROUTES.GET)
   @ApiOperation({ summary: "redirecting to authentication system" })
-  public auth(
+  public async auth(
     @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
   ) {
-    return new AuthService(req.params.method).auth(req, res, next);
+    if (req.params.method !== "@me") {
+      return new AuthService(req.params.method).auth(req, res, next);
+    }
+    
+    const { successed, id, profileId } = Hash.parse(req)
+    if (!successed) {
+      throw new HttpException("Bad code", HttpStatus.UNAUTHORIZED);
+    }
+
+    const auth = await this.prisma.authUser.findUnique({where: { id }});
+    const user = await this.prisma.user.findUnique({where: { id: profileId }});
+
+    return res.send({auth, user});
   }
 
   @Get(ROUTES.GET_CALLBACK)
@@ -85,10 +98,10 @@ export class AuthController {
           return res.send(500);
         }
 
-        const token = compressToEncodedURIComponent(
+        const token = compressToBase64(
           JSON.stringify({
             id: auth.id,
-            profile: auth.profileId,
+            profileId: auth.profileId,
             accessToken: new Hash().execute(auth.accessToken),
           }),
         );

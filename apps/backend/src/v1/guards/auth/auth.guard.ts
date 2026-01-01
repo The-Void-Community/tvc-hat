@@ -6,11 +6,12 @@ import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
 
 import { logger } from "@sentry/nestjs";
 
+import PrismaService from "@/database/prisma.service";
 import Service from "./auth-guard.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  public constructor(private readonly reflector: Reflector) {}
+  public constructor(private readonly reflector: Reflector, private readonly prisma: PrismaService) {}
 
   public canActivate(
     context: ExecutionContext,
@@ -26,7 +27,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
 
     try {
-      return Service.validateRequest(request);
+      return Service.validateRequest(request, this.prisma);
     } catch (error) {
       logger.error(error, {
         hostname: request.hostname,

@@ -1,26 +1,26 @@
 import type { Request } from "express";
-import type { AuthUser } from "@1/types";
 
 import Hash from "@1/services/hash.service";
 import authErrors from "@1/errors/guards/auth.errors";
 
+import PrismaService from "@/database/prisma.service";
+
 export class Service {
-  public static async validateRequest(req: Request) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { successed, id, token, profile_id } = Hash.parse(req);
+  public static async validateRequest(req: Request, prisma: PrismaService) {
+    const { successed, id, token, profileId } = Hash.parse(req);
 
     if (!successed) {
       throw new Error(authErrors.hashParseError);
     }
 
-    const findedUser = {} as AuthUser;
-    // const findedUser = await auth.findOne({ id: id });
-
+    const findedUser = await prisma.authUser.findUnique({
+      where: { id }
+    });
     if (!findedUser) {
       throw new Error(authErrors.userNotFound);
     }
 
-    if (findedUser.profileId !== profile_id) {
+    if (findedUser.profileId !== profileId) {
       throw new Error(authErrors.profileIdError);
     }
 
@@ -28,9 +28,9 @@ export class Service {
       throw new Error(authErrors.tokenError);
     }
 
-    const profileUser = {};
-    // const profileUser = await users.findOne({ id: findedUser.profile_id });
-
+    const profileUser = prisma.user.findUnique({ where: {
+      id: findedUser.profileId
+    }});
     if (!profileUser) {
       throw new Error(authErrors.profileNotFound);
     }

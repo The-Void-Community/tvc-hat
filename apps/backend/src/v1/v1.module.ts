@@ -23,10 +23,11 @@ import AuthStrategyService from "./strategies/strategy.service";
 import AuthModule from "./routes/auth/auth.module";
 import SentryModule from "./routes/sentry/sentry.module";
 import TestModule from "./routes/test/test.module";
+import UsersModule from "./routes/users/users.module";
 
 import env from "f@/env";
 
-export const v1Modules = [AuthModule, SentryModule, TestModule];
+export const v1Modules = [AuthModule, SentryModule, TestModule, UsersModule];
 
 @Module({
   imports: [

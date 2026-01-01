@@ -1,13 +1,14 @@
 import type { Request } from "express";
 
 import crypto from "crypto";
+import { decompressFromBase64 } from "lz-string";
 
 import { env } from "f@/env";
 
 const PARSE_ERROR = {
   successed: false,
   id: false,
-  profile_id: false,
+  profileId: false,
   token: false,
 } as const;
 
@@ -15,7 +16,7 @@ type ParseReturnType =
   | Readonly<{
       successed: true;
       id: string;
-      profile_id: string;
+      profileId: string;
       token: string;
     }>
   | typeof PARSE_ERROR;
@@ -32,13 +33,6 @@ export class Hash {
     return this._hmac.digest("hex");
   }
 
-  public static generateCode(data: string = (Math.random() * 1000).toString()) {
-    return crypto
-      .createHmac("sha512", env.HASH_KEY)
-      .update(new Date().getTime().toString() + data)
-      .digest("base64");
-  }
-
   public static resolveToken(token: string): ParseReturnType {
     const [method, hash] = token.split(" ");
 
@@ -48,9 +42,9 @@ export class Hash {
     }
 
     if (method === "Bearer") {
-      const [id, profile_id, access_token] = hash.split("-");
+      const { id, profileId, accessToken } = JSON.parse(decompressFromBase64(hash));
 
-      const valided = id && profile_id && access_token;
+      const valided = id && profileId && accessToken;
       if (!valided) {
         return PARSE_ERROR;
       }
@@ -58,8 +52,8 @@ export class Hash {
       return {
         successed: true,
         id,
-        profile_id,
-        token: access_token,
+        profileId,
+        token: accessToken,
       };
     } else {
       return PARSE_ERROR;
@@ -67,7 +61,7 @@ export class Hash {
   }
 
   public static parse(req: Request): ParseReturnType {
-    const hash = req.headers.Authorization;
+    const hash = req.headers.authorization;
 
     if (hash === undefined) {
       return PARSE_ERROR;
