@@ -1,1 +1,1 @@
-export * from "./strategy.register";
+export * from "./strategy.service";

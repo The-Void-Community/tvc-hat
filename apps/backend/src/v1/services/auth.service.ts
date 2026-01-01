@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
 
-import type { Auth, AuthTypes } from "@1/types";
+import type { AuthUser, AuthTypes, User } from "@1/types";
 import { AUTH_TYPES } from "@1/types";
 
 import { Next, Req, Res } from "@nestjs/common";
 
 import passport = require("passport");
-import AuthStrategyRegister from "@1/strategies/strategy.register";
+import AuthStrategyService from "@/v1/strategies/strategy.service";
 
 const abbreviations: Map<string, AuthTypes> = new Map([]);
 
@@ -39,7 +39,7 @@ export class AuthApi {
   ): unknown {
     const { successed, method, body } = this.getMethod();
 
-    const strategy = AuthStrategyRegister.getStrategy(method);
+    const strategy = AuthStrategyService.getStrategy(method);
     if (!successed || !strategy) {
       return res.send(body);
     }
@@ -51,7 +51,7 @@ export class AuthApi {
     @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
-    callback: (...args: [Auth | null]) => unknown,
+    callback: (...args: [{ auth: AuthUser, user: User } | null]) => unknown,
   ): unknown {
     const { successed, method, body } = this.getMethod();
     if (!successed) {

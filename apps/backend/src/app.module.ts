@@ -3,6 +3,7 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { RouterModule } from "@nestjs/core";
 
 import v1Module, { v1Modules } from "./v1/v1.module";
+import PrismaService from "./database/prisma.service";
 
 type RegisterModule = {
   module: new () => NestModule;
@@ -30,6 +31,9 @@ const modules: RegisterModule[] = [
         },
       ]),
     ]),
+  ],
+  providers: [
+    PrismaService
   ],
 })
 export default class AppModule implements NestModule {

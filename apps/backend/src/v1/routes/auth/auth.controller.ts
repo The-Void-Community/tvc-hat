@@ -18,6 +18,9 @@ import Hash from "@1/services/hash.service";
 import AuthService from "@1/services/auth.service";
 
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { PrismaService } from "@/database/prisma.service";
+
+import { compressToEncodedURIComponent } from "lz-string";
 
 @Injectable()
 @Controller(ROUTE)
@@ -34,6 +37,8 @@ import { ApiOperation, ApiResponse } from "@nestjs/swagger";
   description: "Redirecting",
 })
 export class AuthController {
+  public constructor(private readonly prisma: PrismaService) {}
+
   @Get()
   @ApiOperation({ summary: "getting all authentication methods" })
   public printMethods() {
@@ -69,16 +74,24 @@ export class AuthController {
       res,
       next,
       (...args) => {
-        const user = args[0];
+        const data = args[0];
+        if (!data) {
+          return res.send(500);
+        };
 
-        if (!user) return;
+        const { auth } = data;
 
-        res.cookie(
-          "id-token",
-          `${user.id}-${user.profile_id}-${new Hash().execute(user.access_token)}`,
-        );
+        if (!auth) {
+          return res.send(500);
+        }
 
-        res.redirect(env.CLIENT_URL);
+        const token = compressToEncodedURIComponent(JSON.stringify({
+          id: auth.id,
+          profile: auth.profileId,
+          accessToken: new Hash().execute(auth.accessToken)
+        }));
+
+        res.redirect(env.CLIENT_URL + `?token=${token}`);
       },
     );
   }

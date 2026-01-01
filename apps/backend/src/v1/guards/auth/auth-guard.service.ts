@@ -1,5 +1,5 @@
 import type { Request } from "express";
-import type { Auth } from "@1/types";
+import type { AuthUser } from "@1/types";
 
 import Hash from "@1/services/hash.service";
 import authErrors from "@1/errors/guards/auth.errors";
@@ -13,18 +13,18 @@ export class Service {
       throw new Error(authErrors.hashParseError);
     }
 
-    const findedUser = {} as Auth;
+    const findedUser = {} as AuthUser;
     // const findedUser = await auth.findOne({ id: id });
 
     if (!findedUser) {
       throw new Error(authErrors.userNotFound);
     }
 
-    if (findedUser.profile_id !== profile_id) {
+    if (findedUser.profileId !== profile_id) {
       throw new Error(authErrors.profileIdError);
     }
 
-    if (token !== new Hash().execute(findedUser.access_token)) {
+    if (token !== new Hash().execute(findedUser.accessToken)) {
       throw new Error(authErrors.tokenError);
     }
 

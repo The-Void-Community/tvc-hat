@@ -15,9 +15,11 @@ import {
 } from "@sentry/nestjs/setup";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 
+import PrismaService from "@/database/prisma.service";
+
 import { LoggerMiddleware } from "./middleware/logger.middleware";
 
-import AuthStrategyRegister from "./strategies/strategy.register";
+import AuthStrategyService from "./strategies/strategy.service";
 import AuthModule from "./routes/auth/auth.module";
 import SentryModule from "./routes/sentry/sentry.module";
 import TestModule from "./routes/test/test.module";
@@ -25,9 +27,6 @@ import TestModule from "./routes/test/test.module";
 import env from "f@/env";
 
 export const v1Modules = [AuthModule, SentryModule, TestModule];
-
-const authStrategyRegister = new AuthStrategyRegister();
-authStrategyRegister.execute();
 
 @Module({
   imports: [
@@ -48,6 +47,8 @@ authStrategyRegister.execute();
     Sentry.forRoot(),
   ],
   providers: [
+    PrismaService,
+    AuthStrategyService,
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,

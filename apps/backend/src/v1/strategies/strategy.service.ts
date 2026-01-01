@@ -4,8 +4,12 @@ import type { VerifyCallback } from "passport-oauth2";
 import type OAuth2 from "passport-oauth2";
 
 import { PassportStrategy } from "@nestjs/passport";
+import PrismaService from "@/database/prisma.service";
 
 import { getPassportEnv } from "f@/env";
+import { Injectable } from "@nestjs/common";
+
+import { v4 as uuid } from "uuid";
 
 type Strategies = Map<AuthTypes, OAuth2Strategy>;
 type OAuth2ServiceProperties = {
@@ -26,13 +30,18 @@ const oauth2Services: Record<AuthTypes, OAuth2ServiceProperties> = {
   },
 };
 
-export class AuthStrategyRegister {
+@Injectable()
+export class AuthStrategyService {
   public static readonly strategies: Strategies = new Map();
   public readonly strategies: Strategies = new Map();
 
   public static getStrategy(strategy: string): OAuth2Strategy | null {
     const output = this.strategies.get(strategy as AuthTypes);
     return output || null;
+  }
+
+  public constructor(private readonly prisma: PrismaService) {
+    this.execute();
   }
 
   public execute(): this {
@@ -59,7 +68,48 @@ export class AuthStrategyRegister {
           done: VerifyCallback,
         ) => {
           try {
-            return done(null, false);
+            const authUser = await this.prisma.authUser.findUnique({
+              where: {
+                serviceId: profile.id
+              }
+            });
+            
+            const createUserData = {
+              data: {
+                nickname: profile.displayName,
+                username: uuid(),
+              }
+            }
+
+            const user = !authUser
+              ? await this.prisma.user.create(createUserData)
+              : await this.prisma.user.findUnique({
+                where: {
+                  id: authUser.profileId
+                }
+              }) || await this.prisma.user.create(createUserData);
+
+            const auth = !authUser
+              ? await this.prisma.authUser.create({
+                data: {
+                  accessToken,
+                  refreshToken,
+                  profileId: user.id,
+                  serviceId: profile.id
+                }
+              })
+              : await this.prisma.authUser.update({
+                where: {
+                  serviceId: profile.id
+                }, data: {
+                  accessToken,
+                  refreshToken,
+                  profileId: user.id,
+                  serviceId: profile.id
+                }
+              });
+
+            return done({auth, user}, false);
           } catch (error) {
             return done(error, false);
           }
@@ -67,7 +117,7 @@ export class AuthStrategyRegister {
       ) as OAuth2Strategy;
 
       this.strategies.set(service as AuthTypes, ServiceStrategy);
-      AuthStrategyRegister.strategies.set(
+      AuthStrategyService.strategies.set(
         service as AuthTypes,
         ServiceStrategy,
       );
@@ -77,4 +127,4 @@ export class AuthStrategyRegister {
   }
 }
 
-export default AuthStrategyRegister;
+export default AuthStrategyService;
