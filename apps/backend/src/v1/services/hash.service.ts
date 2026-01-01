@@ -42,7 +42,9 @@ export class Hash {
     }
 
     if (method === "Bearer") {
-      const { id, profileId, accessToken } = JSON.parse(decompressFromBase64(hash));
+      const { id, profileId, accessToken } = JSON.parse(
+        decompressFromBase64(hash),
+      );
 
       const valided = id && profileId && accessToken;
       if (!valided) {

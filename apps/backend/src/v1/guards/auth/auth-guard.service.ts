@@ -14,7 +14,7 @@ export class Service {
     }
 
     const findedUser = await prisma.authUser.findUnique({
-      where: { id }
+      where: { id },
     });
     if (!findedUser) {
       throw new Error(authErrors.userNotFound);
@@ -28,9 +28,11 @@ export class Service {
       throw new Error(authErrors.tokenError);
     }
 
-    const profileUser = prisma.user.findUnique({ where: {
-      id: findedUser.profileId
-    }});
+    const profileUser = prisma.user.findUnique({
+      where: {
+        id: findedUser.profileId,
+      },
+    });
     if (!profileUser) {
       throw new Error(authErrors.profileNotFound);
     }

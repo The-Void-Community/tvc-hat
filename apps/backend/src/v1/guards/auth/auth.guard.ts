@@ -11,7 +11,10 @@ import Service from "./auth-guard.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  public constructor(private readonly reflector: Reflector, private readonly prisma: PrismaService) {}
+  public constructor(
+    private readonly reflector: Reflector,
+    private readonly prisma: PrismaService,
+  ) {}
 
   public canActivate(
     context: ExecutionContext,

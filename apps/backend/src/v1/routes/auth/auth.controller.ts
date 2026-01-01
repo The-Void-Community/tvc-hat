@@ -63,16 +63,18 @@ export class AuthController {
     if (req.params.method !== "@me") {
       return new AuthService(req.params.method).auth(req, res, next);
     }
-    
-    const { successed, id, profileId } = Hash.parse(req)
+
+    const { successed, id, profileId } = Hash.parse(req);
     if (!successed) {
       throw new HttpException("Bad code", HttpStatus.UNAUTHORIZED);
     }
 
-    const auth = await this.prisma.authUser.findUnique({where: { id }});
-    const user = await this.prisma.user.findUnique({where: { id: profileId }});
+    const auth = await this.prisma.authUser.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: profileId },
+    });
 
-    return res.send({auth, user});
+    return res.send({ auth, user });
   }
 
   @Get(ROUTES.GET_CALLBACK)
