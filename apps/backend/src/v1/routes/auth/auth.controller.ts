@@ -77,7 +77,7 @@ export class AuthController {
         const data = args[0];
         if (!data) {
           return res.send(500);
-        };
+        }
 
         const { auth } = data;
 
@@ -85,11 +85,13 @@ export class AuthController {
           return res.send(500);
         }
 
-        const token = compressToEncodedURIComponent(JSON.stringify({
-          id: auth.id,
-          profile: auth.profileId,
-          accessToken: new Hash().execute(auth.accessToken)
-        }));
+        const token = compressToEncodedURIComponent(
+          JSON.stringify({
+            id: auth.id,
+            profile: auth.profileId,
+            accessToken: new Hash().execute(auth.accessToken),
+          }),
+        );
 
         res.redirect(env.CLIENT_URL + `?token=${token}`);
       },

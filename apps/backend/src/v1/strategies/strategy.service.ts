@@ -70,46 +70,47 @@ export class AuthStrategyService {
           try {
             const authUser = await this.prisma.authUser.findUnique({
               where: {
-                serviceId: profile.id
-              }
+                serviceId: profile.id,
+              },
             });
-            
+
             const createUserData = {
               data: {
                 nickname: profile.displayName,
                 username: uuid(),
-              }
-            }
+              },
+            };
 
             const user = !authUser
               ? await this.prisma.user.create(createUserData)
-              : await this.prisma.user.findUnique({
-                where: {
-                  id: authUser.profileId
-                }
-              }) || await this.prisma.user.create(createUserData);
+              : (await this.prisma.user.findUnique({
+                  where: {
+                    id: authUser.profileId,
+                  },
+                })) || (await this.prisma.user.create(createUserData));
 
             const auth = !authUser
               ? await this.prisma.authUser.create({
-                data: {
-                  accessToken,
-                  refreshToken,
-                  profileId: user.id,
-                  serviceId: profile.id
-                }
-              })
+                  data: {
+                    accessToken,
+                    refreshToken,
+                    profileId: user.id,
+                    serviceId: profile.id,
+                  },
+                })
               : await this.prisma.authUser.update({
-                where: {
-                  serviceId: profile.id
-                }, data: {
-                  accessToken,
-                  refreshToken,
-                  profileId: user.id,
-                  serviceId: profile.id
-                }
-              });
+                  where: {
+                    serviceId: profile.id,
+                  },
+                  data: {
+                    accessToken,
+                    refreshToken,
+                    profileId: user.id,
+                    serviceId: profile.id,
+                  },
+                });
 
-            return done({auth, user}, false);
+            return done({ auth, user }, false);
           } catch (error) {
             return done(error, false);
           }
@@ -117,10 +118,7 @@ export class AuthStrategyService {
       ) as OAuth2Strategy;
 
       this.strategies.set(service as AuthTypes, ServiceStrategy);
-      AuthStrategyService.strategies.set(
-        service as AuthTypes,
-        ServiceStrategy,
-      );
+      AuthStrategyService.strategies.set(service as AuthTypes, ServiceStrategy);
     }
 
     return this;

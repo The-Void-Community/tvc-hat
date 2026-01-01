@@ -32,9 +32,7 @@ const modules: RegisterModule[] = [
       ]),
     ]),
   ],
-  providers: [
-    PrismaService
-  ],
+  providers: [PrismaService],
 })
 export default class AppModule implements NestModule {
   public configure(consumer: MiddlewareConsumer) {
