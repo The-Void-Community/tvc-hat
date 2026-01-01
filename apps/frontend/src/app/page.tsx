@@ -1,17 +1,18 @@
 "use client";
 
-import { Button } from "@/ui/button.ui";
+import Home from "./home";
+import { Suspense } from "react";
 
-export default function Home() {
+const Page = ({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>;
+}) => {
   return (
-    <div className="min-h-full flex flex-col gap-4 justify-center content-center flex-wrap">
-      <Button
-        onClick={() => {
-          window.location.href = "http://localhost:8080/api/v1/auth/google";
-        }}
-      >
-        Authenticate by Google
-      </Button>
-    </div>
+    <Suspense fallback={<>...</>}>
+      <Home query={searchParams} />
+    </Suspense>
   );
-}
+};
+
+export default Page;

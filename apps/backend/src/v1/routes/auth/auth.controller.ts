@@ -21,7 +21,7 @@ import AuthService from "@1/services/auth.service";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { PrismaService } from "@/database/prisma.service";
 
-import { compressToBase64 } from "lz-string";
+import { compressToEncodedURIComponent } from "lz-string";
 
 @Injectable()
 @Controller(ROUTE)
@@ -100,7 +100,7 @@ export class AuthController {
           return res.send(500);
         }
 
-        const token = compressToBase64(
+        const token = compressToEncodedURIComponent(
           JSON.stringify({
             id: auth.id,
             profileId: auth.profileId,

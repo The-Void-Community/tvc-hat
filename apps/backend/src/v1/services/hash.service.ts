@@ -1,7 +1,7 @@
 import type { Request } from "express";
 
 import crypto from "crypto";
-import { decompressFromBase64 } from "lz-string";
+import { decompressFromEncodedURIComponent } from "lz-string";
 
 import { env } from "f@/env";
 
@@ -34,16 +34,17 @@ export class Hash {
   }
 
   public static resolveToken(token: string): ParseReturnType {
-    const [method, hash] = token.split(" ");
+    const [method, ...hashData] = token.split(" ");
+    const hash = hashData.join(" ");
 
-    const tokenValided = method && hash;
+    const tokenValided = Boolean(method && hash);
     if (!tokenValided) {
       return PARSE_ERROR;
     }
-
+    
     if (method === "Bearer") {
       const { id, profileId, accessToken } = JSON.parse(
-        decompressFromBase64(hash),
+        decompressFromEncodedURIComponent(hash),
       );
 
       const valided = id && profileId && accessToken;
