@@ -1,0 +1,19 @@
+.color-default {
+  color: var(--btn-default);
+}
+
+.color-primary {
+  color: var(--btn-primary);
+}
+
+.color-danger {
+  color: var(--btn-danger);
+}
+
+.color-secondary {
+  color: var(--btn-secondary);
+}
+
+.color-tetriary {
+  color: var(--btn-tetriary);
+}
