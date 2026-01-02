@@ -164,4 +164,31 @@ export class Service {
 
     return "deleted";
   }
+
+  public async addMessage(slug: string | Chat, messageId: string) {
+    const chat =
+      typeof slug === "string"
+        ? await this.prisma.chat.findUnique({
+            where: Service.resolveSlug(slug),
+            select: {
+              messages: true,
+            },
+          })
+        : slug;
+
+    if (!chat) {
+      throw new HttpException(
+        "Chat not found",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return this.prisma.chat.update({
+      where:
+        typeof slug === "string" ? Service.resolveSlug(slug) : { id: slug.id },
+      data: {
+        messages: [...chat.messages, messageId],
+      },
+    });
+  }
 }
