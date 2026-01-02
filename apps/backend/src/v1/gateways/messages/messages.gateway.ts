@@ -1,26 +1,40 @@
-import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import {
+  ConnectedSocket,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from "@nestjs/websockets";
+import { HttpStatus, ValidationPipe } from "@nestjs/common";
 
-import { GATEWAY, GATEWAYS } from './messages.gateways';
-import { SendMessageDto } from './dto/send-message.dto';
+import { GATEWAY, GATEWAYS } from "./messages.gateways";
+import { SendMessageDto } from "./dto/send-message.dto";
 
-import { Server, Socket } from 'socket.io';
+import { Server, Socket } from "socket.io";
 
 @WebSocketGateway({
   cors: {
-    origin: "*"
-  }
+    origin: "*",
+  },
 })
-export class Gateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class Gateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   private readonly server: Server;
 
   @SubscribeMessage(GATEWAYS.SEND_MESSAGE)
   public handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody(new ValidationPipe({
-      errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
-    })) body: SendMessageDto
+    @MessageBody(
+      new ValidationPipe({
+        errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
+      }),
+    )
+    body: SendMessageDto,
   ): string {
     this.server.emit("receive_message", body);
 

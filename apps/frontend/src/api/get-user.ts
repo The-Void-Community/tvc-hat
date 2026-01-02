@@ -1,4 +1,4 @@
-'use server'
+"use server";
 
 import { cookies } from "next/headers";
 import { cache } from "react";
@@ -12,20 +12,20 @@ export const getUserByToken = cache(async (token: string) => {
     },
     cache: "force-cache",
     headers: {
-      authorization: `Bearer ${token}`
-    }
+      authorization: `Bearer ${token}`,
+    },
   });
 
   try {
     const user = await response.json();
     if (!user) {
       return null;
-    };
-    
+    }
+
     cookie.set("token", token);
     cookie.set("user", JSON.stringify(user.user));
     cookie.set("auth", JSON.stringify(user.auth));
-  
+
     return user.user;
   } catch (error) {
     console.error(error);
@@ -44,7 +44,7 @@ export const getUserByCookie = cache(async () => {
   const response = await fetch("http://localhost:8080/api/v1/auth/@me", {
     method: "GET",
     headers: {
-      authorization: `Bearer ${token.value}`
+      authorization: `Bearer ${token.value}`,
     },
     next: {
       revalidate: 1200,
@@ -60,17 +60,15 @@ export const getUserByCookie = cache(async () => {
     const user = await response.json();
     if (!user) {
       return null;
-    };
-  
+    }
+
     return user.user;
   } catch (error) {
     console.error(error);
     return null;
   }
-})
+});
 
-export const getUser = cache(async (token?: string|null) => {
-  return token
-    ? getUserByToken(token)
-    : getUserByCookie();
-})
+export const getUser = cache(async (token?: string | null) => {
+  return token ? getUserByToken(token) : getUserByCookie();
+});

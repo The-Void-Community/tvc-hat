@@ -41,7 +41,7 @@ export class Hash {
     if (!tokenValided) {
       return PARSE_ERROR;
     }
-    
+
     if (method === "Bearer") {
       const { id, profileId, accessToken } = JSON.parse(
         decompressFromEncodedURIComponent(hash),

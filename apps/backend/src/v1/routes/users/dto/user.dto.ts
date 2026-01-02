@@ -13,7 +13,7 @@ export class UserDto implements User {
   @ApiProperty()
   @IsString()
   id: string;
-  
+
   @ApiProperty()
   @IsString()
   @Transform(({ value }) => stringTransform(value))

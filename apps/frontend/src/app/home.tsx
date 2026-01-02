@@ -4,10 +4,9 @@ import { getUser } from "@/api/get-user";
 import { Button } from "@/ui/button.ui";
 import { use, useEffect, useState } from "react";
 
-
 type Props = {
-  query: Promise<{ token?: string }>
-}
+  query: Promise<{ token?: string }>;
+};
 
 export default function Home({ query }: Props) {
   const [user, setUser] = useState<{ username: string } | null>(null);
@@ -33,7 +32,7 @@ export default function Home({ query }: Props) {
 
       {user && (
         <div>
-          <Button onClick={() => window.location.href = "/chat"}>
+          <Button onClick={() => (window.location.href = "/chat")}>
             Перейти к чату, {user.username}
           </Button>
         </div>
