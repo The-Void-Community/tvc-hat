@@ -100,16 +100,25 @@ export class Controller {
   }
 
   @ApiOperation({
-    summary: "Updating user rights",
+    summary: "Updating user rights in chat",
   })
   @Patch(ROUTES.PATCH_RIGHTS)
-  public patchRigts(
+  public patchRights(
     @Req() req: Request,
     @Param("slug") slug: string,
     @Body(new ValidationPipe()) data: RightsUpdateDto,
   ) {
     const { profileId } = Hash.parseWithExeption(req);
     return this.service.patchRights(slug, data, profileId);
+  }
+
+  @ApiOperation({
+    summary: "Updating members in chat",
+  })
+  @Patch(ROUTES.PATCH_JOIN)
+  public patchJoin(@Req() req: Request, @Param("slug") slug: string) {
+    const { profileId } = Hash.parseWithExeption(req);
+    return this.service.patchJoin(slug, profileId);
   }
 
   @ApiOperation({

@@ -6,7 +6,14 @@ import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 type ChatData = Omit<
   Chat,
-  "id" | "rights" | "type" | "createdAt" | "updatedAt" | "ownerId"
+  | "id"
+  | "rights"
+  | "type"
+  | "createdAt"
+  | "updatedAt"
+  | "ownerId"
+  | "members"
+  | "messages"
 >;
 
 export class ChatUpdateDto implements Partial<ChatData> {

@@ -8,7 +8,13 @@ import { IsEnum, IsNotEmpty, IsString } from "class-validator";
 
 type ChatData = Omit<
   Chat,
-  "id" | "rights" | "createdAt" | "updatedAt" | "ownerId"
+  | "id"
+  | "rights"
+  | "createdAt"
+  | "updatedAt"
+  | "ownerId"
+  | "members"
+  | "messages"
 >;
 
 export class ChatCreateDto implements ChatData {

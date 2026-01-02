@@ -42,8 +42,6 @@ model User {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
-
-  chats Chat[]
 }
 
 enum ChatType {
@@ -61,8 +59,8 @@ model Chat {
 
   rights Json @default("{}")
 
-  members  User[]
-  messages Message[]
+  members  String[] @default([])
+  messages String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,9 +71,7 @@ model Message {
   text String
 
   senderId String
-
   chatId String
-  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   deliveredTo String[]
   readedBy    String[]

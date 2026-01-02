@@ -9,6 +9,7 @@ const ROUTES = {
   PATCH: "/:slug",
 
   PATCH_RIGHTS: "/:slug/rights",
+  PATCH_JOIN: "/:slug/join",
 
   DELETE: "/:slug",
 } as const;

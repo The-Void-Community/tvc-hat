@@ -51,6 +51,7 @@ export class Service {
       data: {
         ...data,
         ownerId: userId,
+        members: [userId],
       },
     });
   }
@@ -124,6 +125,27 @@ export class Service {
           ...(chat!.rights as Record<string, string>),
           [data.userId]: rights.toString(),
         },
+      },
+    });
+  }
+
+  public async patchJoin(slug: string, userId: string) {
+    const chat = await this.prisma.chat.findUnique({
+      where: Service.resolveSlug(slug),
+      select: { members: true },
+    });
+
+    if (!chat) {
+      throw new HttpException(
+        "Chat not found",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return this.prisma.chat.update({
+      where: Service.resolveSlug(slug),
+      data: {
+        members: [...chat.members, userId],
       },
     });
   }
