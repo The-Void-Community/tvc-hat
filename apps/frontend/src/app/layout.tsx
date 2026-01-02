@@ -8,8 +8,8 @@ import { FooterLayout } from "@/layout/footer.layout";
 import "./styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Markdown Редактор",
-  description: "Онлайн редактор Markdown с реальным предпросмотром",
+  title: "Hat",
+  description: "Чат от The Void",
 };
 
 const RootLayout = ({
