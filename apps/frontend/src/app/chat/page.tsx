@@ -8,6 +8,7 @@ import { io, Socket } from "socket.io-client";
 
 const Page = () => {
   const ref = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [user, setUser] = useState<{
     username: string;
     nickname: string;
@@ -16,7 +17,7 @@ const Page = () => {
   const [loaded, setLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    const websocket = io("http://localhost:8080");
+    const websocket = io("http://localhost:8080/chat");
 
     (async () => {
       const u = await getUser();
@@ -39,15 +40,24 @@ const Page = () => {
   }, []);
 
   const sendMessage = () => {
-    if (!ref.current || !socket || !user) {
+    if (!ref.current || !inputRef.current || !socket || !user) {
       return;
     }
 
     socket.emit("send_message", {
       user: user,
+      chat: inputRef.current.value,
       text: ref.current.value.trim(),
     });
   };
+
+  const chooseRoom = () => {
+    if (!inputRef.current || !socket || !user) {
+      return;
+    }
+
+    socket.emit("room_connect", inputRef.current.value);
+  }
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -62,6 +72,9 @@ const Page = () => {
         placeholder="your message..."
       />
       <Button onClick={sendMessage}>Отправить</Button>
+      <hr />
+      <input ref={inputRef} className="bg-(--bg-card) py-2 px-4 rounded-lg" placeholder="your room..." type="text" />
+      <Button onClick={chooseRoom}>Выбрать команту</Button>
     </div>
   );
 };
