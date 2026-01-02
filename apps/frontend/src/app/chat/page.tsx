@@ -57,7 +57,7 @@ const Page = () => {
     }
 
     socket.emit("room_connect", inputRef.current.value);
-  }
+  };
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -73,7 +73,12 @@ const Page = () => {
       />
       <Button onClick={sendMessage}>Отправить</Button>
       <hr />
-      <input ref={inputRef} className="bg-(--bg-card) py-2 px-4 rounded-lg" placeholder="your room..." type="text" />
+      <input
+        ref={inputRef}
+        className="bg-(--bg-card) py-2 px-4 rounded-lg"
+        placeholder="your room..."
+        type="text"
+      />
       <Button onClick={chooseRoom}>Выбрать команту</Button>
     </div>
   );
