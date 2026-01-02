@@ -59,7 +59,7 @@ model Chat {
 
   type ChatType @default(GROUP)
 
-  rights Json?
+  rights Json @default("{}")
 
   members  User[]
   messages Message[]

@@ -8,7 +8,7 @@ import request from "supertest";
 import { HttpStatus } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 
-import { ROUTE, ROUTES } from "./chat.routes";
+import { ROUTE, ROUTES } from "./chats.routes";
 
 import { createEndpoints } from "@/utils";
 import v1Module from "@1/v1.module";
@@ -39,10 +39,10 @@ describe("Chat controller", () => {
     jest.clearAllMocks();
   });
 
-  describe(`GET ${endpoints.GET}`, () => {
+  describe(`GET ${endpoints.GET_ONE}`, () => {
     it("should return status 200 and array of chats", async () => {
       const response = await request(app.getHttpServer())
-        .get(endpoints.GET)
+        .get(endpoints.GET_ONE)
         .expect(HttpStatus.OK);
 
       expect(response.body).toEqual([]);

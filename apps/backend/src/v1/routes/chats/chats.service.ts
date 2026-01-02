@@ -2,15 +2,17 @@ import type { Chat } from "@1/types";
 
 import type { ChatCreateDto } from "./dto/chat-create.dto";
 import type { ChatUpdateDto } from "./dto/chat-update.dto";
+import type { RightsUpdateDto } from "./dto/rights-update.dto";
 
 import { PrismaService } from "@/database/prisma.service";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Rights } from "@/services";
+import BitField from "fbit-field";
 
 @Injectable()
 export class Service {
   public static resolveSlug(slug: string) {
-    return slug[0] === "#" ? { chatname: slug.slice(1) } : { id: slug };
+    return slug[0] === "$" ? { chatname: slug.slice(1) } : { id: slug };
   }
 
   public static hasRights(
@@ -86,6 +88,41 @@ export class Service {
     return this.prisma.chat.update({
       where: Service.resolveSlug(slug),
       data,
+    });
+  }
+
+  public async patchRights(
+    slug: string,
+    data: RightsUpdateDto,
+    userId: string
+  ) {
+    const chat = await this.prisma.chat.findUnique({
+      where: Service.resolveSlug(slug)
+    });
+    if (!Service.hasRights(chat, userId, Rights.RAW.chat.admin)) {
+      throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
+    };
+
+    const isAdminInRights = "admin" in data && data.admin === true;
+    const isUserOwner = chat!.ownerId === userId;
+    if (isAdminInRights && !isUserOwner) {
+      throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
+    }
+
+    const filtered = Object.keys(data)
+      .filter(key => key !== "userId")
+      .filter(key => data[key] === true);
+
+    const rights = BitField.summarize(...filtered.map(key => Rights.RAW.chat[key]));
+    
+    return this.prisma.chat.update({
+      where: Service.resolveSlug(slug),
+      data: {
+        rights: {
+          ...(chat!.rights as Record<string, string>),
+          [data.userId]: rights.toString()
+        }
+      }
     });
   }
 
