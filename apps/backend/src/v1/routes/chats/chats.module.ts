@@ -8,6 +8,6 @@ import { Service } from "./chats.service";
 @Module({
   imports: [],
   controllers: [Controller],
-  providers: [Service, PrismaService]
+  providers: [Service, PrismaService],
 })
 export default class ChatsModule {}

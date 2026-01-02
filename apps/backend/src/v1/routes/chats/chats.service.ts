@@ -10,12 +10,14 @@ import { Rights } from "@/services";
 @Injectable()
 export class Service {
   public static resolveSlug(slug: string) {
-    return slug[0] === "#"
-      ? { chatname: slug.slice(1) }
-      : { id: slug };
+    return slug[0] === "#" ? { chatname: slug.slice(1) } : { id: slug };
   }
 
-  public static hasRights(chat: Chat|null, userId: string, rights?: bigint): boolean {
+  public static hasRights(
+    chat: Chat | null,
+    userId: string,
+    rights?: bigint,
+  ): boolean {
     if (!chat) {
       throw new HttpException("Chat not found", HttpStatus.BAD_REQUEST);
     }
@@ -28,7 +30,7 @@ export class Service {
       return false;
     }
 
-    const chatRights = chat.rights as Record<string, string|undefined>;
+    const chatRights = chat.rights as Record<string, string | undefined>;
     const userRights = chatRights[userId]
       ? BigInt(chatRights[userId])
       : Rights.Chat.RAW_DEFAULT;
@@ -36,11 +38,9 @@ export class Service {
     return (userRights & rights) === rights;
   }
 
-  public constructor(
-    private readonly prisma: PrismaService
-  ) {}
+  public constructor(private readonly prisma: PrismaService) {}
 
-  public async getOne(slug: string): Promise<Chat|null> {
+  public async getOne(slug: string): Promise<Chat | null> {
     return this.prisma.chat.findUnique({ where: Service.resolveSlug(slug) });
   }
 
@@ -48,43 +48,57 @@ export class Service {
     return this.prisma.chat.create({
       data: {
         ...data,
-        ownerId: userId
-      }
+        ownerId: userId,
+      },
     });
   }
 
-  public async put(slug: string, data: ChatUpdateDto, userId: string): Promise<Chat> {
-    const chat = await this.prisma.chat.findUnique({ where: Service.resolveSlug(slug) });
+  public async put(
+    slug: string,
+    data: ChatUpdateDto,
+    userId: string,
+  ): Promise<Chat> {
+    const chat = await this.prisma.chat.findUnique({
+      where: Service.resolveSlug(slug),
+    });
     if (!Service.hasRights(chat, userId)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
-    };
+    }
 
     return this.prisma.chat.update({
       where: Service.resolveSlug(slug),
-      data
+      data,
     });
   }
 
-  public async patch(slug: string, data: ChatUpdateDto, userId: string): Promise<Chat> {
-    const chat = await this.prisma.chat.findUnique({ where: Service.resolveSlug(slug) });
+  public async patch(
+    slug: string,
+    data: ChatUpdateDto,
+    userId: string,
+  ): Promise<Chat> {
+    const chat = await this.prisma.chat.findUnique({
+      where: Service.resolveSlug(slug),
+    });
     if (!Service.hasRights(chat, userId)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
-    };
+    }
 
     return this.prisma.chat.update({
       where: Service.resolveSlug(slug),
-      data
+      data,
     });
   }
 
   public async delete(slug: string, userId: string): Promise<string> {
-    const chat = await this.prisma.chat.findUnique({ where: Service.resolveSlug(slug) });
+    const chat = await this.prisma.chat.findUnique({
+      where: Service.resolveSlug(slug),
+    });
     if (!Service.hasRights(chat, userId)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
-    };
+    }
 
     await this.prisma.chat.delete({
-      where: Service.resolveSlug(slug)
+      where: Service.resolveSlug(slug),
     });
 
     return "deleted";

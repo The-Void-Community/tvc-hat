@@ -30,7 +30,13 @@ import MessagesGatewayModule from "./gateways/messages/messages.module";
 
 import env from "f@/env";
 
-export const v1Modules = [AuthModule, SentryModule, TestModule, UsersModule, ChatsModule];
+export const v1Modules = [
+  AuthModule,
+  SentryModule,
+  TestModule,
+  UsersModule,
+  ChatsModule,
+];
 
 @Module({
   imports: [

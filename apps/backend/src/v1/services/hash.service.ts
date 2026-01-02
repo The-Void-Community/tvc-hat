@@ -20,9 +20,7 @@ type SuccessedParseReturnType = Readonly<{
   token: string;
 }>;
 
-type ParseReturnType =
-  | SuccessedParseReturnType
-  | typeof PARSE_ERROR;
+type ParseReturnType = SuccessedParseReturnType | typeof PARSE_ERROR;
 
 export class Hash {
   private readonly _hmac: crypto.Hmac;
@@ -89,7 +87,7 @@ export class Hash {
 
     try {
       const data = Hash.resolveToken(hash.toString());
-      
+
       if (!data.successed) {
         throw new HttpException("Bad token", HttpStatus.UNAUTHORIZED);
       }
