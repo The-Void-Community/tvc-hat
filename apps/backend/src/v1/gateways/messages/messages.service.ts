@@ -10,26 +10,26 @@ import { SendMessageDto } from "./dto/send-message.dto";
 export class Service {
   public constructor(
     private readonly chatsService: ChatsService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   public async createMessageAndUpdateChat(data: SendMessageDto): Promise<{
-    message: Message,
-    chat: Chat
+    message: Message;
+    chat: Chat;
   }> {
     const message = await this.prisma.message.create({
       data: {
         text: data.text,
         chatId: data.chat,
         senderId: data.user.id,
-      }
+      },
     });
 
     const chat = await this.chatsService.addMessage(message.chatId, message.id);
-    
+
     return {
       message,
-      chat
-    }
+      chat,
+    };
   }
 }

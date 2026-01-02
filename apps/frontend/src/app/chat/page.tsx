@@ -37,14 +37,14 @@ const Page = () => {
 
     const websocket = io("http://localhost:8080/chat", {
       extraHeaders: {
-        authorization: `Bearer ${token}`
-      }
+        authorization: `Bearer ${token}`,
+      },
     });
 
     websocket.on("receive_message", (message) => {
       console.log("receive", message);
     });
-    
+
     (() => {
       setSocket(websocket);
     })();
