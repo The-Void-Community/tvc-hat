@@ -7,6 +7,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from "@nestjs/websockets";
 import { HttpStatus, ValidationPipe } from "@nestjs/common";
 
@@ -19,6 +20,7 @@ import { Server, Socket } from "socket.io";
   cors: {
     origin: "*",
   },
+  namespace: "/chat"
 })
 export class Gateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -36,9 +38,31 @@ export class Gateway
     )
     body: SendMessageDto,
   ): string {
-    this.server.emit("receive_message", body);
+    if (!client.rooms.has(body.chat)) {
+      throw new WsException("You not in a this chat");
+    };
+
+    this.server.to(body.chat).emit("receive_message", body);
 
     return client.id;
+  }
+
+  @SubscribeMessage(GATEWAYS.CONNECT)
+  public handleRoomConnect(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ValidationPipe()) roomId: string
+  ) {
+    console.log("Client joined to " + roomId);
+    client.join(roomId);
+  }
+  
+  @SubscribeMessage(GATEWAYS.DISCONNECT)
+  public handleRoomDisconnect(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ValidationPipe()) roomId: string
+  ) {
+    console.log("Client leaved from " + roomId);
+    client.leave(roomId);
   }
 
   public afterInit() {

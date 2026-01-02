@@ -10,5 +10,9 @@ export class SendMessageDto {
 
   @ApiProperty()
   @IsString()
+  chat: string;
+
+  @ApiProperty()
+  @IsString()
   text: string;
 }
