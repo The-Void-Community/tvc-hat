@@ -12,6 +12,8 @@ import {
 import { HttpStatus, ValidationPipe } from "@nestjs/common";
 
 import { GATEWAY, GATEWAYS } from "./messages.gateways";
+import { Service } from "./messages.service";
+
 import { SendMessageDto } from "./dto/send-message.dto";
 
 import { Server, Socket } from "socket.io";
@@ -27,6 +29,8 @@ export class Gateway
 {
   @WebSocketServer()
   private readonly server: Server;
+
+  public constructor(private readonly service: Service) {}
 
   @SubscribeMessage(GATEWAYS.SEND_MESSAGE)
   public handleMessage(

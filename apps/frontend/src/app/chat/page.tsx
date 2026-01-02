@@ -1,5 +1,6 @@
 "use client";
 
+import { getToken } from "@/api/get-token";
 import { getUser } from "@/api/get-user";
 import { Button } from "@/ui/button.ui";
 import { useEffect, useRef, useState } from "react";
@@ -14,30 +15,46 @@ const Page = () => {
     nickname: string;
   } | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    const websocket = io("http://localhost:8080/chat");
-
     (async () => {
-      const u = await getUser();
+      const gettedToken = await getToken();
+      const gettedUser = await getUser();
 
-      setUser(u);
-      setSocket(websocket);
+      setUser(gettedUser);
+      setToken(gettedToken);
 
       setLoaded(true);
     })();
+  }, []);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    const websocket = io("http://localhost:8080/chat", {
+      extraHeaders: {
+        authorization: `Bearer ${token}`
+      }
+    });
 
     websocket.on("receive_message", (message) => {
       console.log("receive", message);
     });
+    
+    (() => {
+      setSocket(websocket);
+    })();
 
     return () => {
       websocket.removeListener("receive_message");
       websocket.disconnect();
       websocket.close();
     };
-  }, []);
+  }, [token]);
 
   const sendMessage = () => {
     if (!ref.current || !inputRef.current || !socket || !user) {
