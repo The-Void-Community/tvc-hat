@@ -1,6 +1,7 @@
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { NestFactory } from "@nestjs/core";
 import { init as initSentry, consoleLoggingIntegration } from "@sentry/nestjs";
+import { ValidationPipe } from "@nestjs/common";
 
 import { json, urlencoded } from "express";
 
@@ -26,6 +27,8 @@ initSentry({
   });
 
   new Session(env.SESSION_SECRET, app).create();
+
+  app.useGlobalPipes(new ValidationPipe());
 
   app.use(cookieParser());
   app.use(json());

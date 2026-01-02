@@ -1,6 +1,9 @@
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { HttpStatus, ValidationPipe } from '@nestjs/common';
 
 import { GATEWAY, GATEWAYS } from './messages.gateways';
+import { SendMessageDto } from './dto/send-message.dto';
+
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
@@ -10,16 +13,22 @@ import { Server, Socket } from 'socket.io';
 })
 export class Gateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  private readonly _server: Server;
+  private readonly server: Server;
 
   @SubscribeMessage(GATEWAYS.SEND_MESSAGE)
-  public handleMessage(): string {
-    console.log("Hello world");
-    return 'Hello world!';
+  public handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ValidationPipe({
+      errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE,
+    })) body: SendMessageDto
+  ): string {
+    this.server.emit("receive_message", body);
+
+    return client.id;
   }
 
-  public afterInit(server: Server) {
-    console.log("gateway " + GATEWAY + " started as", server.httpServer.address());
+  public afterInit() {
+    console.log("gateway " + GATEWAY + " started");
   }
 
   public handleDisconnect(client: Socket) {

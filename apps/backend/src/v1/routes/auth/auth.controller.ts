@@ -74,7 +74,7 @@ export class AuthController {
       where: { id: profileId },
     });
 
-    return res.send({ auth, user });
+    return res.status(200).send({ auth, user });
   }
 
   @Get(ROUTES.GET_CALLBACK)

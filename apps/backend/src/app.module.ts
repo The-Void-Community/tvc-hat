@@ -1,9 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from "@nestjs/common";
 
-import { RouterModule } from "@nestjs/core";
+import { APP_PIPE, RouterModule } from "@nestjs/core";
+import PrismaService from "./database/prisma.service";
 
 import v1Module, { v1Modules } from "./v1/v1.module";
-import PrismaService from "./database/prisma.service";
 
 type RegisterModule = {
   module: new () => NestModule;
@@ -32,7 +32,13 @@ const modules: RegisterModule[] = [
       ]),
     ]),
   ],
-  providers: [PrismaService],
+  providers: [
+    PrismaService,
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+  ],
 })
 export default class AppModule implements NestModule {
   public configure(consumer: MiddlewareConsumer) {
