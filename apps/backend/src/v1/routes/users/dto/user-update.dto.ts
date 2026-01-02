@@ -25,7 +25,7 @@ export class UserUpdateDto implements Partial<UserData> {
   @IsOptional()
   @Transform(({ value }) => stringTransform(value))
   nickname?: string | undefined;
-  
+
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -35,7 +35,7 @@ export class UserUpdateDto implements Partial<UserData> {
   @IsOptional()
   @Transform(({ value }) => stringTransform(value))
   bio?: string | null | undefined;
-  
+
   @ApiProperty()
   @IsOptional()
   @IsEnum(UserStatus)

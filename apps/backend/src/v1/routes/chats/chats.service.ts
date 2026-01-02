@@ -94,14 +94,14 @@ export class Service {
   public async patchRights(
     slug: string,
     data: RightsUpdateDto,
-    userId: string
+    userId: string,
   ) {
     const chat = await this.prisma.chat.findUnique({
-      where: Service.resolveSlug(slug)
+      where: Service.resolveSlug(slug),
     });
     if (!Service.hasRights(chat, userId, Rights.RAW.chat.admin)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
-    };
+    }
 
     const isAdminInRights = "admin" in data && data.admin === true;
     const isUserOwner = chat!.ownerId === userId;
@@ -110,19 +110,21 @@ export class Service {
     }
 
     const filtered = Object.keys(data)
-      .filter(key => key !== "userId")
-      .filter(key => data[key] === true);
+      .filter((key) => key !== "userId")
+      .filter((key) => data[key] === true);
 
-    const rights = BitField.summarize(...filtered.map(key => Rights.RAW.chat[key]));
-    
+    const rights = BitField.summarize(
+      ...filtered.map((key) => Rights.RAW.chat[key]),
+    );
+
     return this.prisma.chat.update({
       where: Service.resolveSlug(slug),
       data: {
         rights: {
           ...(chat!.rights as Record<string, string>),
-          [data.userId]: rights.toString()
-        }
-      }
+          [data.userId]: rights.toString(),
+        },
+      },
     });
   }
 

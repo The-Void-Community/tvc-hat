@@ -100,13 +100,13 @@ export class Controller {
   }
 
   @ApiOperation({
-    summary: "Updating user rights"
+    summary: "Updating user rights",
   })
   @Patch(ROUTES.PATCH_RIGHTS)
   public patchRigts(
     @Req() req: Request,
     @Param("slug") slug: string,
-    @Body(new ValidationPipe()) data: RightsUpdateDto
+    @Body(new ValidationPipe()) data: RightsUpdateDto,
   ) {
     const { profileId } = Hash.parseWithExeption(req);
     return this.service.patchRights(slug, data, profileId);

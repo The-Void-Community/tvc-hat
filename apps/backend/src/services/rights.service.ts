@@ -51,44 +51,44 @@ export namespace Rights {
       } as const,
     } as const,
   } as const;
-  
+
   // ## { COMPILED__WRITE_COMPILED_HERE } ## \\
 
-/**
- * - this file was auto genereted by compiler 
- * - if you see inconsistencies: https://github.com/FOCKUSTY/bit-field/issues 
- */
-export const RAW = {
-  chat: {
-    /** @value 1 */
-admin: 1n << 0n,
+  /**
+   * - this file was auto genereted by compiler
+   * - if you see inconsistencies: https://github.com/FOCKUSTY/bit-field/issues
+   */
+  export const RAW = {
+    chat: {
+      /** @value 1 */
+      admin: 1n << 0n,
 
-    /** @value 2 */
-kick: 1n << 1n,
+      /** @value 2 */
+      kick: 1n << 1n,
 
-    /** @value 4 */
-mute: 1n << 2n,
+      /** @value 4 */
+      mute: 1n << 2n,
 
-    /** @value 8 */
-ban: 1n << 3n,
+      /** @value 8 */
+      ban: 1n << 3n,
 
-    /** @value 16 */
-alienEdit: 1n << 4n,
+      /** @value 16 */
+      alienEdit: 1n << 4n,
 
-    /** @value 32 */
-alienDelete: 1n << 5n,
+      /** @value 32 */
+      alienDelete: 1n << 5n,
 
-    /** @value 64 */
-send: 1n << 6n,
+      /** @value 64 */
+      send: 1n << 6n,
 
-    /** @value 128 */
-selfEdit: 1n << 7n,
+      /** @value 128 */
+      selfEdit: 1n << 7n,
 
-    /** @value 256 */
-selfDelete: 1n << 8n
-  } as const
-} as const;
-// ## { COMPILED__WRITE_COMPILED_HERE } ## \\
+      /** @value 256 */
+      selfDelete: 1n << 8n,
+    } as const,
+  } as const;
+  // ## { COMPILED__WRITE_COMPILED_HERE } ## \\
 }
 
 const RIGHTS = Object.fromEntries(
@@ -97,7 +97,6 @@ const RIGHTS = Object.fromEntries(
     Object.keys(Rights.CONSTANTS.object.available[key]),
   ]),
 );
-
 
 if (process.env.NODE_ENV === "compiler") {
   new Compiler(

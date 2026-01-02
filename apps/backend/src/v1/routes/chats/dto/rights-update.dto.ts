@@ -13,37 +13,37 @@ export class RightsUpdateDto implements Partial<Omit<ChatRights, "admin">> {
   @IsBoolean()
   @IsOptional()
   kick?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   mute?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   ban?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   alienEdit?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   alienDelete?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   send?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   selfEdit?: boolean;
-  
+
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
