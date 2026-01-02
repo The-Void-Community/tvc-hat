@@ -24,12 +24,13 @@ import AuthModule from "./routes/auth/auth.module";
 import SentryModule from "./routes/sentry/sentry.module";
 import TestModule from "./routes/test/test.module";
 import UsersModule from "./routes/users/users.module";
+import ChatsModule from "./routes/chats/chats.module";
 
 import MessagesGatewayModule from "./gateways/messages/messages.module";
 
 import env from "f@/env";
 
-export const v1Modules = [AuthModule, SentryModule, TestModule, UsersModule];
+export const v1Modules = [AuthModule, SentryModule, TestModule, UsersModule, ChatsModule];
 
 @Module({
   imports: [

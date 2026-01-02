@@ -1,4 +1,4 @@
-import type { UserUpdateDto } from "./dto/user-update.dto";
+import { UserUpdateDto } from "./dto/user-update.dto";
 
 import { Public } from "@/decorators";
 import { AuthGuard } from "@1/guards/auth/auth.guard";

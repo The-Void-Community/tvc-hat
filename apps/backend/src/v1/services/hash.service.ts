@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { decompressFromEncodedURIComponent } from "lz-string";
 
 import { env } from "f@/env";
+import { HttpException, HttpStatus } from "@nestjs/common";
 
 const PARSE_ERROR = {
   successed: false,
@@ -12,13 +13,15 @@ const PARSE_ERROR = {
   token: false,
 } as const;
 
+type SuccessedParseReturnType = Readonly<{
+  successed: true;
+  id: string;
+  profileId: string;
+  token: string;
+}>;
+
 type ParseReturnType =
-  | Readonly<{
-      successed: true;
-      id: string;
-      profileId: string;
-      token: string;
-    }>
+  | SuccessedParseReturnType
   | typeof PARSE_ERROR;
 
 export class Hash {
@@ -74,6 +77,26 @@ export class Hash {
       return Hash.resolveToken(hash.toString());
     } catch {
       return PARSE_ERROR;
+    }
+  }
+
+  public static parseWithExeption(req: Request): SuccessedParseReturnType {
+    const hash = req.headers.authorization;
+
+    if (hash === undefined) {
+      throw new HttpException("No token", HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const data = Hash.resolveToken(hash.toString());
+      
+      if (!data.successed) {
+        throw new HttpException("Bad token", HttpStatus.UNAUTHORIZED);
+      }
+
+      return data;
+    } catch {
+      throw new HttpException("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
