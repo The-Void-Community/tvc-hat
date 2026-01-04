@@ -5,7 +5,8 @@ import { Human } from "@/components/human.component";
 import { HeaderLayout } from "@/layout/header.layout";
 import { FooterLayout } from "@/layout/footer.layout";
 
-import "./styles/globals.css";
+import "tvuikit/index.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Hat",

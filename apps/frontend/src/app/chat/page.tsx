@@ -2,8 +2,9 @@
 
 import { getToken } from "@/api/get-token";
 import { getUser } from "@/api/get-user";
-import { Button } from "@/ui/button.ui";
 import { useEffect, useRef, useState } from "react";
+
+import { Button, Input, Textarea } from "tvuikit";
 
 import { io, Socket } from "socket.io-client";
 
@@ -83,14 +84,14 @@ const Page = () => {
   return (
     <div className="min-h-full flex flex-col gap-4 justify-center content-center flex-wrap">
       <span>Привет, {user.nickname}!</span>
-      <textarea
+      <Textarea
         ref={ref}
         className="bg-(--bg-card) py-2 px-4 rounded-lg"
         placeholder="your message..."
       />
       <Button onClick={sendMessage}>Отправить</Button>
       <hr />
-      <input
+      <Input
         ref={inputRef}
         className="bg-(--bg-card) py-2 px-4 rounded-lg"
         placeholder="your room..."

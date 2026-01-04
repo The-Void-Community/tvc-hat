@@ -1,8 +1,9 @@
 "use client";
 
 import { getUser } from "@/api/get-user";
-import { Button } from "@/ui/button.ui";
 import { use, useEffect, useState } from "react";
+
+import { Button } from "tvuikit";
 
 type Props = {
   query: Promise<{ token?: string }>;
