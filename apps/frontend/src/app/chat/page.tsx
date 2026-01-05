@@ -1,5 +1,7 @@
 "use client";
 
+import type { Chat, User } from "@/types";
+
 import { getToken } from "@/api/get-token";
 import { getUser } from "@/api/get-user";
 import { useEffect, useRef, useState } from "react";
@@ -7,14 +9,13 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Input, Textarea } from "tvuikit";
 
 import { io, Socket } from "socket.io-client";
+import { Wrapper } from "@/components/wrapper.component";
+import Image from "next/image";
 
 const Page = () => {
   const ref = useRef<HTMLTextAreaElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [user, setUser] = useState<{
-    username: string;
-    nickname: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -81,24 +82,56 @@ const Page = () => {
     return <div>loading...</div>;
   }
 
+  const chats: {
+    icon: string;
+    name: string;
+    messages: string[];
+  }[] = [
+    {
+      icon: "/hat.png",
+      name: "Hat",
+      messages: ["Hello!"]
+    },
+    {
+      icon: "/AVATAR--fockusty-2--style-meow.png",
+      name: "FOCKUSTY",
+      messages: ["I'm fockusty, are you?"]
+    },
+    {
+      icon: "/TheVoidAvatarSite.png",
+      name: "The Void Community",
+      messages: ["It's beutiful day for create a lot of projects!"]
+    },
+  ];
+
   return (
-    <div className="min-h-full flex flex-col gap-4 justify-center content-center flex-wrap">
-      <span>Привет, {user.nickname}!</span>
-      <Textarea
-        ref={ref}
-        className="bg-(--bg-card) py-2 px-4 rounded-lg"
-        placeholder="your message..."
-      />
-      <Button onClick={sendMessage}>Отправить</Button>
-      <hr />
-      <Input
-        ref={inputRef}
-        className="bg-(--bg-card) py-2 px-4 rounded-lg"
-        placeholder="your room..."
-        type="text"
-      />
-      <Button onClick={chooseRoom}>Выбрать команту</Button>
-    </div>
+    <Wrapper className="gap-4">
+      <nav className={[
+        "bg-(--bg-card) rounded-lg main-full overflow-y-auto overflow-x-hidden w-100",
+        "flex flex-col"
+      ].join(" ")}>
+        {chats.map((chat, i) => (
+          <div
+            key={i}
+            className={[
+              "w-full p-2 flex flex-row gap-2 cursor-pointer duration-200",
+              "hover:bg-(--bg-component)"
+            ].join(" ")}
+          >
+            <Image height={48} width={48} src={chat.icon} alt="icon" className="rounded-[100%]" />
+
+            <div className="w-full flex flex-col">
+              <span><strong>{chat.name}</strong></span>
+              <span className="max-w-50 truncate"
+              >{chat.messages[chat.messages.length-1]}</span>
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div className="bg-(--bg-card) rounded-lg main-full w-full">
+      </div>
+    </Wrapper>
   );
 };
 

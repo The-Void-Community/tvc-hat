@@ -10,7 +10,7 @@ type Props = {
   query: Promise<{ token?: string }>;
 };
 
-export default function Home({ query }: Props) {
+const Home = ({ query }: Props) => {
   const [user, setUser] = useState<User | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
 
@@ -22,31 +22,32 @@ export default function Home({ query }: Props) {
       setUser(u);
       setLoaded(true);
     })().then(() => {
-      window.location.href = "/chat";
+      if (user) {
+        window.location.href = "/chat";
+      }
     });
-  }, [token]);
+  }, [token, user]);
 
   if (!loaded) {
     return <>Loading...</>;
   }
 
   return (
-    <div className="min-h-full flex flex-col gap-4 justify-center content-center flex-wrap">
-      <Button
-        onClick={() => {
-          window.location.href = "http://localhost:8080/api/v1/auth/google";
-        }}
-      >
-        Authenticate by Google
-      </Button>
+    <div className="main-full flex-center">
+      <div className="bg-(--bg-card) w-fit flex flex-col gap-4 justify-center items-center py-2 px-4 rounded-lg">
+        <span>Добро пожаловать в Hat! — приложения для чаттинга</span>
 
-      {user && (
-        <div>
-          <Button onClick={() => (window.location.href = "/chat")}>
-            Перейти к чату, {user.username}
-          </Button>
-        </div>
-      )}
+        <Button
+          className="bg-(--bg-smooth)"
+          onClick={() => {
+            window.location.href = "http://localhost:8080/api/v1/auth/google";
+          }}
+        >
+          Войти с помощью Google
+        </Button>
+      </div>
     </div>
   );
 }
+
+export default Home;

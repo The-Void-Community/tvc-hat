@@ -4,6 +4,7 @@ export type User = {
   id: string;
   createdAt: Date;
   updatedAt: Date | null;
+  chats: string[];
   nickname: string;
   username: string;
   avatar: string | null;
