@@ -1,9 +1,11 @@
 "use server";
 
+import type { User } from "@/types";
+
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-export const getUserByToken = cache(async (token: string) => {
+export const getUserByToken = cache(async (token: string): Promise<User | null> => {
   const cookie = await cookies();
   const response = await fetch("http://localhost:8080/api/v1/auth/@me", {
     method: "GET",
@@ -33,7 +35,7 @@ export const getUserByToken = cache(async (token: string) => {
   }
 });
 
-export const getUserByCookie = cache(async () => {
+export const getUserByCookie = cache(async (): Promise<User | null> => {
   const cookie = await cookies();
   const token = cookie.get("token");
 
@@ -69,6 +71,10 @@ export const getUserByCookie = cache(async () => {
   }
 });
 
-export const getUser = cache(async (token?: string | null) => {
-  return token ? getUserByToken(token) : getUserByCookie();
+export const getUser = cache(async (token?: string | null): Promise<User | null> => {
+  if (token) {
+    return getUserByToken(token);
+  }
+
+  return getUserByCookie();
 });

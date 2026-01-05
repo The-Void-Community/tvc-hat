@@ -1,5 +1,6 @@
 "use client";
 
+import type { User } from "@/types";
 import { getUser } from "@/api/get-user";
 import { use, useEffect, useState } from "react";
 
@@ -10,7 +11,8 @@ type Props = {
 };
 
 export default function Home({ query }: Props) {
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loaded, setLoaded] = useState<boolean>(false);
 
   const { token } = use(query);
 
@@ -18,8 +20,15 @@ export default function Home({ query }: Props) {
     (async () => {
       const u = await getUser(token ? token : null);
       setUser(u);
-    })();
+      setLoaded(true);
+    })().then(() => {
+      window.location.href = "/chat";
+    });
   }, [token]);
+
+  if (!loaded) {
+    return <>Loading...</>;
+  }
 
   return (
     <div className="min-h-full flex flex-col gap-4 justify-center content-center flex-wrap">
