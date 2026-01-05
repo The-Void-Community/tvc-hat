@@ -12,4 +12,4 @@ export type User = {
   isProfilePublic: boolean;
   status: UserStatus;
   lastSeenAt: Date | null;
-}
+};

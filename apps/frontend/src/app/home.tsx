@@ -48,6 +48,6 @@ const Home = ({ query }: Props) => {
       </div>
     </div>
   );
-}
+};
 
 export default Home;

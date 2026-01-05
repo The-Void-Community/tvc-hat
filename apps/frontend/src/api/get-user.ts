@@ -5,35 +5,37 @@ import type { User } from "@/types";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-export const getUserByToken = cache(async (token: string): Promise<User | null> => {
-  const cookie = await cookies();
-  const response = await fetch("http://localhost:8080/api/v1/auth/@me", {
-    method: "GET",
-    next: {
-      revalidate: 1200,
-    },
-    cache: "force-cache",
-    headers: {
-      authorization: `Bearer ${token}`,
-    },
-  });
+export const getUserByToken = cache(
+  async (token: string): Promise<User | null> => {
+    const cookie = await cookies();
+    const response = await fetch("http://localhost:8080/api/v1/auth/@me", {
+      method: "GET",
+      next: {
+        revalidate: 1200,
+      },
+      cache: "force-cache",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
 
-  try {
-    const user = await response.json();
-    if (!user) {
+    try {
+      const user = await response.json();
+      if (!user) {
+        return null;
+      }
+
+      cookie.set("token", token);
+      cookie.set("user", JSON.stringify(user.user));
+      cookie.set("auth", JSON.stringify(user.auth));
+
+      return user.user;
+    } catch (error) {
+      console.error(error);
       return null;
     }
-
-    cookie.set("token", token);
-    cookie.set("user", JSON.stringify(user.user));
-    cookie.set("auth", JSON.stringify(user.auth));
-
-    return user.user;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-});
+  },
+);
 
 export const getUserByCookie = cache(async (): Promise<User | null> => {
   const cookie = await cookies();
@@ -71,10 +73,12 @@ export const getUserByCookie = cache(async (): Promise<User | null> => {
   }
 });
 
-export const getUser = cache(async (token?: string | null): Promise<User | null> => {
-  if (token) {
-    return getUserByToken(token);
-  }
+export const getUser = cache(
+  async (token?: string | null): Promise<User | null> => {
+    if (token) {
+      return getUserByToken(token);
+    }
 
-  return getUserByCookie();
-});
+    return getUserByCookie();
+  },
+);

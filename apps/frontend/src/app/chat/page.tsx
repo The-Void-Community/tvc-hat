@@ -90,47 +90,57 @@ const Page = () => {
     {
       icon: "/hat.png",
       name: "Hat",
-      messages: ["Hello!"]
+      messages: ["Hello!"],
     },
     {
       icon: "/AVATAR--fockusty-2--style-meow.png",
       name: "FOCKUSTY",
-      messages: ["I'm fockusty, are you?"]
+      messages: ["I'm fockusty, are you?"],
     },
     {
       icon: "/TheVoidAvatarSite.png",
       name: "The Void Community",
-      messages: ["It's beutiful day for create a lot of projects!"]
+      messages: ["It's beutiful day for create a lot of projects!"],
     },
   ];
 
   return (
     <Wrapper className="gap-4">
-      <nav className={[
-        "bg-(--bg-card) rounded-lg main-full overflow-y-auto overflow-x-hidden w-100",
-        "flex flex-col"
-      ].join(" ")}>
+      <nav
+        className={[
+          "bg-(--bg-card) rounded-lg main-full overflow-y-auto overflow-x-hidden w-100",
+          "flex flex-col",
+        ].join(" ")}
+      >
         {chats.map((chat, i) => (
           <div
             key={i}
             className={[
               "w-full p-2 flex flex-row gap-2 cursor-pointer duration-200",
-              "hover:bg-(--bg-component)"
+              "hover:bg-(--bg-component)",
             ].join(" ")}
           >
-            <Image height={48} width={48} src={chat.icon} alt="icon" className="rounded-[100%]" />
+            <Image
+              height={48}
+              width={48}
+              src={chat.icon}
+              alt="icon"
+              className="rounded-[100%]"
+            />
 
             <div className="w-full flex flex-col">
-              <span><strong>{chat.name}</strong></span>
-              <span className="max-w-50 truncate"
-              >{chat.messages[chat.messages.length-1]}</span>
+              <span>
+                <strong>{chat.name}</strong>
+              </span>
+              <span className="max-w-50 truncate">
+                {chat.messages[chat.messages.length - 1]}
+              </span>
             </div>
           </div>
         ))}
       </nav>
 
-      <div className="bg-(--bg-card) rounded-lg main-full w-full">
-      </div>
+      <div className="bg-(--bg-card) rounded-lg main-full w-full"></div>
     </Wrapper>
   );
 };

@@ -3,4 +3,4 @@ export const enum UserStatus {
   inactive = "INACTIVE",
   doNotDisturb = "DONOTDISTURB",
   online = "ONLINE",
-};
+}

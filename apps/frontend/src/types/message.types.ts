@@ -7,4 +7,4 @@ export type Message = {
   chatId: string;
   deliveredTo: string[];
   readedBy: string[];
-}
+};
