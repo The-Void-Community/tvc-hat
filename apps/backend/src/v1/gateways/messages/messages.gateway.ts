@@ -60,6 +60,17 @@ export class Gateway
     client.join(roomId);
   }
 
+  @SubscribeMessage(GATEWAYS.CONNECT_MANY)
+  public handleRoomsConnect(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ValidationPipe()) roomsId: string[],
+  ) {
+    console.log("Client joined to ", roomsId);
+    for (const roomId of roomsId) {
+      client.join(roomId);
+    }
+  }
+
   @SubscribeMessage(GATEWAYS.DISCONNECT)
   public handleRoomDisconnect(
     @ConnectedSocket() client: Socket,
@@ -67,6 +78,17 @@ export class Gateway
   ) {
     console.log("Client leaved from " + roomId);
     client.leave(roomId);
+  }
+
+  @SubscribeMessage(GATEWAYS.DISCONNECT_MANY)
+  public handleRoomsDisconnect(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ValidationPipe()) roomsId: string[],
+  ) {
+    console.log("Client joined to ", roomsId);
+    for (const roomId of roomsId) {
+      client.leave(roomId);
+    }
   }
 
   public afterInit() {
