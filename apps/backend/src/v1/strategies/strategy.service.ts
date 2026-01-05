@@ -111,7 +111,7 @@ export class AuthStrategyService {
                 });
 
             const findedChat = await this.prisma.chat.findUnique({
-              where: { id: user.id }
+              where: { id: user.id },
             });
 
             if (!findedChat) {
@@ -121,13 +121,13 @@ export class AuthStrategyService {
                   name: "You",
                   ownerId: user.id,
                   type: "SELF",
-                  members: [user.id]
-                }
+                  members: [user.id],
+                },
               });
 
               await this.prisma.user.update({
                 where: { id: user.id },
-                data: { chats: [...user.chats, chat.id ]}
+                data: { chats: [...user.chats, chat.id] },
               });
 
               user.chats.push(chat.id);

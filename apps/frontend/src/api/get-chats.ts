@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { Chat } from "@/types";
 import { cookies } from "next/headers";
@@ -39,8 +39,10 @@ export const getChat = async (slug: string): Promise<Chat | null> => {
 };
 
 /** @deprecated */
-export const deprecatedGetChats = async (slugs: string[]): Promise<Chat[] | null> => {
-  const data = await Promise.all(slugs.map(slug => getChat(slug)));
-  
-  return data.filter(chat => !!chat);
-}
+export const deprecatedGetChats = async (
+  slugs: string[],
+): Promise<Chat[] | null> => {
+  const data = await Promise.all(slugs.map((slug) => getChat(slug)));
+
+  return data.filter((chat) => !!chat);
+};

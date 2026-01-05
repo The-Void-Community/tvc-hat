@@ -40,7 +40,7 @@ const Page = () => {
       setUser(gettedUser);
       setToken(gettedToken);
       setChats(gettedChats || []);
-      setUsers((previous) => ({...previous, [gettedUser.id]: gettedUser}));
+      setUsers((previous) => ({ ...previous, [gettedUser.id]: gettedUser }));
 
       setLoaded(true);
     })();
@@ -63,14 +63,15 @@ const Page = () => {
         return;
       }
 
-      setUsers((previous) => ({...previous, [messageUser.id]: messageUser}));
-      setMessages((previous) => ([
-        ...previous, {
+      setUsers((previous) => ({ ...previous, [messageUser.id]: messageUser }));
+      setMessages((previous) => [
+        ...previous,
+        {
           chatId: message.chat,
           text: message.text,
           senderId: message.user.id,
-        } as Message
-      ]))
+        } as Message,
+      ]);
     });
 
     (() => {
@@ -78,7 +79,7 @@ const Page = () => {
     })();
 
     return () => {
-      chats.forEach(chat => {
+      chats.forEach((chat) => {
         websocket.emit("room_disconnect", chat);
       });
 
@@ -101,12 +102,12 @@ const Page = () => {
 
     textareaRef.current.value = "";
   }, [socket, user, choosedChat]);
-  
+
   useEffect(() => {
     if (!socket) {
       return;
     }
-  
+
     for (const chat of chats) {
       socket.emit("room_connect", chat.id);
     }
@@ -172,48 +173,50 @@ const Page = () => {
         ))}
       </nav>
 
-      <div className={[
-        "bg-(--bg-card) rounded-lg main-full w-full",
-        "flex flex-col"
-      ].join(" ")}>
-        {choosedChat && (<>
-          <div className="bg-(--bg-smooth) rounded-b-lg py-2 px-4">
-            <h4>{choosedChat?.name}</h4>
-          </div>
+      <div
+        className={[
+          "bg-(--bg-card) rounded-lg main-full w-full",
+          "flex flex-col",
+        ].join(" ")}
+      >
+        {choosedChat && (
+          <>
+            <div className="bg-(--bg-smooth) rounded-b-lg py-2 px-4">
+              <h4>{choosedChat?.name}</h4>
+            </div>
 
-          <div
-            className="flex flex-col justify-end gap-2 h-full p-2"
-          >
-            {messages.map((message, i) => (
-              <div
-                key={i}
-                className={[
-                  "bg-(--bg-component) w-fit py-1 px-4 rounded-lg",
-                  "flex flex-col"
-                ].join(" ")}
+            <div className="flex flex-col justify-end gap-2 h-full p-2">
+              {messages.map((message, i) => (
+                <div
+                  key={i}
+                  className={[
+                    "bg-(--bg-component) w-fit py-1 px-4 rounded-lg",
+                    "flex flex-col",
+                  ].join(" ")}
+                >
+                  <span className="text-red-300">
+                    {users[message.senderId].nickname}
+                  </span>
+                  <span>{message.text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="bg-(--bg-card) flex flex-row rounded-t-lg">
+              <Textarea
+                ref={textareaRef}
+                placeholder="Ваше сообщение..."
+                className="w-full max-w-none resize-none bg-[00000000] rounded-t-lg"
+              />
+              <Button
+                className="cursor-pointer"
+                onClick={() => sendMessage()}
+                overwriteClassName
               >
-                <span
-                  className="text-red-300"
-                >{users[message.senderId].nickname}</span>
-                <span>{message.text}</span>
-              </div>
-            ))}
-          </div>
-          <div className="bg-(--bg-card) flex flex-row rounded-t-lg">
-            <Textarea
-              ref={textareaRef}
-              placeholder="Ваше сообщение..."
-              className="w-full max-w-none resize-none bg-[00000000] rounded-t-lg"
-            />
-            <Button
-              className="cursor-pointer"
-              onClick={() => sendMessage()}
-              overwriteClassName
-            >
-              <HiPaperAirplane size={48} className="rotate-90" />
-            </Button>
-          </div>
-        </>)}
+                <HiPaperAirplane size={48} className="rotate-90" />
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </Wrapper>
   );

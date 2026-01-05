@@ -22,7 +22,7 @@ export class ChatCreateDto implements ChatData {
   @IsString()
   @IsNotEmpty()
   name: string;
-  
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

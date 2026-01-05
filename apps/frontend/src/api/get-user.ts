@@ -97,7 +97,7 @@ export const getUser = cache(async (slug: string): Promise<User | null> => {
     }
 
     const user = await response.json();
-    
+
     return user;
   } catch (error) {
     console.error(error);
