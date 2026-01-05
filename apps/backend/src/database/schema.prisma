@@ -40,6 +40,8 @@ model User {
   status          UserStatus @default(OFFLINE)
   lastSeenAt      DateTime?  @default(now())
 
+  chats String[] @default([])
+
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 }
