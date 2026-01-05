@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@/types";
-import { getUser } from "@/api/get-user";
+import { getMe } from "@/api/get-user";
 import { use, useEffect, useState } from "react";
 
 import { Button } from "tvuikit";
@@ -18,7 +18,7 @@ const Home = ({ query }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const u = await getUser(token ? token : null);
+      const u = await getMe(token ? token : null);
       setUser(u);
       setLoaded(true);
     })().then(() => {

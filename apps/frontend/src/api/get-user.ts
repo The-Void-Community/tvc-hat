@@ -5,7 +5,7 @@ import type { User } from "@/types";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-export const getUserByToken = cache(
+export const getMeByToken = cache(
   async (token: string): Promise<User | null> => {
     const cookie = await cookies();
     const response = await fetch("http://localhost:8080/api/v1/auth/@me", {
@@ -37,7 +37,7 @@ export const getUserByToken = cache(
   },
 );
 
-export const getUserByCookie = cache(async (): Promise<User | null> => {
+export const getMeByCookie = cache(async (): Promise<User | null> => {
   const cookie = await cookies();
   const token = cookie.get("token");
 
@@ -73,12 +73,44 @@ export const getUserByCookie = cache(async (): Promise<User | null> => {
   }
 });
 
-export const getUser = cache(
-  async (token?: string | null): Promise<User | null> => {
-    if (token) {
-      return getUserByToken(token);
+export const getUser = cache(async (slug: string): Promise<User | null> => {
+  try {
+    const cookie = await cookies();
+    const token = cookie.get("token");
+    if (!token) {
+      return null;
     }
 
-    return getUserByCookie();
+    const response = await fetch(`http://localhost:8080/api/v1/users/${slug}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token.value}`,
+      },
+      next: {
+        revalidate: 1200,
+      },
+      cache: "force-cache",
+    });
+
+    if (response.status !== 200) {
+      return null;
+    }
+
+    const user = await response.json();
+    
+    return user;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+});
+
+export const getMe = cache(
+  async (token?: string | null): Promise<User | null> => {
+    if (token) {
+      return getMeByToken(token);
+    }
+
+    return getMeByCookie();
   },
 );

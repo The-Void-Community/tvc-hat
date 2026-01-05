@@ -1,21 +1,27 @@
 "use client";
 
-import type { Chat, User } from "@/types";
+import type { Chat, Message, User } from "@/types";
 
 import { getToken } from "@/api/get-token";
-import { getUser } from "@/api/get-user";
-import { useEffect, useRef, useState } from "react";
+import { getMe, getUser } from "@/api/get-user";
+import { deprecatedGetChats } from "@/api/get-chats";
 
-import { Button, Input, Textarea } from "tvuikit";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { Button, Textarea } from "tvuikit";
+import { HiPaperAirplane } from "react-icons/hi";
 
 import { io, Socket } from "socket.io-client";
 import { Wrapper } from "@/components/wrapper.component";
 import Image from "next/image";
 
 const Page = () => {
-  const ref = useRef<HTMLTextAreaElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [users, setUsers] = useState<Record<string, User>>({});
   const [user, setUser] = useState<User | null>(null);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [choosedChat, setChoosedChat] = useState<Chat | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -23,10 +29,18 @@ const Page = () => {
   useEffect(() => {
     (async () => {
       const gettedToken = await getToken();
-      const gettedUser = await getUser();
+      const gettedUser = await getMe();
+
+      if (!gettedUser) {
+        return;
+      }
+
+      const gettedChats = await deprecatedGetChats(gettedUser.chats);
 
       setUser(gettedUser);
       setToken(gettedToken);
+      setChats(gettedChats || []);
+      setUsers((previous) => ({...previous, [gettedUser.id]: gettedUser}));
 
       setLoaded(true);
     })();
@@ -43,8 +57,20 @@ const Page = () => {
       },
     });
 
-    websocket.on("receive_message", (message) => {
-      console.log("receive", message);
+    websocket.on("receive_message", async (message) => {
+      const messageUser = await getUser(message.user.id);
+      if (!messageUser) {
+        return;
+      }
+
+      setUsers((previous) => ({...previous, [messageUser.id]: messageUser}));
+      setMessages((previous) => ([
+        ...previous, {
+          chatId: message.chat,
+          text: message.text,
+          senderId: message.user.id,
+        } as Message
+      ]))
     });
 
     (() => {
@@ -52,57 +78,60 @@ const Page = () => {
     })();
 
     return () => {
+      chats.forEach(chat => {
+        websocket.emit("room_disconnect", chat);
+      });
+
       websocket.removeListener("receive_message");
       websocket.disconnect();
       websocket.close();
     };
-  }, [token]);
+  }, [chats, token]);
 
-  const sendMessage = () => {
-    if (!ref.current || !inputRef.current || !socket || !user) {
+  const sendMessage = useCallback(() => {
+    if (!textareaRef.current || !socket || !user || !choosedChat) {
       return;
     }
 
     socket.emit("send_message", {
       user: user,
-      chat: inputRef.current.value,
-      text: ref.current.value.trim(),
+      chat: choosedChat.id,
+      text: textareaRef.current.value.trim(),
     });
-  };
 
-  const chooseRoom = () => {
-    if (!inputRef.current || !socket || !user) {
+    textareaRef.current.value = "";
+  }, [socket, user, choosedChat]);
+  
+  useEffect(() => {
+    if (!socket) {
       return;
     }
+  
+    for (const chat of chats) {
+      socket.emit("room_connect", chat.id);
+    }
+  }, [chats, socket]);
 
-    socket.emit("room_connect", inputRef.current.value);
-  };
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "enter") {
+        if (event.ctrlKey || event.shiftKey) {
+          return;
+        }
+
+        return sendMessage();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.removeEventListener("keydown", handleKeydown);
+    };
+  }, [sendMessage]);
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
   }
-
-  const chats: {
-    icon: string;
-    name: string;
-    messages: string[];
-  }[] = [
-    {
-      icon: "/hat.png",
-      name: "Hat",
-      messages: ["Hello!"],
-    },
-    {
-      icon: "/AVATAR--fockusty-2--style-meow.png",
-      name: "FOCKUSTY",
-      messages: ["I'm fockusty, are you?"],
-    },
-    {
-      icon: "/TheVoidAvatarSite.png",
-      name: "The Void Community",
-      messages: ["It's beutiful day for create a lot of projects!"],
-    },
-  ];
 
   return (
     <Wrapper className="gap-4">
@@ -115,6 +144,9 @@ const Page = () => {
         {chats.map((chat, i) => (
           <div
             key={i}
+            onClick={() => {
+              setChoosedChat(chat);
+            }}
             className={[
               "w-full p-2 flex flex-row gap-2 cursor-pointer duration-200",
               "hover:bg-(--bg-component)",
@@ -123,7 +155,7 @@ const Page = () => {
             <Image
               height={48}
               width={48}
-              src={chat.icon}
+              src={chat.icon || "/hat.png"}
               alt="icon"
               className="rounded-[100%]"
             />
@@ -140,7 +172,49 @@ const Page = () => {
         ))}
       </nav>
 
-      <div className="bg-(--bg-card) rounded-lg main-full w-full"></div>
+      <div className={[
+        "bg-(--bg-card) rounded-lg main-full w-full",
+        "flex flex-col"
+      ].join(" ")}>
+        {choosedChat && (<>
+          <div className="bg-(--bg-smooth) rounded-b-lg py-2 px-4">
+            <h4>{choosedChat?.name}</h4>
+          </div>
+
+          <div
+            className="flex flex-col justify-end gap-2 h-full p-2"
+          >
+            {messages.map((message, i) => (
+              <div
+                key={i}
+                className={[
+                  "bg-(--bg-component) w-fit py-1 px-4 rounded-lg",
+                  "flex flex-col"
+                ].join(" ")}
+              >
+                <span
+                  className="text-red-300"
+                >{users[message.senderId].nickname}</span>
+                <span>{message.text}</span>
+              </div>
+            ))}
+          </div>
+          <div className="bg-(--bg-card) flex flex-row rounded-t-lg">
+            <Textarea
+              ref={textareaRef}
+              placeholder="Ваше сообщение..."
+              className="w-full max-w-none resize-none bg-[00000000] rounded-t-lg"
+            />
+            <Button
+              className="cursor-pointer"
+              onClick={() => sendMessage()}
+              overwriteClassName
+            >
+              <HiPaperAirplane size={48} className="rotate-90" />
+            </Button>
+          </div>
+        </>)}
+      </div>
     </Wrapper>
   );
 };

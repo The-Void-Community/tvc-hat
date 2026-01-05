@@ -3,6 +3,7 @@ import { ChatType } from "@/enums";
 export type Chat = {
   name: string;
   id: string;
+  icon: string | null;
   createdAt: Date;
   updatedAt: Date;
   chatname: string | null;
