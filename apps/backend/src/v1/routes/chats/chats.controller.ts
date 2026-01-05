@@ -21,6 +21,8 @@ import {
   HttpStatus,
   ValidationPipe,
   Req,
+  Query,
+  ParseArrayPipe,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 
@@ -50,6 +52,17 @@ import Hash from "@/v1/services/hash.service";
 })
 export class Controller {
   public constructor(private readonly service: Service) {}
+
+  @ApiOperation({
+    summary: "Getting a chats by slugs",
+  })
+  @Get(ROUTES.GET_MANY)
+  @Public()
+  public getMany(
+    @Query("slugs", new ParseArrayPipe({ items: String, separator: ',' })) slugs: string[]
+  ) {
+    return this.service.getMany(slugs);
+  }
 
   @ApiOperation({
     summary: "Getting a chat by slug",

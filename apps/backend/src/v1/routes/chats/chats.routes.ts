@@ -1,6 +1,7 @@
 const ROUTE = "chats";
 
 const ROUTES = {
+  GET_MANY: "/",
   GET_ONE: "/:slug",
 
   POST: "/",

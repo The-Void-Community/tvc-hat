@@ -42,6 +42,14 @@ export class Service {
 
   public constructor(private readonly prisma: PrismaService) {}
 
+  public async getMany(slugs: string[]): Promise<Chat[]> {
+    return this.prisma.chat.findMany({
+      where: {
+        OR: slugs.map(slug => Service.resolveSlug(slug))
+      }
+    });
+  }
+
   public async getOne(slug: string): Promise<Chat | null> {
     return this.prisma.chat.findUnique({ where: Service.resolveSlug(slug) });
   }
