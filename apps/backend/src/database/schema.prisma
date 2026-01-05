@@ -49,6 +49,7 @@ model User {
 enum ChatType {
   DIRECT
   GROUP
+  SELF
 }
 
 model Chat {
@@ -56,6 +57,8 @@ model Chat {
   name     String
   chatname String? @unique
   ownerId  String
+
+  icon String?
 
   type ChatType @default(GROUP)
 

@@ -41,6 +41,12 @@ export class UserDto implements User {
   @ApiProperty()
   @IsString()
   isProfilePublic: boolean;
+  
+  @ApiProperty()
+  @IsString({
+    each: true
+  })
+  chats: string[];
 
   @ApiProperty()
   @IsDate()
