@@ -59,7 +59,8 @@ export class Controller {
   @Get(ROUTES.GET_MANY)
   @Public()
   public getMany(
-    @Query("slugs", new ParseArrayPipe({ items: String, separator: ',' })) slugs: string[]
+    @Query("slugs", new ParseArrayPipe({ items: String, separator: "," }))
+    slugs: string[],
   ) {
     return this.service.getMany(slugs);
   }

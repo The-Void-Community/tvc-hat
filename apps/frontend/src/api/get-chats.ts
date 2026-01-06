@@ -39,7 +39,7 @@ export const getChat = cache(async (slug: string): Promise<Chat | null> => {
   }
 });
 
-export const getChats = cache(async(slugs: string[]) => {
+export const getChats = cache(async (slugs: string[]) => {
   try {
     const cookie = await cookies();
     const token = cookie.get("token");
@@ -47,16 +47,19 @@ export const getChats = cache(async(slugs: string[]) => {
       return null;
     }
 
-    const response = await fetch(`http://localhost:8080/api/v1/chats/?slugs=${slugs.join(",")}`, {
-      method: "GET",
-      next: {
-        revalidate: 1200,
+    const response = await fetch(
+      `http://localhost:8080/api/v1/chats/?slugs=${slugs.join(",")}`,
+      {
+        method: "GET",
+        next: {
+          revalidate: 1200,
+        },
+        cache: "force-cache",
+        headers: {
+          authorization: `Bearer ${token.value}`,
+        },
       },
-      cache: "force-cache",
-      headers: {
-        authorization: `Bearer ${token.value}`,
-      },
-    });
+    );
 
     if (response.status !== 200) {
       return null;
@@ -72,4 +75,4 @@ export const getChats = cache(async(slugs: string[]) => {
     console.error(error);
     return null;
   }
-})
+});

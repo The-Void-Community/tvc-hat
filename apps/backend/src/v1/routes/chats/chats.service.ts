@@ -45,8 +45,8 @@ export class Service {
   public async getMany(slugs: string[]): Promise<Chat[]> {
     return this.prisma.chat.findMany({
       where: {
-        OR: slugs.map(slug => Service.resolveSlug(slug))
-      }
+        OR: slugs.map((slug) => Service.resolveSlug(slug)),
+      },
     });
   }
 

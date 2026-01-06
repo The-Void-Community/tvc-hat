@@ -15,24 +15,26 @@ export class Service {
   ) {}
 
   public get(filter: {
-    skip: number,
-    count: number,
-    chatId: string,
-    positionMessageId?: string
+    skip: number;
+    count: number;
+    chatId: string;
+    positionMessageId?: string;
   }) {
     return this.prisma.message.findMany({
       skip: filter.skip,
-      cursor: filter.positionMessageId ? { id: filter.positionMessageId } : undefined,
+      cursor: filter.positionMessageId
+        ? { id: filter.positionMessageId }
+        : undefined,
       take: filter.count,
       where: { chatId: filter.chatId },
       orderBy: {
-        createdAt: "asc"
-      }
+        createdAt: "asc",
+      },
     });
   }
 
   public async getOne(id: string) {
-    return this.prisma.message.findUnique({ where: { id }});
+    return this.prisma.message.findUnique({ where: { id } });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,7 +46,7 @@ export class Service {
   public async patch(id: string, data: MessageUpdateDto) {
     throw new Error("Method not realized.");
   }
-  
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async delete(id: string) {
     throw new Error("Method not realized.");
@@ -55,7 +57,7 @@ export class Service {
     chat: Chat;
   }> {
     const message = await this.prisma.message.create({
-      data
+      data,
     });
 
     const chat = await this.chatsService.addMessage(message.chatId, message.id);

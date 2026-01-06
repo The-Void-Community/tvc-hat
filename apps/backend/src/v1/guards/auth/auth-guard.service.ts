@@ -7,7 +7,10 @@ import authErrors from "@1/errors/guards/auth.errors";
 import PrismaService from "@/database/prisma.service";
 
 export class Service {
-  public static async validateRequest(req: Request|IncomingMessage, prisma: PrismaService) {
+  public static async validateRequest(
+    req: Request | IncomingMessage,
+    prisma: PrismaService,
+  ) {
     const { successed, id, token, profileId } = Hash.parse(req);
 
     if (!successed) {

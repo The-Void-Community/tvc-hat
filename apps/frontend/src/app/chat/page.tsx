@@ -28,17 +28,17 @@ const Page = () => {
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
 
-  const addMessages = (messages: Message[], to: "start"|"end" = "start") => {
+  const addMessages = (messages: Message[], to: "start" | "end" = "start") => {
     return setMessages((previous) => {
       const newMessages = [
         ...(to === "end" ? messages : []),
         ...previous,
-        ...(to === "start" ? messages : [])
+        ...(to === "start" ? messages : []),
       ];
 
       return newMessages;
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     (async () => {
@@ -66,9 +66,10 @@ const Page = () => {
     }
 
     (async () => {
-      const gettedMessages = await getMessages({
-        chatId: choosedChat.id
-      }) || [];
+      const gettedMessages =
+        (await getMessages({
+          chatId: choosedChat.id,
+        })) || [];
 
       addMessages(gettedMessages);
     })();
@@ -104,7 +105,10 @@ const Page = () => {
     })();
 
     return () => {
-      websocket.emit("rooms_disconnect", chats.map(chat => chat.id));
+      websocket.emit(
+        "rooms_disconnect",
+        chats.map((chat) => chat.id),
+      );
 
       websocket.removeListener("receive_message");
       websocket.disconnect();
@@ -128,10 +132,12 @@ const Page = () => {
       text: message,
     } as Message;
 
-    addMessages([{
-      ...messageBody,
-      createdAt: new Date()
-    }]);
+    addMessages([
+      {
+        ...messageBody,
+        createdAt: new Date(),
+      },
+    ]);
     socket.emit("send_message", messageBody);
 
     textareaRef.current.value = "";
@@ -147,7 +153,10 @@ const Page = () => {
       return;
     }
 
-    socket.emit("rooms_connect", chats.map(chat => chat.id));
+    socket.emit(
+      "rooms_connect",
+      chats.map((chat) => chat.id),
+    );
   }, [chats, socket]);
 
   useEffect(() => {
@@ -222,7 +231,9 @@ const Page = () => {
             <div className="bg-(--bg-smooth) rounded-b-lg py-2 px-4">
               <div className="flex flex-col">
                 <h5>{choosedChat.name}</h5>
-                <span className="text-mini">{choosedChat.members.length} members</span>
+                <span className="text-mini">
+                  {choosedChat.members.length} members
+                </span>
               </div>
             </div>
 

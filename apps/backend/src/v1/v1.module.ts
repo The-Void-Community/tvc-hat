@@ -37,7 +37,7 @@ export const v1Modules = [
   TestModule,
   UsersModule,
   ChatsModule,
-  MessagesModule
+  MessagesModule,
 ];
 
 @Module({

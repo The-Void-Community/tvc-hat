@@ -65,7 +65,7 @@ export class Hash {
     }
   }
 
-  public static parse(req: Request|IncomingMessage): ParseReturnType {
+  public static parse(req: Request | IncomingMessage): ParseReturnType {
     const hash = req.headers.authorization;
 
     if (hash === undefined) {
@@ -79,7 +79,9 @@ export class Hash {
     }
   }
 
-  public static parseOrThrow(req: Request|IncomingMessage): SuccessedParseReturnType {
+  public static parseOrThrow(
+    req: Request | IncomingMessage,
+  ): SuccessedParseReturnType {
     const hash = req.headers.authorization;
 
     if (hash === undefined) {

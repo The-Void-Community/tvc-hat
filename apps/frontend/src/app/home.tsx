@@ -26,14 +26,12 @@ const Home = ({ query }: Props) => {
       }
 
       setLoaded(true);
-    })().then(() => {
-    });
+    })().then(() => {});
   }, [router, token]);
-  
+
   if (!loaded) {
     return <>Loading...</>;
   }
-
 
   return (
     <div className="main-full flex-center">
