@@ -3,7 +3,7 @@ import { Module } from "@nestjs/common";
 import { Service as ChatsService } from "@/v1/routes/chats/chats.service";
 import { PrismaService } from "@/database/prisma.service";
 
-import { Service } from "./messages.service";
+import { Service } from "@1/routes/messages/messages.service";
 import { Gateway } from "./messages.gateway";
 
 @Module({

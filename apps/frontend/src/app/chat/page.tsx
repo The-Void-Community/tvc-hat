@@ -14,6 +14,7 @@ import { HiPaperAirplane } from "react-icons/hi";
 import Image from "next/image";
 
 import { Wrapper } from "@/components/wrapper.component";
+import { getMessages } from "@/api/get-messages";
 
 const Page = () => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -26,6 +27,18 @@ const Page = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
+
+  const addMessages = (messages: Message[], to: "start"|"end" = "start") => {
+    return setMessages((previous) => {
+      const newMessages = [
+        ...(to === "end" ? messages : []),
+        ...previous,
+        ...(to === "start" ? messages : [])
+      ];
+
+      return newMessages;
+    })
+  }
 
   useEffect(() => {
     (async () => {
@@ -48,7 +61,21 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    if (!token) {
+    if (!choosedChat) {
+      return;
+    }
+
+    (async () => {
+      const gettedMessages = await getMessages({
+        chatId: choosedChat.id
+      }) || [];
+
+      addMessages(gettedMessages);
+    })();
+  }, [choosedChat]);
+
+  useEffect(() => {
+    if (!token || !user) {
       return;
     }
 
@@ -58,21 +85,18 @@ const Page = () => {
       },
     });
 
-    websocket.on("receive_message", async (message) => {
-      const messageUser = await getUser(message.user.id);
+    websocket.on("receive_message", async (message: Message) => {
+      if (message.senderId === user.id) {
+        return;
+      }
+
+      const messageUser = await getUser(message.senderId);
       if (!messageUser) {
         return;
       }
 
       setUsers((previous) => ({ ...previous, [messageUser.id]: messageUser }));
-      setMessages((previous) => [
-        ...previous,
-        {
-          chatId: message.chatId,
-          text: message.text,
-          senderId: message.user.id,
-        } as Message,
-      ]);
+      addMessages([message]);
     });
 
     (() => {
@@ -86,7 +110,7 @@ const Page = () => {
       websocket.disconnect();
       websocket.close();
     };
-  }, [chats, token]);
+  }, [chats, token, user]);
 
   const sendMessage = useCallback(() => {
     if (!textareaRef.current || !socket || !user || !choosedChat) {
@@ -98,13 +122,19 @@ const Page = () => {
       return;
     }
 
-    socket.emit("send_message", {
-      user: user,
+    const messageBody = {
+      senderId: user.id,
       chatId: choosedChat.id,
       text: message,
-    });
+    } as Message;
 
-    textareaRef.current.value = ""
+    addMessages([{
+      ...messageBody,
+      createdAt: new Date()
+    }]);
+    socket.emit("send_message", messageBody);
+
+    textareaRef.current.value = "";
   }, [socket, user, choosedChat, text]);
 
   const handleSubmit = (event: FormEvent) => {

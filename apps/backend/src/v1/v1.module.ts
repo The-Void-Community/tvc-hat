@@ -25,6 +25,7 @@ import SentryModule from "./routes/sentry/sentry.module";
 import TestModule from "./routes/test/test.module";
 import UsersModule from "./routes/users/users.module";
 import ChatsModule from "./routes/chats/chats.module";
+import MessagesModule from "./routes/messages/messages.module";
 
 import MessagesGatewayModule from "./gateways/messages/messages.module";
 
@@ -36,6 +37,7 @@ export const v1Modules = [
   TestModule,
   UsersModule,
   ChatsModule,
+  MessagesModule
 ];
 
 @Module({

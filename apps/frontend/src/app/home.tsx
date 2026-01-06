@@ -1,8 +1,9 @@
 "use client";
 
-import type { User } from "@/types";
 import { getMe } from "@/api/get-user";
+
 import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "tvuikit";
 
@@ -11,7 +12,8 @@ type Props = {
 };
 
 const Home = ({ query }: Props) => {
-  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+
   const [loaded, setLoaded] = useState<boolean>(false);
 
   const { token } = use(query);
@@ -19,18 +21,19 @@ const Home = ({ query }: Props) => {
   useEffect(() => {
     (async () => {
       const u = await getMe(token ? token : null);
-      setUser(u);
+      if (u) {
+        router.push("/chat");
+      }
+
       setLoaded(true);
     })().then(() => {
-      if (user) {
-        window.location.href = "/chat";
-      }
     });
-  }, [token, user]);
-
+  }, [router, token]);
+  
   if (!loaded) {
     return <>Loading...</>;
   }
+
 
   return (
     <div className="main-full flex-center">

@@ -15,9 +15,9 @@ import { HttpStatus, ValidationPipe } from "@nestjs/common";
 import { PrismaService } from "@/database/prisma.service";
 
 import { GATEWAY, GATEWAYS } from "./messages.gateways";
-import { Service } from "./messages.service";
 
-import { SendMessageDto } from "./dto/send-message.dto";
+import { Service } from "@1/routes/messages/messages.service";
+import { SendMessageDto } from "@1/routes/messages/dto/send-message.dto";
 
 import AuthGuardService from "@1/guards/auth/auth-guard.service"
 import Hash from "@1/services/hash.service";
@@ -47,7 +47,6 @@ export class Gateway
     };
 
     const valided = await AuthGuardService.validateRequest(client.request, this.prisma);
-
     if (!valided) {
       throw new WsException("Client is not valided user");
     }
@@ -84,12 +83,13 @@ export class Gateway
   ): Promise<string> {
     this.validateClientOrThrow(client);
     this.validateChatOrThrow(body.chatId);
-
+    
     if (!client.rooms.has(body.chatId)) {
       throw new WsException("You not in a this chat");
     }
 
-    this.server.to(body.chatId).emit("receive_message", body);
+    const { message } = await this.service.createMessageAndUpdateChat(body);
+    this.server.to(body.chatId).emit("receive_message", message);
 
     return client.id;
   }
