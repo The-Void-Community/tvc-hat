@@ -9,11 +9,13 @@ export const getMessages = async ({
   positionMessageId,
   count = 30,
   skip = 0,
+  sort = "asc"
 }: {
   chatId: string;
   positionMessageId?: string;
   skip?: number;
   count?: number;
+  sort: "asc"|"desc"
 }): Promise<Message[] | null> => {
   try {
     const cookie = await cookies();
@@ -26,7 +28,7 @@ export const getMessages = async ({
       ? `&positionMessageId=${positionMessageId}`
       : "";
     const response = await fetch(
-      `http://localhost:8080/api/v1/messages/?skip=${skip}&count=${count}&chatId=${chatId}${messageQuery}`,
+      `http://localhost:8080/api/v1/messages/?skip=${skip}&count=${count}&chatId=${chatId}${messageQuery}&sort=${sort}`,
       {
         method: "GET",
         cache: "no-cache",

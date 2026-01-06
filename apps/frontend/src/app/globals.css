@@ -113,6 +113,7 @@ main {
 
 .main-full {
   min-height: calc(100vh - 240px - 4em);
+  height: calc(100vh - 240px - 4em);
 }
 
 .flex-center {
