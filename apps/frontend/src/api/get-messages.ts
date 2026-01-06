@@ -9,13 +9,13 @@ export const getMessages = async ({
   positionMessageId,
   count = 30,
   skip = 0,
-  sort = "asc"
+  sort = "asc",
 }: {
   chatId: string;
   positionMessageId?: string;
   skip?: number;
   count?: number;
-  sort: "asc"|"desc"
+  sort: "asc" | "desc";
 }): Promise<Message[] | null> => {
   try {
     const cookie = await cookies();

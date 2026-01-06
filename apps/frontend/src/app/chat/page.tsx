@@ -3,7 +3,7 @@
 import Chat from "./chat";
 
 const Page = () => {
-  return <Chat />
+  return <Chat />;
 };
 
 export default Page;

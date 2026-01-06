@@ -4,19 +4,16 @@ import type { Chat } from "@/types";
 import Image from "next/image";
 
 type ChatNavigationProps = {
-  chat: Chat
+  chat: Chat;
 } & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
-export const ChatNavigation = ({
-  chat,
-  className
-}: ChatNavigationProps) => {
+export const ChatNavigation = ({ chat, className }: ChatNavigationProps) => {
   return (
     <div
       className={[
         "w-full p-2 flex flex-row gap-2 cursor-pointer duration-200",
         "hover:bg-(--bg-component)",
-        className
+        className,
       ].join(" ")}
     >
       <Image
@@ -36,15 +33,13 @@ export const ChatNavigation = ({
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
 
 type ChatsNaviationProps = {
-  chats: Chat[]
-} 
+  chats: Chat[];
+};
 
-export const ChatsNavigation = ({
-  chats
-}: ChatsNaviationProps) => {
-  return chats.map(chat => <ChatNavigation chat={chat} key={chat.id} />)
-}
+export const ChatsNavigation = ({ chats }: ChatsNaviationProps) => {
+  return chats.map((chat) => <ChatNavigation chat={chat} key={chat.id} />);
+};

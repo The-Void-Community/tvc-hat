@@ -4,16 +4,12 @@ import { HiPaperAirplane } from "react-icons/hi";
 import { Button, Textarea } from "tvuikit";
 
 type Props = {
-  onSubmit: FormEventHandler<HTMLFormElement>,
-  setText: (text: SetStateAction<string>) => void,
-  textareaRef: RefObject<HTMLTextAreaElement|null>;
-}
+  onSubmit: FormEventHandler<HTMLFormElement>;
+  setText: (text: SetStateAction<string>) => void;
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
+};
 
-export const MessageTextarea = ({
-  onSubmit,
-  setText,
-  textareaRef,
-}: Props) => {
+export const MessageTextarea = ({ onSubmit, setText, textareaRef }: Props) => {
   return (
     <form
       id="send-message"
@@ -34,5 +30,5 @@ export const MessageTextarea = ({
         <HiPaperAirplane size={48} className="rotate-90" />
       </Button>
     </form>
-  )
-}
+  );
+};

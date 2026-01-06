@@ -15,8 +15,8 @@ import { ChatsNavigation } from "@/components/chat/chat";
 import { ChoosedChat } from "@/components/chat/choosed-chat";
 
 type Props = {
-  chatId?: string
-}
+  chatId?: string;
+};
 
 const Chat = ({ chatId }: Props) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -47,14 +47,14 @@ const Chat = ({ chatId }: Props) => {
     (async () => {
       const gettedToken = await getToken();
       const gettedChat = chatId ? await getChat(chatId) : null;
-      
+
       const gettedUser = await getMe();
       if (!gettedUser) {
         return;
       }
 
       const gettedChats = await getChats(gettedUser.chats);
-      
+
       setUser(gettedUser);
       setToken(gettedToken);
       setChats(gettedChats || []);
@@ -71,11 +71,12 @@ const Chat = ({ chatId }: Props) => {
     }
 
     (async () => {
-      const gettedMessages =
-        ((await getMessages({
+      const gettedMessages = (
+        (await getMessages({
           chatId: choosedChat.id,
-          sort: "desc"
-        })) || []).reverse();
+          sort: "desc",
+        })) || []
+      ).reverse();
 
       addMessages(gettedMessages);
     })();
@@ -88,8 +89,8 @@ const Chat = ({ chatId }: Props) => {
 
     messagesRef.current.scrollTo({
       top: messagesRef.current.scrollHeight,
-      behavior: "instant"
-    })
+      behavior: "instant",
+    });
   }, [messagesRef]);
 
   useEffect(() => {
@@ -122,7 +123,7 @@ const Chat = ({ chatId }: Props) => {
     })();
   }, [chats, token, user]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (!socket) {
       return;
     }
@@ -201,7 +202,7 @@ const Chat = ({ chatId }: Props) => {
 
     messagesRef.current.scroll({
       top: messagesRef.current.scrollHeight,
-      behavior: "smooth"
+      behavior: "smooth",
     });
   }, [messages]);
 

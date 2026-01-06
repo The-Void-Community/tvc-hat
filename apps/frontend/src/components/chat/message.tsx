@@ -1,14 +1,11 @@
-import type { Message as MessageType, User } from "@/types"
+import type { Message as MessageType, User } from "@/types";
 
 type MessageProps = {
-  message: MessageType,
+  message: MessageType;
   users: Record<string, User>;
-}
+};
 
-export const Message = ({
-  message,
-  users
-}: MessageProps) => {
+export const Message = ({ message, users }: MessageProps) => {
   return (
     <div
       key={message.id}
@@ -17,24 +14,19 @@ export const Message = ({
         "flex flex-col",
       ].join(" ")}
     >
-      <span className="text-red-300">
-        {users[message.senderId].nickname}
-      </span>
+      <span className="text-red-300">{users[message.senderId].nickname}</span>
       <span>{message.text}</span>
     </div>
-  )
-}
+  );
+};
 
 type MessagesProps = {
   messages: MessageType[];
-  users: Record<string, User>
-}
+  users: Record<string, User>;
+};
 
-export const Messages = ({
-  messages,
-  users
-}: MessagesProps) => {
+export const Messages = ({ messages, users }: MessagesProps) => {
   return messages.map((message, i) => (
     <Message key={message?.id || i} message={message} users={users} />
-  ))
-}
+  ));
+};

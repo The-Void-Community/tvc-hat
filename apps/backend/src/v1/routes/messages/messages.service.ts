@@ -19,7 +19,7 @@ export class Service {
     count: number;
     chatId: string;
     positionMessageId?: string;
-    sort?: string
+    sort?: string;
   }) {
     const messages = await this.prisma.message.findMany({
       skip: filter.skip,

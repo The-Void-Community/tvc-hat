@@ -63,7 +63,7 @@ export class Controller {
       count: count ? +count : 10,
       positionMessageId,
       chatId,
-      sort
+      sort,
     });
   }
 
