@@ -20,6 +20,7 @@ import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 import { ROUTE, ROUTES } from "./messages.routes";
 import { Service } from "./messages.service";
+import { CacheTTL } from "@nestjs/cache-manager";
 
 @Injectable()
 @NestController(ROUTE)
@@ -49,17 +50,20 @@ export class Controller {
   })
   @Get(ROUTES.GET)
   @Public()
+  @CacheTTL(5)
   public async get(
     @Query("chatId") chatId: string,
     @Query("skip") skip?: string,
     @Query("count") count?: string,
     @Query("positionMessageId") positionMessageId?: string,
+    @Query("sort") sort?: string,
   ) {
     return this.service.get({
       skip: skip ? +skip : 0,
       count: count ? +count : 10,
       positionMessageId,
       chatId,
+      sort
     });
   }
 

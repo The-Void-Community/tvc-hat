@@ -14,13 +14,14 @@ export class Service {
     private readonly prisma: PrismaService,
   ) {}
 
-  public get(filter: {
+  public async get(filter: {
     skip: number;
     count: number;
     chatId: string;
     positionMessageId?: string;
+    sort?: string
   }) {
-    return this.prisma.message.findMany({
+    const messages = await this.prisma.message.findMany({
       skip: filter.skip,
       cursor: filter.positionMessageId
         ? { id: filter.positionMessageId }
@@ -28,9 +29,11 @@ export class Service {
       take: filter.count,
       where: { chatId: filter.chatId },
       orderBy: {
-        createdAt: "asc",
+        createdAt: filter.sort === "asc" ? "asc" : "desc",
       },
     });
+
+    return messages;
   }
 
   public async getOne(id: string) {
