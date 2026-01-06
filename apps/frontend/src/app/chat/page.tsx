@@ -67,7 +67,7 @@ const Page = () => {
       setMessages((previous) => [
         ...previous,
         {
-          chatId: message.chat,
+          chatId: message.chatId,
           text: message.text,
           senderId: message.user.id,
         } as Message,

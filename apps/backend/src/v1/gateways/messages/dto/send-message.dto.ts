@@ -12,7 +12,7 @@ export class SendMessageDto {
 
   @ApiProperty()
   @IsString()
-  chat: string;
+  chatId: string;
 
   @ApiProperty()
   @IsString()

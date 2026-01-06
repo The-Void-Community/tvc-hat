@@ -11,6 +11,8 @@ import {
 } from "@nestjs/websockets";
 import { HttpStatus, ValidationPipe } from "@nestjs/common";
 
+import { PrismaService } from "@/database/prisma.service";
+
 import { GATEWAY, GATEWAYS } from "./messages.gateways";
 import { Service } from "./messages.service";
 
@@ -30,10 +32,10 @@ export class Gateway
   @WebSocketServer()
   private readonly server: Server;
 
-  public constructor(private readonly service: Service) {}
+  public constructor(private readonly service: Service, private readonly prisma: PrismaService) {}
 
   @SubscribeMessage(GATEWAYS.SEND_MESSAGE)
-  public handleMessage(
+  public async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(
       new ValidationPipe({
@@ -41,12 +43,14 @@ export class Gateway
       }),
     )
     body: SendMessageDto,
-  ): string {
-    if (!client.rooms.has(body.chat)) {
+  ): Promise<string> {
+    const chat = await this.prisma.chat.findUniqueOrThrow({ where: { id: body.chatId }});
+
+    if (!client.rooms.has(chat.id)) {
       throw new WsException("You not in a this chat");
     }
 
-    this.server.to(body.chat).emit("receive_message", body);
+    this.server.to(chat.id).emit("receive_message", body);
 
     return client.id;
   }
