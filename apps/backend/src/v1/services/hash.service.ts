@@ -1,4 +1,5 @@
 import type { Request } from "express";
+import type { IncomingMessage } from "http";
 
 import crypto from "crypto";
 import { decompressFromEncodedURIComponent } from "lz-string";
@@ -64,7 +65,7 @@ export class Hash {
     }
   }
 
-  public static parse(req: Request): ParseReturnType {
+  public static parse(req: Request|IncomingMessage): ParseReturnType {
     const hash = req.headers.authorization;
 
     if (hash === undefined) {
@@ -78,7 +79,7 @@ export class Hash {
     }
   }
 
-  public static parseWithExeption(req: Request): SuccessedParseReturnType {
+  public static parseOrThrow(req: Request|IncomingMessage): SuccessedParseReturnType {
     const hash = req.headers.authorization;
 
     if (hash === undefined) {

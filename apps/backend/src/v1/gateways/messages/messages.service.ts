@@ -20,7 +20,7 @@ export class Service {
     const message = await this.prisma.message.create({
       data: {
         text: data.text,
-        chatId: data.chat,
+        chatId: data.chatId,
         senderId: data.user.id,
       },
     });

@@ -1,4 +1,5 @@
 import type { Request } from "express";
+import type { IncomingMessage } from "http";
 
 import Hash from "@1/services/hash.service";
 import authErrors from "@1/errors/guards/auth.errors";
@@ -6,7 +7,7 @@ import authErrors from "@1/errors/guards/auth.errors";
 import PrismaService from "@/database/prisma.service";
 
 export class Service {
-  public static async validateRequest(req: Request, prisma: PrismaService) {
+  public static async validateRequest(req: Request|IncomingMessage, prisma: PrismaService) {
     const { successed, id, token, profileId } = Hash.parse(req);
 
     if (!successed) {

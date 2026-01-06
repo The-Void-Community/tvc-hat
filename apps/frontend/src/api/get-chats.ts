@@ -2,8 +2,9 @@
 
 import { Chat } from "@/types";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
-export const getChat = async (slug: string): Promise<Chat | null> => {
+export const getChat = cache(async (slug: string): Promise<Chat | null> => {
   try {
     const cookie = await cookies();
     const token = cookie.get("token");
@@ -36,13 +37,39 @@ export const getChat = async (slug: string): Promise<Chat | null> => {
     console.error(error);
     return null;
   }
-};
+});
 
-/** @deprecated */
-export const deprecatedGetChats = async (
-  slugs: string[],
-): Promise<Chat[] | null> => {
-  const data = await Promise.all(slugs.map((slug) => getChat(slug)));
+export const getChats = cache(async(slugs: string[]) => {
+  try {
+    const cookie = await cookies();
+    const token = cookie.get("token");
+    if (!token) {
+      return null;
+    }
 
-  return data.filter((chat) => !!chat);
-};
+    const response = await fetch(`http://localhost:8080/api/v1/chats/?slugs=${slugs.join(",")}`, {
+      method: "GET",
+      next: {
+        revalidate: 1200,
+      },
+      cache: "force-cache",
+      headers: {
+        authorization: `Bearer ${token.value}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      return null;
+    }
+
+    const chat = response.json();
+    if (!chat) {
+      return null;
+    }
+
+    return chat;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+})

@@ -81,7 +81,7 @@ export class Controller {
     @Req() req: Request,
     @Body(new ValidationPipe()) data: ChatCreateDto,
   ) {
-    const { profileId } = Hash.parseWithExeption(req);
+    const { profileId } = Hash.parseOrThrow(req);
 
     return this.service.post(data, profileId);
   }
@@ -95,7 +95,7 @@ export class Controller {
     @Param("slug") slug: string,
     @Body(new ValidationPipe()) data: ChatUpdateDto,
   ) {
-    const { profileId } = Hash.parseWithExeption(req);
+    const { profileId } = Hash.parseOrThrow(req);
     return this.service.put(slug, data, profileId);
   }
 
@@ -108,7 +108,7 @@ export class Controller {
     @Param("slug") slug: string,
     @Body(new ValidationPipe()) data: ChatUpdateDto,
   ) {
-    const { profileId } = Hash.parseWithExeption(req);
+    const { profileId } = Hash.parseOrThrow(req);
     return this.service.patch(slug, data, profileId);
   }
 
@@ -121,7 +121,7 @@ export class Controller {
     @Param("slug") slug: string,
     @Body(new ValidationPipe()) data: RightsUpdateDto,
   ) {
-    const { profileId } = Hash.parseWithExeption(req);
+    const { profileId } = Hash.parseOrThrow(req);
     return this.service.patchRights(slug, data, profileId);
   }
 
@@ -130,7 +130,7 @@ export class Controller {
   })
   @Patch(ROUTES.PATCH_JOIN)
   public patchJoin(@Req() req: Request, @Param("slug") slug: string) {
-    const { profileId } = Hash.parseWithExeption(req);
+    const { profileId } = Hash.parseOrThrow(req);
     return this.service.patchJoin(slug, profileId);
   }
 
@@ -139,7 +139,7 @@ export class Controller {
   })
   @Delete(ROUTES.DELETE)
   public delete(@Req() req: Request, @Param("slug") slug: string) {
-    const { profileId } = Hash.parseWithExeption(req);
+    const { profileId } = Hash.parseOrThrow(req);
     return this.service.delete(slug, profileId);
   }
 }

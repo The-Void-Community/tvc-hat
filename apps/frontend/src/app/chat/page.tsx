@@ -4,16 +4,16 @@ import type { Chat, Message, User } from "@/types";
 
 import { getToken } from "@/api/get-token";
 import { getMe, getUser } from "@/api/get-user";
-import { deprecatedGetChats } from "@/api/get-chats";
+import { getChats } from "@/api/get-chats";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 import { Button, Textarea } from "tvuikit";
 import { HiPaperAirplane } from "react-icons/hi";
-
-import { io, Socket } from "socket.io-client";
-import { Wrapper } from "@/components/wrapper.component";
 import Image from "next/image";
+
+import { Wrapper } from "@/components/wrapper.component";
 
 const Page = () => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -21,6 +21,7 @@ const Page = () => {
   const [user, setUser] = useState<User | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
   const [choosedChat, setChoosedChat] = useState<Chat | null>(null);
+  const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -35,7 +36,7 @@ const Page = () => {
         return;
       }
 
-      const gettedChats = await deprecatedGetChats(gettedUser.chats);
+      const gettedChats = await getChats(gettedUser.chats);
 
       setUser(gettedUser);
       setToken(gettedToken);
@@ -79,9 +80,7 @@ const Page = () => {
     })();
 
     return () => {
-      chats.forEach((chat) => {
-        websocket.emit("room_disconnect", chat);
-      });
+      websocket.emit("rooms_disconnect", chats.map(chat => chat.id));
 
       websocket.removeListener("receive_message");
       websocket.disconnect();
@@ -94,23 +93,31 @@ const Page = () => {
       return;
     }
 
+    const message = text.trim();
+    if (message === "") {
+      return;
+    }
+
     socket.emit("send_message", {
       user: user,
-      chat: choosedChat.id,
-      text: textareaRef.current.value.trim(),
+      chatId: choosedChat.id,
+      text: message,
     });
 
-    textareaRef.current.value = "";
-  }, [socket, user, choosedChat]);
+    textareaRef.current.value = ""
+  }, [socket, user, choosedChat, text]);
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    sendMessage();
+  };
 
   useEffect(() => {
     if (!socket) {
       return;
     }
 
-    for (const chat of chats) {
-      socket.emit("room_connect", chat.id);
-    }
+    socket.emit("rooms_connect", chats.map(chat => chat.id));
   }, [chats, socket]);
 
   useEffect(() => {
@@ -120,7 +127,8 @@ const Page = () => {
           return;
         }
 
-        return sendMessage();
+        event.preventDefault();
+        sendMessage();
       }
     };
 
@@ -182,7 +190,10 @@ const Page = () => {
         {choosedChat && (
           <>
             <div className="bg-(--bg-smooth) rounded-b-lg py-2 px-4">
-              <h4>{choosedChat?.name}</h4>
+              <div className="flex flex-col">
+                <h5>{choosedChat.name}</h5>
+                <span className="text-mini">{choosedChat.members.length} members</span>
+              </div>
             </div>
 
             <div className="flex flex-col justify-end gap-2 h-full p-2">
@@ -201,20 +212,25 @@ const Page = () => {
                 </div>
               ))}
             </div>
-            <div className="bg-(--bg-card) flex flex-row rounded-t-lg">
+            <form
+              id="send-message"
+              className="send-message-form bg-(--bg-card) flex flex-row rounded-t-lg"
+              onSubmit={handleSubmit}
+            >
               <Textarea
                 ref={textareaRef}
+                onChange={(e) => setText(e.currentTarget.value)}
                 placeholder="Ваше сообщение..."
-                className="w-full max-w-none resize-none bg-[00000000] rounded-t-lg"
+                className="send-message-form w-full max-w-none resize-none bg-[00000000] rounded-t-lg"
               />
               <Button
-                className="cursor-pointer"
-                onClick={() => sendMessage()}
+                type="submit"
+                className="send-message-form cursor-pointer"
                 overwriteClassName
               >
                 <HiPaperAirplane size={48} className="rotate-90" />
               </Button>
-            </div>
+            </form>
           </>
         )}
       </div>

@@ -1,3 +1,4 @@
+import type { Namespace, Socket } from "socket.io";
 import {
   ConnectedSocket,
   MessageBody,
@@ -18,7 +19,8 @@ import { Service } from "./messages.service";
 
 import { SendMessageDto } from "./dto/send-message.dto";
 
-import { Server, Socket } from "socket.io";
+import AuthGuardService from "@1/guards/auth/auth-guard.service"
+import Hash from "@1/services/hash.service";
 
 @WebSocketGateway({
   cors: {
@@ -30,9 +32,45 @@ export class Gateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  private readonly server: Server;
+  private readonly server: Namespace;
+  private readonly validated = {
+    chats: new Map<string, string>(),
+    clients: new Map<string, string>(),
+  } as const;
 
   public constructor(private readonly service: Service, private readonly prisma: PrismaService) {}
+
+  public async validateClientOrThrow(client: Socket): Promise<string> {
+    const userId = this.validated.clients.get(client.id);
+    if (userId) {
+      return userId;
+    };
+
+    const valided = await AuthGuardService.validateRequest(client.request, this.prisma);
+
+    if (!valided) {
+      throw new WsException("Client is not valided user");
+    }
+
+    const { profileId } = Hash.parseOrThrow(client.request);
+    this.validated.clients.set(client.id, profileId);
+    return profileId;
+  }
+
+  public async validateChatOrThrow(chatId: string): Promise<string> {
+    if (this.validated.chats.has(chatId)) {
+      return chatId;
+    }
+
+    const chat = await this.prisma.chat.findUnique({ where: { id: chatId }});
+    if (!chat) {
+      throw new WsException("Chat is invalid");
+    }
+
+    this.validated.chats.set(chatId, chat.id);
+
+    return chat.id;
+  }
 
   @SubscribeMessage(GATEWAYS.SEND_MESSAGE)
   public async handleMessage(
@@ -44,13 +82,14 @@ export class Gateway
     )
     body: SendMessageDto,
   ): Promise<string> {
-    const chat = await this.prisma.chat.findUniqueOrThrow({ where: { id: body.chatId }});
+    this.validateClientOrThrow(client);
+    this.validateChatOrThrow(body.chatId);
 
-    if (!client.rooms.has(chat.id)) {
+    if (!client.rooms.has(body.chatId)) {
       throw new WsException("You not in a this chat");
     }
 
-    this.server.to(chat.id).emit("receive_message", body);
+    this.server.to(body.chatId).emit("receive_message", body);
 
     return client.id;
   }
@@ -60,18 +99,30 @@ export class Gateway
     @ConnectedSocket() client: Socket,
     @MessageBody(new ValidationPipe()) roomId: string,
   ) {
-    console.log("Client joined to " + roomId);
+    this.validateClientOrThrow(client);
+    this.validateChatOrThrow(roomId);
+    
+    console.log(client.id + " client joined to " + roomId);
     client.join(roomId);
   }
-
+  
   @SubscribeMessage(GATEWAYS.CONNECT_MANY)
   public handleRoomsConnect(
     @ConnectedSocket() client: Socket,
     @MessageBody(new ValidationPipe()) roomsId: string[],
   ) {
-    console.log("Client joined to ", roomsId);
+    this.validateClientOrThrow(client);
+    
     for (const roomId of roomsId) {
-      client.join(roomId);
+      try {
+        this.validateChatOrThrow(roomId);
+  
+        console.log(client.id + " joined to " + roomId);
+        client.join(roomId);
+      } catch {
+        console.log(client.id + " failed to connected to " + roomId);
+        continue;
+      }
     }
   }
 
@@ -80,7 +131,10 @@ export class Gateway
     @ConnectedSocket() client: Socket,
     @MessageBody(new ValidationPipe()) roomId: string,
   ) {
-    console.log("Client leaved from " + roomId);
+    this.validateClientOrThrow(client);
+    this.validateChatOrThrow(roomId);
+
+    console.log(client.id + " client leaved from " + roomId);
     client.leave(roomId);
   }
 
@@ -89,9 +143,17 @@ export class Gateway
     @ConnectedSocket() client: Socket,
     @MessageBody(new ValidationPipe()) roomsId: string[],
   ) {
-    console.log("Client joined to ", roomsId);
+    this.validateClientOrThrow(client);
+    
     for (const roomId of roomsId) {
-      client.leave(roomId);
+      try {
+        this.validateChatOrThrow(roomId);
+        console.log(client.id + " client leaved from " + roomsId);
+        client.leave(roomId);
+      } catch {
+        console.log(client.id + " failed leaved from " + roomsId);
+        continue
+      }
     }
   }
 
@@ -100,10 +162,12 @@ export class Gateway
   }
 
   public handleDisconnect(client: Socket) {
+    this.validateClientOrThrow(client);
     console.log("Disconnected: " + client.id);
   }
 
   public handleConnection(client: Socket) {
+    this.validateClientOrThrow(client);
     console.log("Connected: " + client.id);
   }
 }
