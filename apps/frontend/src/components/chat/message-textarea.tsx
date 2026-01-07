@@ -11,23 +11,18 @@ type Props = {
 
 export const MessageTextarea = ({ onSubmit, setText, textareaRef }: Props) => {
   return (
-    <form
-      id="send-message"
-      className="send-message-form bg-(--bg-card) flex flex-row rounded-t-lg"
-      onSubmit={onSubmit}
-    >
-      <Textarea
-        ref={textareaRef}
-        onChange={(e) => setText(e.currentTarget.value)}
-        placeholder="Ваше сообщение..."
-        className="send-message-form w-full max-w-none resize-none bg-[00000000] rounded-t-lg"
-      />
-      <Button
-        type="submit"
-        className="send-message-form cursor-pointer"
-        overwriteClassName
-      >
-        <HiPaperAirplane size={48} className="rotate-90" />
+    <form id="send-message" className="flex items-end gap-2" onSubmit={onSubmit}>
+      <div className="flex-1">
+        <Textarea
+          ref={textareaRef}
+          onChange={(e) => setText(e.currentTarget.value)}
+          placeholder="Ваше сообщение..."
+          className="w-full max-w-none resize-none rounded-md bg-[00000000] p-2 text-sm min-h-[40px]"
+        />
+      </div>
+
+      <Button type="submit" className="p-2 rounded-md bg-(--accent) text-white" overwriteClassName>
+        <HiPaperAirplane size={20} className="rotate-90" />
       </Button>
     </form>
   );

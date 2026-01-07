@@ -39,7 +39,7 @@ export const getChat = cache(async (slug: string): Promise<Chat | null> => {
   }
 });
 
-export const getChats = cache(async (slugs: string[]) => {
+export const getChats = cache(async (slugs: string[]): Promise<Chat[] | null> => {
   try {
     const cookie = await cookies();
     const token = cookie.get("token");

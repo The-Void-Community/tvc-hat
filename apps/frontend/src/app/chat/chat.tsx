@@ -214,16 +214,16 @@ const Chat = ({ chatId }: Props) => {
     <Wrapper className="gap-4">
       <nav
         className={[
-          "bg-(--bg-card) rounded-lg main-full overflow-y-auto overflow-x-hidden w-100",
+          "bg-(--bg-card) rounded-lg overflow-y-auto overflow-x-hidden w-72",
           "flex flex-col",
         ].join(" ")}
       >
-        <ChatsNavigation chats={chats} />
+        <ChatsNavigation setChoosedChat={setChoosedChat} chats={chats} />
       </nav>
 
       <div
         className={[
-          "bg-(--bg-card) rounded-lg main-full w-full",
+          "bg-(--bg-card) rounded-lg flex-1",
           "flex flex-col",
         ].join(" ")}
       >
