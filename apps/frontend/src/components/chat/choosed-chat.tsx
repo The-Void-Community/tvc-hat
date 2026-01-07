@@ -36,7 +36,7 @@ export const ChoosedChat = ({
         </div>
       </div>
 
-      <div ref={messagesRef} className="flex-1 overflow-auto py-2 space-y-2">
+      <div ref={messagesRef} className="flex-1 overflow-auto py-2">
         <Messages messages={messages} users={users} />
       </div>
 

@@ -53,7 +53,6 @@ export const ChatsNavigation = ({
 }: ChatsNaviationProps) => {
   return (
     <div className="flex flex-col items-center gap-1">
-
       {chats.map((chat) => (
         <ChatNavigation
           choosedChat={choosedChat}

@@ -17,6 +17,7 @@ import { ChatType } from "@/enums";
 
 import { useRouter } from "next/navigation";
 import { IconOrAvatar } from "@/components/chat/icon";
+import { v4 as uuid } from "uuid";
 
 type Props = {
   chatId?: string;
@@ -45,16 +46,15 @@ const Chat = ({ chatId }: Props) => {
   const addMessages = (messages: Message[], to: "start" | "end" = "end") => {
     return setMessages((previous) => {
       if (to === "end") {
-        messages.forEach(message => {
-          previous.set(message.id, message);
-        });
-
-        return previous;
+        return new Map<string, Message>([
+          ...Array.from(previous.entries()),
+          ...messages.map(message => [message.id, message] as [string, Message]),
+        ]);
       }
 
       return new Map<string, Message>([
+        ...messages.map(message => [message.id, message] as [string, Message]),
         ...Array.from(previous.entries()),
-        ...messages.map(message => [message.id, message] as [string, Message])
       ]);
     });
   };
@@ -84,6 +84,12 @@ const Chat = ({ chatId }: Props) => {
       if (!gettedUser) {
         return;
       }
+      const gettedMessages = gettedChat ? (
+        (await getMessages({
+          chatId: gettedChat.id,
+          sort: "desc",
+        })) || []
+      ).reverse() : [];
 
       const gettedChats = (await getChats(gettedUser.chats)) || [];
       const filtered = {
@@ -91,6 +97,7 @@ const Chat = ({ chatId }: Props) => {
         ...Object.groupBy(gettedChats, (chat) => chat.type),
       };
 
+      setMessages(new Map(gettedMessages.map(m => [m.id, m] as [string, Message])));
       setFilteredChats(filtered);
       setUser(gettedUser);
       setToken(gettedToken);
@@ -98,10 +105,14 @@ const Chat = ({ chatId }: Props) => {
       setChoosedChat(gettedChat);
       setUsers((previous) => ({ ...previous, [gettedUser.id]: gettedUser }));
 
+      setTimeout(() => {
+        scrollToBottom();
+      }, 200);
+
       setLoaded(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatId]);
+  }, [chatId, scrollToBottom]);
 
   useEffect(() => {
     if (!choosedChat) {
@@ -109,21 +120,7 @@ const Chat = ({ chatId }: Props) => {
     }
 
     router.push(`/chat/${choosedChat.id}`);
-
-    (async () => {
-      const gettedMessages = (
-        (await getMessages({
-          chatId: choosedChat.id,
-          sort: "desc",
-        })) || []
-      ).reverse();
-
-      addMessages(gettedMessages);
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-    })();
-  }, [choosedChat, router, scrollToBottom]);
+  }, [choosedChat, router]);
 
   useEffect(() => {
     if (!token || !user) {
@@ -196,6 +193,7 @@ const Chat = ({ chatId }: Props) => {
     addMessages([
       {
         ...messageBody,
+        id: uuid(),
         createdAt: new Date(),
       },
     ]);

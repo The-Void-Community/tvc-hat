@@ -8,3 +8,8 @@ export type Message = {
   deliveredTo: string[];
   readedBy: string[];
 };
+
+export type AllMessages = {
+  map: Map<string, Message>,
+  array: Message[]
+};
