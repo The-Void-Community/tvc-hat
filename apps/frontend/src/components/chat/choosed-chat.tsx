@@ -6,7 +6,7 @@ import { MessageTextarea } from "./message-textarea";
 
 type ChoosedChatProps = {
   chat: Chat;
-  messages: Message[];
+  messages: Map<string, Message>;
   onSubmit: (event: FormEvent | KeyboardEvent) => void;
   users: Record<string, User>;
   setText: Dispatch<SetStateAction<string>>;

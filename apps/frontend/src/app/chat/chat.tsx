@@ -36,20 +36,25 @@ const Chat = ({ chatId }: Props) => {
   });
   const [choosedChat, setChoosedChat] = useState<Chat | null>(null);
   const [text, setText] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Map<string, Message>>(new Map());
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
 
-  const addMessages = (messages: Message[], to: "start" | "end" = "start") => {
+  const addMessages = (messages: Message[], to: "start" | "end" = "end") => {
     return setMessages((previous) => {
-      const newMessages = [
-        ...(to === "end" ? messages : []),
-        ...previous,
-        ...(to === "start" ? messages : []),
-      ];
+      if (to === "end") {
+        messages.forEach(message => {
+          previous.set(message.id, message);
+        });
 
-      return newMessages;
+        return previous;
+      }
+
+      return new Map<string, Message>([
+        ...Array.from(previous.entries()),
+        ...messages.map(message => [message.id, message] as [string, Message])
+      ]);
     });
   };
 
@@ -244,9 +249,7 @@ const Chat = ({ chatId }: Props) => {
       </nav>
 
       <div
-        className={["bg-(--bg-card) rounded-lg flex-1", "flex flex-col"].join(
-          " ",
-        )}
+        className="bg-(--bg-card) rounded-lg flex-1 flex flex-col"
       >
         {choosedChat && (
           <ChoosedChat

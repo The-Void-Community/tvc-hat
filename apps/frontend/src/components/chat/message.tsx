@@ -37,16 +37,16 @@ export const Message = ({ message, users }: MessageProps) => {
 };
 
 type MessagesProps = {
-  messages: MessageType[];
+  messages: Map<string, MessageType>;
   users: Record<string, User>;
 };
 
 export const Messages = ({ messages, users }: MessagesProps) => {
   return (
     <>
-      {messages.map((message, i) => (
+      {Array.from(messages.values()).map((message, i) => (
         <Message key={message?.id || i} message={message} users={users} />
       ))}
     </>
   );
-};
+}
