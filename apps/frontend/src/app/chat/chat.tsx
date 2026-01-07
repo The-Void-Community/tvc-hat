@@ -48,32 +48,39 @@ const Chat = ({ chatId }: Props) => {
       if (to === "end") {
         return new Map<string, Message>([
           ...Array.from(previous.entries()),
-          ...messages.map(message => [message.id, message] as [string, Message]),
+          ...messages.map(
+            (message) => [message.id, message] as [string, Message],
+          ),
         ]);
       }
 
       return new Map<string, Message>([
-        ...messages.map(message => [message.id, message] as [string, Message]),
+        ...messages.map(
+          (message) => [message.id, message] as [string, Message],
+        ),
         ...Array.from(previous.entries()),
       ]);
     });
   };
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = "instant") => {
-    if (!messagesRef.current) {
-      return;
-    }
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = "instant") => {
+      if (!messagesRef.current) {
+        return;
+      }
 
-    if (behavior === "instant") {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-      return;
-    }
-    
-    messagesRef.current.scrollTo({
-      top: messagesRef.current.scrollHeight,
-      behavior,
-    });
-  }, [messagesRef]);
+      if (behavior === "instant") {
+        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+        return;
+      }
+
+      messagesRef.current.scrollTo({
+        top: messagesRef.current.scrollHeight,
+        behavior,
+      });
+    },
+    [messagesRef],
+  );
 
   useEffect(() => {
     (async () => {
@@ -84,12 +91,14 @@ const Chat = ({ chatId }: Props) => {
       if (!gettedUser) {
         return;
       }
-      const gettedMessages = gettedChat ? (
-        (await getMessages({
-          chatId: gettedChat.id,
-          sort: "desc",
-        })) || []
-      ).reverse() : [];
+      const gettedMessages = gettedChat
+        ? (
+            (await getMessages({
+              chatId: gettedChat.id,
+              sort: "desc",
+            })) || []
+          ).reverse()
+        : [];
 
       const gettedChats = (await getChats(gettedUser.chats)) || [];
       const filtered = {
@@ -97,7 +106,9 @@ const Chat = ({ chatId }: Props) => {
         ...Object.groupBy(gettedChats, (chat) => chat.type),
       };
 
-      setMessages(new Map(gettedMessages.map(m => [m.id, m] as [string, Message])));
+      setMessages(
+        new Map(gettedMessages.map((m) => [m.id, m] as [string, Message])),
+      );
       setFilteredChats(filtered);
       setUser(gettedUser);
       setToken(gettedToken);
@@ -232,7 +243,7 @@ const Chat = ({ chatId }: Props) => {
           >
             <IconOrAvatar />
           </div>
-          
+
           <hr className="w-[60%] text-(--fg-mini-text)" />
 
           <ChatsNavigation
@@ -240,12 +251,10 @@ const Chat = ({ chatId }: Props) => {
             setChoosedChat={setChoosedChat}
             chats={/* filteredChats.GROUP */ chats}
           />
-         </div>
+        </div>
       </nav>
 
-      <div
-        className="bg-(--bg-card) rounded-lg flex-1 flex flex-col"
-      >
+      <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
         {choosedChat && (
           <ChoosedChat
             chat={choosedChat}

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 /**
  * WARNING
@@ -10,8 +10,8 @@
  * WARNING
  * WARNING
  * WARNING
- * 
- * 
+ *
+ *
  * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
  * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
  * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
@@ -24,7 +24,7 @@
  * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
  * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
  * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * 
+ *
  * WARNING
  * WARNING
  * WARNING
@@ -53,11 +53,13 @@ export const Message = ({ message, users, showHeader }: MessageProps) => {
   });
 
   return (
-    <div className={[
-      "flex items-start gap-2 px-4 rounded-md",
-      "hover:bg-(--bg-component) duration-100",
-      showHeader ? "mt-2" : ""
-    ].join(" ")}>
+    <div
+      className={[
+        "flex items-start gap-2 px-4 rounded-md",
+        "hover:bg-(--bg-component) duration-100",
+        showHeader ? "mt-2" : "",
+      ].join(" ")}
+    >
       {showHeader ? (
         <>
           <IconOrAvatar entity={sender} size={48} />
@@ -94,24 +96,24 @@ export const Messages = ({ messages, users }: MessagesProps) => {
 
   for (let i = 0; i < array.length; i++) {
     const message = array[i];
-    
+
     if (i === 0 || array[i - 1].senderId !== message.senderId) {
       groups.push({
         startIndex: i,
         startMessage: message,
-        messages: [message]
+        messages: [message],
       });
       continue;
     }
 
     const lastGroup = groups[groups.length - 1];
-    
+
     const timeDiff = Math.abs(
-      new Date(message.createdAt).getTime() - 
-      new Date(lastGroup.startMessage.createdAt).getTime()
+      new Date(message.createdAt).getTime() -
+        new Date(lastGroup.startMessage.createdAt).getTime(),
     );
-    const isSameDate = 
-      new Date(message.createdAt).toDateString() === 
+    const isSameDate =
+      new Date(message.createdAt).toDateString() ===
       new Date(lastGroup.startMessage.createdAt).toDateString();
     const isWithinTenMin = timeDiff <= 10 * 60 * 1000;
 
@@ -121,18 +123,18 @@ export const Messages = ({ messages, users }: MessagesProps) => {
       groups.push({
         startIndex: i,
         startMessage: message,
-        messages: [message]
+        messages: [message],
       });
     }
   }
 
   const messagesWithHeader: Array<MessageType & { showHeader: boolean }> = [];
-  
-  groups.forEach(group => {
+
+  groups.forEach((group) => {
     group.messages.forEach((message, indexInGroup) => {
       messagesWithHeader.push({
         ...message,
-        showHeader: indexInGroup === 0
+        showHeader: indexInGroup === 0,
       });
     });
   });
@@ -141,19 +143,20 @@ export const Messages = ({ messages, users }: MessagesProps) => {
     <>
       {messagesWithHeader.map((message, index) => {
         const prevMessage = messagesWithHeader[index - 1];
-        const showDateSeparator = !prevMessage || 
-          new Date(message.createdAt).toDateString() !== 
-          new Date(prevMessage.createdAt).toDateString();
-        
+        const showDateSeparator =
+          !prevMessage ||
+          new Date(message.createdAt).toDateString() !==
+            new Date(prevMessage.createdAt).toDateString();
+
         return (
           <div key={index}>
             {showDateSeparator && (
               <div className="px-4 py-2 my-2 text-center text-mini text-xs">
-                {new Date(message.createdAt).toLocaleDateString('ru-RU', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
+                {new Date(message.createdAt).toLocaleDateString("ru-RU", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </div>
             )}

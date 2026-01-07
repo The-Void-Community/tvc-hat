@@ -10,6 +10,6 @@ export type Message = {
 };
 
 export type AllMessages = {
-  map: Map<string, Message>,
-  array: Message[]
+  map: Map<string, Message>;
+  array: Message[];
 };
