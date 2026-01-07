@@ -53,15 +53,7 @@ export const ChatsNavigation = ({
 }: ChatsNaviationProps) => {
   return (
     <div className="flex flex-col items-center gap-1">
-      <div
-        className={[
-          "px-3 py-2 flex-center cursor-pointer",
-          "hover:bg-(--bg-component)",
-        ].join(" ")}
-      >
-        <IconOrAvatar />
-      </div>
-      <hr className="w-[60%] text-(--fg-mini-text)" />
+
       {chats.map((chat) => (
         <ChatNavigation
           choosedChat={choosedChat}

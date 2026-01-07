@@ -16,6 +16,7 @@ import { ChoosedChat } from "@/components/chat/choosed-chat";
 import { ChatType } from "@/enums";
 
 import { useRouter } from "next/navigation";
+import { IconOrAvatar } from "@/components/chat/icon";
 
 type Props = {
   chatId?: string;
@@ -57,6 +58,22 @@ const Chat = ({ chatId }: Props) => {
       ]);
     });
   };
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "instant") => {
+    if (!messagesRef.current) {
+      return;
+    }
+
+    if (behavior === "instant") {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      return;
+    }
+    
+    messagesRef.current.scrollTo({
+      top: messagesRef.current.scrollHeight,
+      behavior,
+    });
+  }, [messagesRef]);
 
   useEffect(() => {
     (async () => {
@@ -102,19 +119,11 @@ const Chat = ({ chatId }: Props) => {
       ).reverse();
 
       addMessages(gettedMessages);
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     })();
-  }, [choosedChat, router]);
-
-  useEffect(() => {
-    if (!messagesRef.current) {
-      return;
-    }
-
-    messagesRef.current.scrollTo({
-      top: messagesRef.current.scrollHeight,
-      behavior: "instant",
-    });
-  }, [messagesRef]);
+  }, [choosedChat, router, scrollToBottom]);
 
   useEffect(() => {
     if (!token || !user) {
@@ -201,33 +210,8 @@ const Chat = ({ chatId }: Props) => {
   };
 
   useEffect(() => {
-    const handleKeydown = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() === "enter") {
-        if (event.ctrlKey || event.shiftKey) {
-          return;
-        }
-
-        event.preventDefault();
-        sendMessage();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeydown);
-    return () => {
-      document.removeEventListener("keydown", handleKeydown);
-    };
-  }, [sendMessage]);
-
-  useEffect(() => {
-    if (!messagesRef.current) {
-      return;
-    }
-
-    messagesRef.current.scroll({
-      top: messagesRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
+    scrollToBottom("smooth");
+  }, [messages, scrollToBottom]);
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -241,11 +225,24 @@ const Chat = ({ chatId }: Props) => {
           "flex flex-col",
         ].join(" ")}
       >
-        <ChatsNavigation
-          choosedChat={choosedChat}
-          setChoosedChat={setChoosedChat}
-          chats={/* filteredChats.GROUP */ chats}
-        />
+        <div className="flex flex-col items-center gap-1">
+          <div
+            className={[
+              "px-3 py-2 flex-center cursor-pointer",
+              "hover:bg-(--bg-component)",
+            ].join(" ")}
+          >
+            <IconOrAvatar />
+          </div>
+          
+          <hr className="w-[60%] text-(--fg-mini-text)" />
+
+          <ChatsNavigation
+            choosedChat={choosedChat}
+            setChoosedChat={setChoosedChat}
+            chats={/* filteredChats.GROUP */ chats}
+          />
+         </div>
       </nav>
 
       <div
