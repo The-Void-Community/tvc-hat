@@ -2,7 +2,7 @@
 
 import type { Message } from "@/types";
 
-import { cookies } from "next/headers";
+import { endpointRequestOrNull } from "./utils";
 
 export const getMessages = async ({
   chatId,
@@ -17,39 +17,11 @@ export const getMessages = async ({
   count?: number;
   sort: "asc" | "desc";
 }): Promise<Message[] | null> => {
-  try {
-    const cookie = await cookies();
-    const token = cookie.get("token");
-    if (!token) {
-      return null;
+  return endpointRequestOrNull({
+    endpoint: "/messages",
+    query: {
+      skip, count, positionMessageId,
+      sort, chatId
     }
-
-    const messageQuery = positionMessageId
-      ? `&positionMessageId=${positionMessageId}`
-      : "";
-    const response = await fetch(
-      `http://localhost:8080/api/v1/messages/?skip=${skip}&count=${count}&chatId=${chatId}${messageQuery}&sort=${sort}`,
-      {
-        method: "GET",
-        cache: "no-cache",
-        headers: {
-          authorization: `Bearer ${token.value}`,
-        },
-      },
-    );
-
-    if (response.status !== 200) {
-      return null;
-    }
-
-    const chat = response.json();
-    if (!chat) {
-      return null;
-    }
-
-    return chat;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  });
 };
