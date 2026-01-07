@@ -1,16 +1,18 @@
 import type { Chat, User } from "@/types";
-import Image from "next/image"
+import Image from "next/image";
 
-type IconOrAvatar = {
-  icon: string|null;
-} | {
-  avatar: string|null;
-};
+type IconOrAvatar =
+  | {
+      icon: string | null;
+    }
+  | {
+      avatar: string | null;
+    };
 
 type Props = {
   entity?: User | Chat | string;
   size?: number;
-}
+};
 
 const Img = (src: string, size: number) => {
   return (
@@ -21,8 +23,8 @@ const Img = (src: string, size: number) => {
       alt="icon"
       className="rounded-full"
     />
-  )
-}
+  );
+};
 
 const FirstCharOfNameIcon = (char: string, size: number) => {
   return (
@@ -32,9 +34,11 @@ const FirstCharOfNameIcon = (char: string, size: number) => {
         height: `${size}px`,
         width: `${size}px`,
       }}
-    >{char}</div>
-  )
-}
+    >
+      {char}
+    </div>
+  );
+};
 
 export const IconOrAvatar = ({ entity, size = 40 }: Props) => {
   if (typeof entity === "string") {
@@ -53,9 +57,10 @@ export const IconOrAvatar = ({ entity, size = 40 }: Props) => {
     return Img(entity.avatar, size);
   }
 
-  return FirstCharOfNameIcon((
-    "name" in entity
+  return FirstCharOfNameIcon(
+    ("name" in entity
       ? entity.chatname || entity.name
-      : entity.nickname || entity.username
-  )[0], size);
-}
+      : entity.nickname || entity.username)[0],
+    size,
+  );
+};

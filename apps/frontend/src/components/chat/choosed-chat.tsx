@@ -7,7 +7,7 @@ import { MessageTextarea } from "./message-textarea";
 type ChoosedChatProps = {
   chat: Chat;
   messages: Message[];
-  onSubmit: (event: FormEvent|KeyboardEvent) => void;
+  onSubmit: (event: FormEvent | KeyboardEvent) => void;
   users: Record<string, User>;
   setText: Dispatch<SetStateAction<string>>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
@@ -29,15 +29,14 @@ export const ChoosedChat = ({
         <div className="flex items-center justify-between">
           <div>
             <h5 className="text-lg">{chat.name}</h5>
-            <span className="text-mini text-muted">{chat.members.length} members</span>
+            <span className="text-mini text-muted">
+              {chat.members.length} members
+            </span>
           </div>
         </div>
       </div>
 
-      <div
-        ref={messagesRef}
-        className="flex-1 overflow-auto py-2 space-y-2"
-      >
+      <div ref={messagesRef} className="flex-1 overflow-auto py-2 space-y-2">
         <Messages messages={messages} users={users} />
       </div>
 

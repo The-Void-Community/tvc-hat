@@ -8,7 +8,9 @@ type Props = {
 export const Wrapper = ({ children, className }: Props) => {
   return (
     <div className="main-full flex h-full">
-      <div className={["flex grow h-full", className].join(" ")}>{children}</div>
+      <div className={["flex grow h-full", className].join(" ")}>
+        {children}
+      </div>
     </div>
   );
 };

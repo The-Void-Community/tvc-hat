@@ -32,7 +32,7 @@ const Chat = ({ chatId }: Props) => {
   const [filteredChats, setFilteredChats] = useState<Record<ChatType, Chat[]>>({
     DIRECT: [],
     GROUP: [],
-    SELF: []
+    SELF: [],
   });
   const [choosedChat, setChoosedChat] = useState<Chat | null>(null);
   const [text, setText] = useState<string>("");
@@ -63,12 +63,12 @@ const Chat = ({ chatId }: Props) => {
         return;
       }
 
-      const gettedChats = await getChats(gettedUser.chats) || [];
+      const gettedChats = (await getChats(gettedUser.chats)) || [];
       const filtered = {
         ...filteredChats,
-        ...Object.groupBy(gettedChats, (chat) => chat.type)
+        ...Object.groupBy(gettedChats, (chat) => chat.type),
       };
-      
+
       setFilteredChats(filtered);
       setUser(gettedUser);
       setToken(gettedToken);
@@ -78,7 +78,7 @@ const Chat = ({ chatId }: Props) => {
 
       setLoaded(true);
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId]);
 
   useEffect(() => {
@@ -190,7 +190,7 @@ const Chat = ({ chatId }: Props) => {
     textareaRef.current.value = "";
   }, [socket, user, choosedChat, text]);
 
-  const onSubmit = (event: FormEvent|KeyboardEvent) => {
+  const onSubmit = (event: FormEvent | KeyboardEvent) => {
     event.preventDefault();
     sendMessage();
   };
@@ -236,14 +236,17 @@ const Chat = ({ chatId }: Props) => {
           "flex flex-col",
         ].join(" ")}
       >
-        <ChatsNavigation choosedChat={choosedChat} setChoosedChat={setChoosedChat} chats={/* filteredChats.GROUP */ chats} />
+        <ChatsNavigation
+          choosedChat={choosedChat}
+          setChoosedChat={setChoosedChat}
+          chats={/* filteredChats.GROUP */ chats}
+        />
       </nav>
 
       <div
-        className={[
-          "bg-(--bg-card) rounded-lg flex-1",
-          "flex flex-col",
-        ].join(" ")}
+        className={["bg-(--bg-card) rounded-lg flex-1", "flex flex-col"].join(
+          " ",
+        )}
       >
         {choosedChat && (
           <ChoosedChat
