@@ -20,8 +20,11 @@ export const getMessages = async ({
   return endpointRequestOrNull({
     endpoint: "/messages",
     query: {
-      skip, count, positionMessageId,
-      sort, chatId
-    }
+      skip,
+      count,
+      positionMessageId,
+      sort,
+      chatId,
+    },
   });
 };

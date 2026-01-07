@@ -7,16 +7,16 @@ import { endpointRequestOrNull } from "./utils";
 
 export const getMeByToken = cache(
   async (token: string): Promise<User | null> => {
-    return endpointRequestOrNull({endpoint: "/auth/@me", token});
-  }
+    return endpointRequestOrNull({ endpoint: "/auth/@me", token });
+  },
 );
 
 export const getMeByCookie = cache(async (): Promise<User | null> => {
-  return endpointRequestOrNull(({endpoint: "/auth/@me"}));
+  return endpointRequestOrNull({ endpoint: "/auth/@me" });
 });
 
 export const getUser = cache(async (slug: string): Promise<User | null> => {
-  return endpointRequestOrNull({endpoint: `/users/${slug}`});
+  return endpointRequestOrNull({ endpoint: `/users/${slug}` });
 });
 
 export const getMe = cache(

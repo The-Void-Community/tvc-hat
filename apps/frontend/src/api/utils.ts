@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { getToken } from "./get-token";
 
@@ -9,90 +9,106 @@ const BASE_PATH_NAME = "/api/v1";
 const API_URL: string = "http://localhost:8080" + BASE_PATH_NAME;
 const BASE_URL: URL = new URL(API_URL);
 
-type AvailableQueryTypes = string|number|bigint|boolean|undefined|null;
+type AvailableQueryTypes =
+  | string
+  | number
+  | bigint
+  | boolean
+  | undefined
+  | null;
 
-type EndpointOrUrl = ({
-  endpoint: string;
-  url?: undefined;
-} | {
-  url: Partial<URL>;
-  endpoint?: undefined;
-}) & {
-  query?: Record<string, AvailableQueryTypes|AvailableQueryTypes[]>,
-  skipQueryUndefined?: boolean
-  skipQueryNull?: boolean
-}
+type EndpointOrUrl = (
+  | {
+      endpoint: string;
+      url?: undefined;
+    }
+  | {
+      url: Partial<URL>;
+      endpoint?: undefined;
+    }
+) & {
+  query?: Record<string, AvailableQueryTypes | AvailableQueryTypes[]>;
+  skipQueryUndefined?: boolean;
+  skipQueryNull?: boolean;
+};
 
-const getCacheInit = (cache?: boolean): {
-  next?: NextFetchRequestConfig ,
-  cache?: RequestCache
+const getCacheInit = (
+  cache?: boolean,
+): {
+  next?: NextFetchRequestConfig;
+  cache?: RequestCache;
 } => {
   if (!cache) {
-    return {}
+    return {};
   }
-  
+
   return {
     next: {
       revalidate: 1200,
     },
     cache: "force-cache",
-  }
-}
+  };
+};
 
 export const createEndpointUrl = ({
   url,
   endpoint,
   query = {},
   skipQueryNull = false,
-  skipQueryUndefined = true
+  skipQueryUndefined = true,
 }: EndpointOrUrl) => {
-  const searchParams = new URLSearchParams(Object.fromEntries(Object.keys(query).filter(key => {
-    const value = query[key];
-    if (skipQueryUndefined && value === undefined) {
-      return false;
-    }
-    if (skipQueryNull && value === null) {
-      return false;
-    }
+  const searchParams = new URLSearchParams(
+    Object.fromEntries(
+      Object.keys(query)
+        .filter((key) => {
+          const value = query[key];
+          if (skipQueryUndefined && value === undefined) {
+            return false;
+          }
+          if (skipQueryNull && value === null) {
+            return false;
+          }
 
-    return true;
-  }).map(key => {
-    const value = query[key];
-    if (Array.isArray(value)) {
-      return [key, value.join(",")];
-    }
+          return true;
+        })
+        .map((key) => {
+          const value = query[key];
+          if (Array.isArray(value)) {
+            return [key, value.join(",")];
+          }
 
-    return [key, value!.toString()];
-  }))) 
+          return [key, value!.toString()];
+        }),
+    ),
+  );
 
   if (endpoint) {
     return new URL({
       ...BASE_URL,
       pathname: BASE_PATH_NAME + endpoint,
-      searchParams
-    })
+      searchParams,
+    });
   }
 
   return new URL({
     ...BASE_URL,
     ...url,
-    searchParams
+    searchParams,
   });
 };
 
 type Parameters = {
   token?: string;
   init?: RequestInit;
-  cache?: boolean
-  tokenFromCookie?: boolean
+  cache?: boolean;
+  tokenFromCookie?: boolean;
 } & EndpointOrUrl;
 
-export const endpointRequest = async ({
-  init,
-  ...data
-}: Parameters) => {
-  const { next: requestInitNextFetch, cache: requestInitCache } = getCacheInit(data.cache);
-  const { next, cache, headers, ...requestInit  } = init || {};
+export const endpointRequest = async ({ init, ...data }: Parameters) => {
+  const { next: requestInitNextFetch, cache: requestInitCache } = getCacheInit(
+    data.cache,
+  );
+  const { next, cache, headers, ...requestInit } = init || {};
 
   try {
     const token = data.token
@@ -100,7 +116,7 @@ export const endpointRequest = async ({
       : data.tokenFromCookie
         ? await getToken()
         : null;
-        
+
     const response = await fetch(createEndpointUrl(data).toString(), {
       method: "GET",
       headers: {
@@ -109,7 +125,7 @@ export const endpointRequest = async ({
       },
       next: {
         ...requestInitNextFetch,
-        ...next
+        ...next,
       },
       cache: cache ? cache : requestInitCache,
       ...requestInit,
@@ -118,18 +134,18 @@ export const endpointRequest = async ({
     if (response.status !== 200) {
       return {
         response,
-        data: null
+        data: null,
       } as const;
     }
 
     return {
-      data: await response.json()
+      data: await response.json(),
     } as const;
   } catch (error) {
     console.error(error);
     return {
       error,
-      data: null
+      data: null,
     } as const;
   }
 };
@@ -142,7 +158,7 @@ export const endpointRequestOrNull = async (data: Parameters) => {
   }
 
   return null;
-}
+};
 
 export const endpointRequestOrThrow = async (data: Parameters) => {
   const response = await endpointRequest(data);
@@ -156,4 +172,4 @@ export const endpointRequestOrThrow = async (data: Parameters) => {
   }
 
   return null;
-}
+};
