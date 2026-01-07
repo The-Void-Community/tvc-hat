@@ -13,17 +13,27 @@ import { Wrapper } from "@/components/wrapper.component";
 import { getMessages } from "@/api/get-messages";
 import { ChatsNavigation } from "@/components/chat/chat";
 import { ChoosedChat } from "@/components/chat/choosed-chat";
+import { ChatType } from "@/enums";
+
+import { useRouter } from "next/navigation";
 
 type Props = {
   chatId?: string;
 };
 
 const Chat = ({ chatId }: Props) => {
+  const router = useRouter();
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const [users, setUsers] = useState<Record<string, User>>({});
   const [user, setUser] = useState<User | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
+  const [filteredChats, setFilteredChats] = useState<Record<ChatType, Chat[]>>({
+    DIRECT: [],
+    GROUP: [],
+    SELF: []
+  });
   const [choosedChat, setChoosedChat] = useState<Chat | null>(null);
   const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -53,8 +63,13 @@ const Chat = ({ chatId }: Props) => {
         return;
       }
 
-      const gettedChats = await getChats(gettedUser.chats);
-
+      const gettedChats = await getChats(gettedUser.chats) || [];
+      const filtered = {
+        ...filteredChats,
+        ...Object.groupBy(gettedChats, (chat) => chat.type)
+      };
+      
+      setFilteredChats(filtered);
       setUser(gettedUser);
       setToken(gettedToken);
       setChats(gettedChats || []);
@@ -63,12 +78,15 @@ const Chat = ({ chatId }: Props) => {
 
       setLoaded(true);
     })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId]);
 
   useEffect(() => {
     if (!choosedChat) {
       return;
     }
+
+    router.push(`/chat/${choosedChat.id}`);
 
     (async () => {
       const gettedMessages = (
@@ -80,7 +98,7 @@ const Chat = ({ chatId }: Props) => {
 
       addMessages(gettedMessages);
     })();
-  }, [choosedChat]);
+  }, [choosedChat, router]);
 
   useEffect(() => {
     if (!messagesRef.current) {
@@ -172,7 +190,7 @@ const Chat = ({ chatId }: Props) => {
     textareaRef.current.value = "";
   }, [socket, user, choosedChat, text]);
 
-  const onSubmit = (event: FormEvent) => {
+  const onSubmit = (event: FormEvent|KeyboardEvent) => {
     event.preventDefault();
     sendMessage();
   };
@@ -214,11 +232,11 @@ const Chat = ({ chatId }: Props) => {
     <Wrapper className="gap-4">
       <nav
         className={[
-          "bg-(--bg-card) rounded-lg overflow-y-auto overflow-x-hidden w-72",
+          "bg-(--bg-card) rounded-lg overflow-y-auto overflow-x-hidden w-16",
           "flex flex-col",
         ].join(" ")}
       >
-        <ChatsNavigation setChoosedChat={setChoosedChat} chats={chats} />
+        <ChatsNavigation choosedChat={choosedChat} setChoosedChat={setChoosedChat} chats={/* filteredChats.GROUP */ chats} />
       </nav>
 
       <div

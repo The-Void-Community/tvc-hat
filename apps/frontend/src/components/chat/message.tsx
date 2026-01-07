@@ -1,5 +1,5 @@
 import type { Message as MessageType, User } from "@/types";
-import Image from "next/image";
+import { IconOrAvatar } from "./icon";
 
 type MessageProps = {
   message: MessageType;
@@ -8,25 +8,22 @@ type MessageProps = {
 
 export const Message = ({ message, users }: MessageProps) => {
   const sender = users[message.senderId];
-  const time = message?.createdAt ? new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+  const time = new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="flex items-start gap-3">
-      <Image
-        src={sender?.avatar || "/hat.png"}
-        alt={sender?.nickname || "avatar"}
-        height={24}
-        width={24}
-        className="rounded-full"
-      />
+    <div className={[
+      "flex items-start gap-2 px-4 py-2 rounded-md duration-100",
+      "hover:bg-(--bg-component)"
+    ].join(" ")}>
+      <IconOrAvatar entity={sender} size={48} />
 
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">{sender?.nickname}</span>
-          <span className="text-mini text-muted">{time}</span>
+      <div className="flex flex-col w-full">
+        <div className="flex items-center gap-1">
+          <span className="font-semibold">{sender.nickname}</span>
+          <span className="text-mini">{time}</span>
         </div>
 
-        <div className="mt-1 bg-(--bg-component) px-3 py-2 rounded-lg max-w-prose">
+        <div className="rounded-lg w-full">
           <span>{message.text}</span>
         </div>
       </div>

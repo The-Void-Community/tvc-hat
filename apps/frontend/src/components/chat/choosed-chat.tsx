@@ -1,5 +1,5 @@
 import type { Chat, Message, User } from "@/types";
-import type { Dispatch, FormEventHandler, RefObject, SetStateAction } from "react";
+import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
 
 import { Messages } from "./message";
 import { MessageTextarea } from "./message-textarea";
@@ -7,7 +7,7 @@ import { MessageTextarea } from "./message-textarea";
 type ChoosedChatProps = {
   chat: Chat;
   messages: Message[];
-  onSubmit: FormEventHandler<HTMLFormElement>;
+  onSubmit: (event: FormEvent|KeyboardEvent) => void;
   users: Record<string, User>;
   setText: Dispatch<SetStateAction<string>>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
@@ -25,7 +25,7 @@ export const ChoosedChat = ({
 }: ChoosedChatProps) => {
   return (
     <>
-      <div className="bg-(--bg-smooth) rounded-t-lg py-3 px-4 border-b border-(--bg-component)">
+      <div className="bg-(--bg-smooth) rounded-t-lg py-3 px-4 border-(--bg-component)">
         <div className="flex items-center justify-between">
           <div>
             <h5 className="text-lg">{chat.name}</h5>
@@ -36,12 +36,12 @@ export const ChoosedChat = ({
 
       <div
         ref={messagesRef}
-        className="flex-1 overflow-auto px-4 py-6 space-y-3 bg-(--bg-main)"
+        className="flex-1 overflow-auto py-2 space-y-2"
       >
         <Messages messages={messages} users={users} />
       </div>
 
-      <div className="px-4 py-3 bg-(--bg-card) rounded-b-lg border-t border-(--bg-component)">
+      <div className="px-2 py-1 bg-(--bg-card) rounded-b-lg">
         <MessageTextarea
           textareaRef={textareaRef}
           onSubmit={onSubmit}
