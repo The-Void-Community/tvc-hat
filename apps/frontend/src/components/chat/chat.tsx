@@ -12,6 +12,7 @@ type ChatNavigationProps = {
   chat: Chat;
   choosedChat: Chat | null;
   setChoosedChat: Dispatch<SetStateAction<Chat | null>>;
+  full?: boolean
 } & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
 export const ChatNavigation = ({
@@ -19,6 +20,7 @@ export const ChatNavigation = ({
   choosedChat,
   setChoosedChat,
   className,
+  full = false
 }: ChatNavigationProps) => {
   return (
     <div
@@ -36,6 +38,9 @@ export const ChatNavigation = ({
       }}
     >
       <IconOrAvatar entity={chat} />
+      {full && (
+        <span className="w-24 truncate">{chat.name}</span>
+      )}
     </div>
   );
 };
@@ -44,12 +49,14 @@ type ChatsNaviationProps = {
   chats: Chat[];
   choosedChat: Chat | null;
   setChoosedChat: Dispatch<SetStateAction<Chat | null>>;
+  full?: boolean
 };
 
 export const ChatsNavigation = ({
   chats,
   choosedChat,
   setChoosedChat,
+  full
 }: ChatsNaviationProps) => {
   return (
     <div className="flex flex-col items-center gap-1">
@@ -59,6 +66,7 @@ export const ChatsNavigation = ({
           setChoosedChat={setChoosedChat}
           chat={chat}
           key={chat.id}
+          full={full}
         />
       ))}
     </div>

@@ -4,15 +4,19 @@ import type { ChatCreateDto } from "./dto/chat-create.dto";
 import type { ChatUpdateDto } from "./dto/chat-update.dto";
 import type { RightsUpdateDto } from "./dto/rights-update.dto";
 
+import type { IdOrChatname } from "@/v1/pipes/slug.pipe";
+import { CHARS } from "@/v1/pipes/slug.pipe";
+
 import { PrismaService } from "@/database/prisma.service";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Rights } from "@/services";
+
 import BitField from "fbit-field";
 
 @Injectable()
 export class Service {
   public static resolveSlug(slug: string) {
-    return slug[0] === "$" ? { chatname: slug.slice(1) } : { id: slug };
+    return slug[0] === CHARS.chatname ? { chatname: slug.slice(1) } : { id: slug };
   }
 
   public static hasRights(
@@ -50,8 +54,18 @@ export class Service {
     });
   }
 
-  public async getOne(slug: string): Promise<Chat | null> {
-    return this.prisma.chat.findUnique({ where: Service.resolveSlug(slug) });
+  public async getOne(slug: IdOrChatname): Promise<Chat | null> {
+    return this.prisma.chat.findUnique({ where: slug });
+  }
+
+  public async getUserChats(id: string) {
+    return this.prisma.chat.findMany({
+      where: {
+        members: {
+          has: id
+        }
+      }
+    });
   }
 
   public async post(data: ChatCreateDto, userId: string): Promise<Chat> {
@@ -65,48 +79,48 @@ export class Service {
   }
 
   public async put(
-    slug: string,
+    slug: IdOrChatname,
     data: ChatUpdateDto,
     userId: string,
   ): Promise<Chat> {
     const chat = await this.prisma.chat.findUnique({
-      where: Service.resolveSlug(slug),
+      where: slug,
     });
     if (!Service.hasRights(chat, userId)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
     }
 
     return this.prisma.chat.update({
-      where: Service.resolveSlug(slug),
+      where: slug,
       data,
     });
   }
 
   public async patch(
-    slug: string,
+    slug: IdOrChatname,
     data: ChatUpdateDto,
     userId: string,
   ): Promise<Chat> {
     const chat = await this.prisma.chat.findUnique({
-      where: Service.resolveSlug(slug),
+      where: slug,
     });
     if (!Service.hasRights(chat, userId)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
     }
 
     return this.prisma.chat.update({
-      where: Service.resolveSlug(slug),
+      where: slug,
       data,
     });
   }
 
   public async patchRights(
-    slug: string,
+    slug: IdOrChatname,
     data: RightsUpdateDto,
     userId: string,
   ) {
     const chat = await this.prisma.chat.findUnique({
-      where: Service.resolveSlug(slug),
+      where: slug,
     });
     if (!Service.hasRights(chat, userId, Rights.RAW.chat.admin)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
@@ -127,7 +141,7 @@ export class Service {
     );
 
     return this.prisma.chat.update({
-      where: Service.resolveSlug(slug),
+      where: slug,
       data: {
         rights: {
           ...(chat!.rights as Record<string, string>),
@@ -137,9 +151,9 @@ export class Service {
     });
   }
 
-  public async patchJoin(slug: string, userId: string) {
+  public async patchJoin(slug: IdOrChatname, userId: string) {
     const chat = await this.prisma.chat.findUnique({
-      where: Service.resolveSlug(slug),
+      where: slug,
       select: { members: true },
     });
 
@@ -151,38 +165,38 @@ export class Service {
     }
 
     return this.prisma.chat.update({
-      where: Service.resolveSlug(slug),
+      where: slug,
       data: {
         members: [...chat.members, userId],
       },
     });
   }
 
-  public async delete(slug: string, userId: string): Promise<string> {
+  public async delete(slug: IdOrChatname, userId: string): Promise<string> {
     const chat = await this.prisma.chat.findUnique({
-      where: Service.resolveSlug(slug),
+      where: slug,
     });
     if (!Service.hasRights(chat, userId)) {
       throw new HttpException("No rights", HttpStatus.UNAUTHORIZED);
     }
 
     await this.prisma.chat.delete({
-      where: Service.resolveSlug(slug),
+      where: slug,
     });
 
     return "deleted";
   }
 
-  public async addMessage(slug: string | Chat, messageId: string) {
+  public async addMessage(slug: IdOrChatname | Chat, messageId: string) {
     const chat =
-      typeof slug === "string"
-        ? await this.prisma.chat.findUnique({
-            where: Service.resolveSlug(slug),
+      "ownerId" in slug
+        ? slug
+        : await this.prisma.chat.findUnique({
+            where: slug,
             select: {
               messages: true,
             },
           })
-        : slug;
 
     if (!chat) {
       throw new HttpException(
@@ -192,8 +206,7 @@ export class Service {
     }
 
     return this.prisma.chat.update({
-      where:
-        typeof slug === "string" ? Service.resolveSlug(slug) : { id: slug.id },
+      where: "ownerId" in slug ? { id: slug.id } : slug,
       data: {
         messages: [...chat.messages, messageId],
       },

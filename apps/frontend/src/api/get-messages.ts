@@ -7,7 +7,7 @@ import { endpointRequestOrNull } from "./server-utils";
 export const getMessages = async ({
   chatId,
   positionMessageId,
-  count = 30,
+  count = 100,
   skip = 0,
   sort = "asc",
 }: {

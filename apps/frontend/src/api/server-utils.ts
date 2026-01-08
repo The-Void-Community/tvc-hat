@@ -8,12 +8,14 @@ import { createEndpointUrl, getCacheInit } from "./utils";
 export const endpointRequest = async ({
   init,
   tokenFromCookie = true,
+  statusResponse = 200,
+  tags,
   ...data
 }: Parameters) => {
   const { next: requestInitNextFetch, cache: requestInitCache } = getCacheInit(
     data.cache,
   );
-  const { next, cache, headers, ...requestInit } = init || {};
+  const { next, cache, headers, body, ...requestInit } = init || {};
 
   try {
     const token = data.token
@@ -23,20 +25,23 @@ export const endpointRequest = async ({
         : null;
 
     const response = await fetch(createEndpointUrl(data).href, {
-      method: "GET",
+      method: requestInit?.method || "GET",
       headers: {
         authorization: token ? `Bearer ${token}` : "",
+        "Content-Type": "application/json",
         ...headers,
       },
       next: {
         ...requestInitNextFetch,
         ...next,
+        tags: tags,
       },
       cache: cache ? cache : requestInitCache,
+      body: body,
       ...requestInit,
     });
 
-    if (response.status !== 200) {
+    if (response.status !== statusResponse) {
       return {
         response,
         data: null,

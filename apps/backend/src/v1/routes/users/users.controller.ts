@@ -1,7 +1,11 @@
+import type { Request } from "express";
+import type { Slug } from "@/v1/pipes/slug.pipe";
+
 import { UserUpdateDto } from "./dto/user-update.dto";
 
 import { Public } from "@/decorators";
 import { AuthGuard } from "@1/guards/auth/auth.guard";
+import { SlugPipe, UserSlugPipe } from "@/v1/pipes/slug.pipe";
 
 import {
   Controller as NestController,
@@ -14,6 +18,7 @@ import {
   Delete,
   UseGuards,
   HttpStatus,
+  Req,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 
@@ -48,8 +53,11 @@ export class Controller {
   })
   @Get(ROUTES.GET_ONE)
   @Public()
-  public getOne(@Param("slug") slug: string) {
-    return this.service.getOne(slug);
+  public getOne(
+    @Req() req: Request,
+    @Param("slug", UserSlugPipe) slug: Slug<"username">,
+  ) {
+    return this.service.getOne(SlugPipe.resolve(req, slug));
   }
 
   @ApiOperation({
@@ -57,10 +65,11 @@ export class Controller {
   })
   @Put(ROUTES.PUT)
   public put(
-    @Param("slug") slug: string,
+    @Req() req: Request,
+    @Param("slug", UserSlugPipe) slug: Slug<"username">,
     @Body() userUpdateDto: UserUpdateDto,
   ) {
-    return this.service.put(slug, userUpdateDto);
+    return this.service.put(SlugPipe.resolve(req, slug), userUpdateDto);
   }
 
   @ApiOperation({
@@ -68,17 +77,21 @@ export class Controller {
   })
   @Patch(ROUTES.PATCH)
   public patch(
-    @Param("slug") slug: string,
+    @Req() req: Request,
+    @Param("slug", UserSlugPipe) slug: Slug<"username">,
     @Body() userUpdateDto: UserUpdateDto,
   ) {
-    return this.service.patch(slug, userUpdateDto);
+    return this.service.patch(SlugPipe.resolve(req, slug), userUpdateDto);
   }
 
   @ApiOperation({
     summary: "Deleting a user",
   })
   @Delete(ROUTES.DELETE)
-  public delete(@Param("slug") slug: string) {
-    return this.service.delete(slug);
+  public delete(
+    @Req() req: Request,
+    @Param("slug", UserSlugPipe) slug: Slug<"username">
+  ) {
+    return this.service.delete(SlugPipe.resolve(req, slug));
   }
 }

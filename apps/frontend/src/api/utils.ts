@@ -29,6 +29,8 @@ export type Parameters = {
   init?: RequestInit;
   cache?: boolean;
   tokenFromCookie?: boolean;
+  statusResponse?: number;
+  tags?: string[];
 } & EndpointOrUrl;
 
 export const getCacheInit = (

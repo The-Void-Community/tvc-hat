@@ -1,40 +1,37 @@
 import type { User } from "@1/types";
 
 import type { UserUpdateDto } from "./dto/user-update.dto";
+import type { IdOrUsername } from "@/v1/pipes/slug.pipe";
 
 import PrismaService from "@/database/prisma.service";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class Service {
-  public static resolveUserSlug(slug: string) {
-    return slug[0] === "@" ? { username: slug.slice(1) } : { id: slug };
-  }
-
   public constructor(private readonly prisma: PrismaService) {}
 
-  public getOne(slug: string): Promise<User | null> {
+  public getOne(slug: IdOrUsername): Promise<User | null> {
     return this.prisma.user.findUnique({
-      where: Service.resolveUserSlug(slug),
+      where: slug,
     });
   }
 
-  public put(slug: string, data: UserUpdateDto): Promise<User> {
+  public put(slug: IdOrUsername, data: UserUpdateDto): Promise<User> {
     return this.prisma.user.update({
-      where: Service.resolveUserSlug(slug),
+      where: slug,
       data,
     });
   }
 
-  public patch(slug: string, data: UserUpdateDto): Promise<User> {
+  public patch(slug: IdOrUsername, data: UserUpdateDto): Promise<User> {
     return this.prisma.user.update({
-      where: Service.resolveUserSlug(slug),
+      where: slug,
       data,
     });
   }
 
-  public async delete(slug: string): Promise<string> {
-    await this.prisma.user.delete({ where: Service.resolveUserSlug(slug) });
+  public async delete(slug: IdOrUsername): Promise<string> {
+    await this.prisma.user.delete({ where: slug });
     return "deleted";
   }
 }

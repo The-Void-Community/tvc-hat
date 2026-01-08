@@ -63,7 +63,7 @@ export class Service {
       data,
     });
 
-    const chat = await this.chatsService.addMessage(message.chatId, message.id);
+    const chat = await this.chatsService.addMessage({ id: message.chatId }, message.id);
 
     return {
       message,

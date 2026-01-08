@@ -7,17 +7,19 @@ import { getMe, getUser } from "@/api/get-user";
 import { getChat, getChats } from "@/api/get-chats";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
+import { v4 as uuid } from "uuid";
 
 import { Wrapper } from "@/components/wrapper.component";
 import { getMessages } from "@/api/get-messages";
 import { ChatsNavigation } from "@/components/chat/chat";
 import { ChoosedChat } from "@/components/chat/choosed-chat";
 import { ChatType } from "@/enums";
-
-import { useRouter } from "next/navigation";
 import { IconOrAvatar } from "@/components/chat/icon";
-import { v4 as uuid } from "uuid";
+
+import { HiPlusCircle } from "react-icons/hi";
+import { CreateChatModal } from "@/components/chat/create-chat";
 
 type Props = {
   chatId?: string;
@@ -42,6 +44,8 @@ const Chat = ({ chatId }: Props) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
+  const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
+  const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
 
   const addMessages = (messages: Message[], to: "start" | "end" = "end") => {
     return setMessages((previous) => {
@@ -100,7 +104,7 @@ const Chat = ({ chatId }: Props) => {
           ).reverse()
         : [];
 
-      const gettedChats = (await getChats(gettedUser.chats)) || [];
+      const gettedChats = (await getChats()) || [];
       const filtered = {
         ...filteredChats,
         ...Object.groupBy(gettedChats, (chat) => chat.type),
@@ -130,8 +134,22 @@ const Chat = ({ chatId }: Props) => {
       return;
     }
 
-    router.push(`/chat/${choosedChat.id}`);
-  }, [choosedChat, router]);
+    const isSelf = choosedChat.type === ChatType.self;
+    const isDirect = choosedChat.type === ChatType.direct;
+
+    if ((isSelf || isDirect) && !sidebarShowed) {
+      setSidebarShowed(true);
+    }
+    
+    (async () => {
+      const gettedMessages = (await getMessages({
+        chatId: choosedChat.id,
+        sort: "desc",
+      }));
+
+      addMessages((gettedMessages || []).reverse());
+    })();
+  }, [choosedChat, router, sidebarShowed]);
 
   useEffect(() => {
     if (!token || !user) {
@@ -227,7 +245,7 @@ const Chat = ({ chatId }: Props) => {
   }
 
   return (
-    <Wrapper className="gap-4">
+    <Wrapper className="gap-2">
       <nav
         className={[
           "bg-(--bg-card) rounded-lg overflow-y-auto overflow-x-hidden w-16",
@@ -240,6 +258,13 @@ const Chat = ({ chatId }: Props) => {
               "px-3 py-2 flex-center cursor-pointer",
               "hover:bg-(--bg-component)",
             ].join(" ")}
+            onClick={() => {
+              if (sidebarShowed) {
+                return;
+              }
+
+              setSidebarShowed(true);
+            }}
           >
             <IconOrAvatar />
           </div>
@@ -249,10 +274,42 @@ const Chat = ({ chatId }: Props) => {
           <ChatsNavigation
             choosedChat={choosedChat}
             setChoosedChat={setChoosedChat}
-            chats={/* filteredChats.GROUP */ chats}
+            chats={filteredChats.GROUP}
           />
+
+          <div
+            className={[
+              "w-full text-(--fg-mini-text) px-3 py-2 flex-center gap-3 cursor-pointer rounded-lg transition-colors",
+              "hover:bg-(--bg-component)",
+            ].join(" ")}
+            onClick={() => {
+              setCreateModalShowed(true);
+            }}
+          >
+            <HiPlusCircle size={40} />
+          </div>
         </div>
       </nav>
+
+      <CreateChatModal state={[createModalShowed, setCreateModalShowed]} />
+
+      {sidebarShowed && (
+        <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
+          <ChatsNavigation
+            choosedChat={choosedChat}
+            setChoosedChat={setChoosedChat}
+            chats={filteredChats.SELF}
+            full
+            />
+          <hr className="w-[60%] text-(--fg-mini-text)" />
+          <ChatsNavigation
+            choosedChat={choosedChat}
+            setChoosedChat={setChoosedChat}
+            chats={filteredChats.DIRECT}
+            full
+          />
+        </nav>
+      )}
 
       <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
         {choosedChat && (
