@@ -95,6 +95,7 @@ type MessagesProps = {
   messagesRef: RefObject<HTMLDivElement | null>;
   onScroll?: (e: UIEvent<HTMLDivElement>) => void;
   autoScrollToBottom?: boolean;
+  loading?: boolean;
 };
 
 export const Messages = ({ 
@@ -103,7 +104,8 @@ export const Messages = ({
   onRetry, 
   messagesRef,
   onScroll,
-  autoScrollToBottom = false 
+  autoScrollToBottom = false,
+  loading = false
 }: MessagesProps) => {
   const messagesArray = useMemo(
     () =>
@@ -190,6 +192,11 @@ export const Messages = ({
       className="flex flex-col flex-1 overflow-y-auto py-2"
       onScroll={handleScroll}
     >
+      {loading && (
+        <div className="flex-1 flex-center py-6">
+          <CircleProgress size={36} />
+        </div>
+      )}
       {groupedMessages.map((message, index) => {
         const sender = users[message.senderId];
         const prevMessage = groupedMessages[index - 1];

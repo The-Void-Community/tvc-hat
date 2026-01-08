@@ -30,8 +30,8 @@ importers:
         specifier: ^4.8.3
         version: 4.8.3
       tvuikit:
-        specifier: ^0.4.2
-        version: 0.4.2(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2))
+        specifier: ^0.4.3
+        version: 0.4.3(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2))
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -2159,8 +2159,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  tvuikit@0.4.2:
-    resolution: {integrity: sha512-BgRmqYjiJH3cZ8Ce3PeQt6ipJZ4QBIZUDgA3ojXkhmHJD4UXfjViDSIRk0tMUU+NLym0r+Cd7XdO5dgKZx/N0g==}
+  tvuikit@0.4.3:
+    resolution: {integrity: sha512-Bgu7ASe3uw6jM8RHqHfAVSDEAXYaXdE0+dop0aifA6m5ibER64Dn4qOoMxyFYWJXP6J6JzQWRpSO8JR81Buccw==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -4530,7 +4530,7 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tvuikit@0.4.2(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2)):
+  tvuikit@0.4.3(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2)):
     dependencies:
       '@tailwindcss/postcss': 4.1.18
       '@tailwindcss/vite': 4.1.18(vite@7.3.0(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2))

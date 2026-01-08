@@ -26,11 +26,6 @@ export const getMessages = async ({
       sort,
       chatId,
     },
-    init: {
-      next: {
-        revalidate: 3600,
-        tags: [`messages_${chatId}`],
-      },
-    },
+    cache: false,
   });
 };

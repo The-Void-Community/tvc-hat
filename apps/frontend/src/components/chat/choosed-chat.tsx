@@ -13,6 +13,7 @@ type ChoosedChatProps = {
   messagesRef: RefObject<HTMLDivElement | null>;
   onScroll?: () => void;
   onRetry?: (id: string) => void;
+  loading?: boolean;
 };
 
 export const ChoosedChat = ({
@@ -24,6 +25,7 @@ export const ChoosedChat = ({
   messagesRef,
   onScroll,
   onRetry,
+  loading = false,
 }: ChoosedChatProps) => {
   return (
     <>
@@ -44,6 +46,7 @@ export const ChoosedChat = ({
         onRetry={onRetry}
         messagesRef={messagesRef}
         onScroll={onScroll}
+        loading={loading}
       />
 
       <div className="px-2 py-1 bg-(--bg-card) rounded-b-lg">

@@ -2,6 +2,7 @@
 
 import { endpointRequestOrNull } from "./server-utils";
 import type { Message } from "@/types";
+import { revalidateTag } from "next/cache";
 
 export const postMessage = async (data: {
   chatId: string;
@@ -12,6 +13,10 @@ export const postMessage = async (data: {
     statusResponse: 201,
     init: { method: "POST", body: JSON.stringify(data) },
   });
+
+  if (message && (message as Message).chatId) {
+    revalidateTag(`messages_${(message as Message).chatId}`, {});
+  }
 
   return message;
 };

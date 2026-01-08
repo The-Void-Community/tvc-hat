@@ -44,6 +44,7 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
   const [lastMessageId, setLastMessageId] = useState<string | null>(null);
+  const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
   const pendingAcksRef = useRef<Map<string, number>>(new Map());
   const messagesStateRef = useRef<Map<string, Message>>(messages);
 
@@ -106,14 +107,16 @@ const Chat = ({ chatId }: Props) => {
       if (!gettedUser) {
         return;
       }
-      const gettedMessages = gettedChat
-        ? (
-            (await getMessages({
-              chatId: gettedChat.id,
-              sort: "desc",
-            })) || []
-          ).reverse()
-        : [];
+      let gettedMessages: Message[] = [];
+      if (gettedChat) {
+        try {
+          setMessagesLoading(true);
+          const fetched = (await getMessages({ chatId: gettedChat.id, sort: "desc" })) || [];
+          gettedMessages = fetched.reverse();
+        } finally {
+          setMessagesLoading(false);
+        }
+      }
 
       const gettedChats = (await getChats()) || [];
       const filtered = {
@@ -161,18 +164,20 @@ const Chat = ({ chatId }: Props) => {
     shouldAutoScrollRef.current = true;
 
     (async () => {
-      const gettedMessages = (await getMessages({
-        chatId: choosedChat.id,
-        sort: "desc",
-      }));
+      try {
+        setMessagesLoading(true);
+        const gettedMessages = (await getMessages({ chatId: choosedChat.id, sort: "desc" })) || [];
 
-      if (gettedMessages && gettedMessages.length > 0) {
-        const reversedMessages = gettedMessages.reverse();
-        setMessages(
-          new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
-        );
-        setLastMessageId(reversedMessages[reversedMessages.length - 1].id);
-        scrollToBottom("instant");
+        if (gettedMessages.length > 0) {
+          const reversedMessages = gettedMessages.reverse();
+          setMessages(
+            new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
+          );
+          setLastMessageId(reversedMessages[reversedMessages.length - 1].id);
+          scrollToBottom("instant");
+        }
+      } finally {
+        setMessagesLoading(false);
       }
     })();
   }, [choosedChat, sidebarShowed, scrollToBottom]);
@@ -449,6 +454,7 @@ const Chat = ({ chatId }: Props) => {
             users={users}
             onScroll={handleScroll}
             onRetry={retryMessage}
+            loading={messagesLoading}
           />
         )}
       </div>

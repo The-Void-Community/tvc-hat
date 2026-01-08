@@ -4,7 +4,7 @@ import { endpointRequestOrNull } from "./server-utils";
 
 import { ChatType } from "@/enums";
 import { Chat } from "@/types";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export const createChat = async (data: {
   type: ChatType,
@@ -19,6 +19,7 @@ export const createChat = async (data: {
     init: { method: "POST", body: JSON.stringify(data) },
   });
 
+  revalidateTag("chats", {});
   revalidatePath('/chat');
 
   return chat;
