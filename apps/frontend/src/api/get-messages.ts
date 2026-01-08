@@ -2,7 +2,7 @@
 
 import type { Message } from "@/types";
 
-import { endpointRequestOrNull } from "./utils";
+import { endpointRequestOrNull } from "./server-utils";
 
 export const getMessages = async ({
   chatId,
@@ -26,5 +26,12 @@ export const getMessages = async ({
       sort,
       chatId,
     },
+    cache: false,
+    init: {
+      cache: "no-cache",
+      next: {
+        revalidate: false
+      }
+    }
   });
 };

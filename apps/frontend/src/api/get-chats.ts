@@ -2,7 +2,7 @@
 
 import { Chat } from "@/types";
 import { cache } from "react";
-import { endpointRequestOrNull } from "./utils";
+import { endpointRequestOrNull } from "./server-utils";
 
 export const getChat = cache(async (slug: string): Promise<Chat | null> => {
   return endpointRequestOrNull({
