@@ -1,4 +1,6 @@
 import type { Namespace, Socket } from "socket.io";
+import type { Message } from "@/v1/types";
+
 import {
   ConnectedSocket,
   MessageBody,
@@ -86,7 +88,7 @@ export class Gateway
       }),
     )
     body: SendMessageDto,
-  ): Promise<string> {
+  ): Promise<Message> {
     this.validateClientOrThrow(client);
     this.validateChatOrThrow(body.chatId);
 
@@ -97,7 +99,7 @@ export class Gateway
     const { message } = await this.service.createMessageAndUpdateChat(body);
     this.server.to(body.chatId).emit("receive_message", message);
 
-    return client.id;
+    return message;
   }
 
   @SubscribeMessage(GATEWAYS.CONNECT)

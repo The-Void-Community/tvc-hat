@@ -55,14 +55,19 @@ export const CreateChatModal = ({ state }: Props) => {
 
     event.preventDefault();
     
-    await createChat({
+    const created = await createChat({
       type: chatType,
       chatname: chatname ? chatname.toString() : null,
       icon: icon ? icon.toString() : null,
       name: name.toString()
     });
 
-    router.refresh();
+    if (created && created.id) {
+      router.push(`/chat/${created.id}`);
+    } else {
+      router.refresh();
+    }
+
     setShowed(false);
   };
 

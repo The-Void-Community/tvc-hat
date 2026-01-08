@@ -50,7 +50,7 @@ export const v1Modules = [
     ThrottlerModule.forRoot([
       {
         ttl: +env.THROLLER_TIME_TO_LIVE_IN_MILLISECONDS,
-        limit: +env.THROLLER_LIMIT,
+        limit: 1000, /* INDEV DEVELOPMENT */
       },
     ]),
     CacheModule.register({

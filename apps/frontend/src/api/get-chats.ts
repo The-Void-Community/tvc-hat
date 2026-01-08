@@ -7,6 +7,7 @@ import { endpointRequestOrNull } from "./server-utils";
 export const getChat = cache(async (slug: string): Promise<Chat | null> => {
   return endpointRequestOrNull({
     endpoint: `/chats/${slug}`,
+    tags: ["chat", slug],
   });
 });
 
@@ -15,5 +16,5 @@ export const getChats = cache(async (): Promise<Chat[] | null> => {
       endpoint: "/chats/@me",
       tags: ["chats"]
     });
-  },
+  }
 );

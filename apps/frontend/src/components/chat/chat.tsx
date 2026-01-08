@@ -1,3 +1,5 @@
+"use client";
+
 import type {
   DetailedHTMLProps,
   Dispatch,
@@ -5,6 +7,8 @@ import type {
   SetStateAction,
 } from "react";
 import type { Chat } from "@/types";
+import { getChat } from "@/api/get-chats";
+import { getMessages } from "@/api/get-messages";
 
 import { IconOrAvatar } from "./icon";
 
@@ -22,6 +26,16 @@ export const ChatNavigation = ({
   className,
   full = false
 }: ChatNavigationProps) => {
+  const handleMouseEnter = () => {
+    void Promise.all([
+      getChat(chat.id),
+      getMessages({
+        chatId: chat.id,
+        sort: "desc",
+      }),
+    ]);
+  };
+
   return (
     <div
       className={[
@@ -29,6 +43,7 @@ export const ChatNavigation = ({
         "hover:bg-(--bg-component)",
         className,
       ].join(" ")}
+      onMouseEnter={handleMouseEnter}
       onClick={() => {
         if (choosedChat?.id === chat.id) {
           return;

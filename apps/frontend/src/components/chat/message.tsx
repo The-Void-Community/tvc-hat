@@ -1,157 +1,204 @@
 "use client";
 
-/**
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- *
- *
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- * ЭТОТ КОД НАПИСАЛА НЕЙРОСЕТЬ И ОН ТРЕБУЕТ ПРОВЕРКИ
- *
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- * WARNING
- */
-
 import type { Message as MessageType, User } from "@/types";
+import type { RefObject, UIEvent } from "react";
+
+import { memo, useMemo, useEffect } from "react";
+import { CircleProgress } from "tvuikit";
+
 import { IconOrAvatar } from "./icon";
 
 type MessageProps = {
-  message: MessageType;
-  users: Record<string, User>;
-  showHeader: boolean;
+  message: MessageType & { showHeader?: boolean; pending?: boolean; failed?: boolean };
+  sender?: User | undefined;
+  onRetry?: (id: string) => void;
 };
 
-export const Message = ({ message, users, showHeader }: MessageProps) => {
-  const sender = users[message.senderId];
-  const time = new Date(message.createdAt).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const MessageInner = ({ message, sender, onRetry }: MessageProps) => {
+  const time = useMemo(() => {
+    return new Date(message.createdAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, [message.createdAt]);
+
+  const showHeader = !!message.showHeader;
 
   return (
     <div
       className={[
         "flex items-start gap-2 px-4 rounded-md",
-        "hover:bg-(--bg-component) duration-100",
+        "hover:bg-[var(--bg-component)] duration-100",
         showHeader ? "mt-2" : "",
-      ].join(" ")}
+      ].filter(Boolean).join(" ")}
     >
       {showHeader ? (
         <>
           <IconOrAvatar entity={sender} size={48} />
           <div className="flex flex-col w-full">
             <div className="flex items-center gap-1">
-              <span className="font-semibold">{sender.nickname}</span>
-              <span className="text-mini">{time}</span>
+              <span className="font-semibold">{sender?.nickname || sender?.username || "—"}</span>
+              <span className="text-mini flex items-center gap-2">
+                <span>{time}</span>
+                {message.pending && (
+                  <CircleProgress size={20} />
+                )}
+                {message.failed && onRetry && (
+                  <button
+                    onClick={() => onRetry(message.id)}
+                    className="text-red-400 text-mini underline"
+                    aria-label="Retry send"
+                  >
+                    Повторить
+                  </button>
+                )}
+              </span>
             </div>
             <span>{message.text}</span>
           </div>
         </>
       ) : (
-        <div style={{ marginLeft: "54px" }} className="flex flex-col w-full">
-          <span>{message.text}</span>
+        <div style={{ marginLeft: 54 }} className="flex flex-col w-full">
+          {message.pending ? (
+            <div className="flex flex-row items-center gap-1">
+              <span>{message.text}</span>
+              <CircleProgress size={12} />
+            </div>
+          ) : (
+            <span>{message.text}</span>
+          )}
         </div>
       )}
     </div>
   );
 };
 
+export const Message = memo(MessageInner, (prev, next) => {
+  if (prev.message.id !== next.message.id) return false;
+  if (prev.message.text !== next.message.text) return false;
+  if (prev.message.createdAt !== next.message.createdAt) return false;
+  if (!!prev.message.showHeader !== !!next.message.showHeader) return false;
+
+  const prevSender = prev.sender;
+  const nextSender = next.sender;
+  if (prevSender?.id !== nextSender?.id) return false;
+  if (prevSender?.nickname !== nextSender?.nickname) return false;
+  if (prevSender?.username !== nextSender?.username) return false;
+
+  return true;
+});
+
 type MessagesProps = {
   messages: Map<string, MessageType>;
   users: Record<string, User>;
+  onRetry?: (id: string) => void;
+  messagesRef: RefObject<HTMLDivElement | null>;
+  onScroll?: (e: UIEvent<HTMLDivElement>) => void;
+  autoScrollToBottom?: boolean;
 };
 
-export const Messages = ({ messages, users }: MessagesProps) => {
-  const array = Array.from(messages.values());
+export const Messages = ({ 
+  messages, 
+  users, 
+  onRetry, 
+  messagesRef,
+  onScroll,
+  autoScrollToBottom = false 
+}: MessagesProps) => {
+  const messagesArray = useMemo(
+    () =>
+      Array.from(messages.values()),
+    [messages],
+  );
 
-  const groups: {
-    startIndex: number;
-    startMessage: MessageType;
-    messages: MessageType[];
-  }[] = [];
+  const groupedMessages = useMemo(() => {
+    const groups: Array<{
+      messages: MessageType[];
+      startMessage: MessageType;
+      startTime: number;
+      dateString: string;
+    }> = [];
 
-  for (let i = 0; i < array.length; i++) {
-    const message = array[i];
+    const TEN_MIN = 10 * 60 * 1000;
 
-    if (i === 0 || array[i - 1].senderId !== message.senderId) {
-      groups.push({
-        startIndex: i,
-        startMessage: message,
-        messages: [message],
-      });
-      continue;
+    for (let i = 0; i < messagesArray.length; i++) {
+      const message = messagesArray[i];
+      const messageDate = new Date(message.createdAt);
+      const messageTime = messageDate.getTime();
+      const messageDateString = messageDate.toDateString();
+
+      if (groups.length === 0) {
+        groups.push({ 
+          messages: [message], 
+          startMessage: message, 
+          startTime: messageTime, 
+          dateString: messageDateString 
+        });
+        continue;
+      }
+
+      const prev = messagesArray[i - 1];
+      const lastGroup = groups[groups.length - 1];
+
+      const timeDiff = Math.abs(messageTime - lastGroup.startTime);
+      const isSameDate = messageDateString === lastGroup.dateString;
+      const isWithinTenMin = timeDiff <= TEN_MIN;
+
+      if (prev.senderId !== message.senderId || !isSameDate || !isWithinTenMin) {
+        groups.push({ 
+          messages: [message], 
+          startMessage: message, 
+          startTime: messageTime, 
+          dateString: messageDateString 
+        });
+      } else {
+        lastGroup.messages.push(message);
+      }
     }
 
-    const lastGroup = groups[groups.length - 1];
+    const result: Array<MessageType & { showHeader: boolean; dateString: string }> = [];
 
-    const timeDiff = Math.abs(
-      new Date(message.createdAt).getTime() -
-        new Date(lastGroup.startMessage.createdAt).getTime(),
-    );
-    const isSameDate =
-      new Date(message.createdAt).toDateString() ===
-      new Date(lastGroup.startMessage.createdAt).toDateString();
-    const isWithinTenMin = timeDiff <= 10 * 60 * 1000;
-
-    if (isSameDate && isWithinTenMin) {
-      lastGroup.messages.push(message);
-    } else {
-      groups.push({
-        startIndex: i,
-        startMessage: message,
-        messages: [message],
+    for (const group of groups) {
+      const { dateString } = group;
+      group.messages.forEach((message, indexInGroup) => {
+        result.push({ 
+          ...message, 
+          showHeader: indexInGroup === 0, 
+          dateString 
+        });
       });
     }
-  }
 
-  const messagesWithHeader: Array<MessageType & { showHeader: boolean }> = [];
+    return result;
+  }, [messagesArray]);
 
-  groups.forEach((group) => {
-    group.messages.forEach((message, indexInGroup) => {
-      messagesWithHeader.push({
-        ...message,
-        showHeader: indexInGroup === 0,
-      });
-    });
-  });
+  useEffect(() => {
+    if (!autoScrollToBottom || !messagesRef.current) {
+      return;
+    }
+
+    messagesRef.current.scrollIntoView({block: "end"});
+  }, [groupedMessages, autoScrollToBottom, messagesRef]);
+
+  const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+    onScroll?.(e);
+  };
 
   return (
-    <>
-      {messagesWithHeader.map((message, index) => {
-        const prevMessage = messagesWithHeader[index - 1];
-        const showDateSeparator =
-          !prevMessage ||
-          new Date(message.createdAt).toDateString() !==
-            new Date(prevMessage.createdAt).toDateString();
+    <div 
+      ref={messagesRef}
+      className="flex flex-col flex-1 overflow-y-auto py-2"
+      onScroll={handleScroll}
+    >
+      {groupedMessages.map((message, index) => {
+        const sender = users[message.senderId];
+        const prevMessage = groupedMessages[index - 1];
+        const showDateSeparator = !prevMessage || message.dateString !== prevMessage.dateString;
 
         return (
-          <div key={index}>
+          <div key={message.id}>
             {showDateSeparator && (
-              <div className="px-4 py-2 my-2 text-center text-mini text-xs">
+              <div className="px-4 py-2 my-2 text-center text-mini">
                 {new Date(message.createdAt).toLocaleDateString("ru-RU", {
                   weekday: "long",
                   year: "numeric",
@@ -160,14 +207,14 @@ export const Messages = ({ messages, users }: MessagesProps) => {
                 })}
               </div>
             )}
-            <Message
-              message={message}
-              users={users}
-              showHeader={message.showHeader}
+            <Message 
+              message={message} 
+              sender={sender} 
+              onRetry={onRetry} 
             />
           </div>
         );
       })}
-    </>
+    </div>
   );
 };

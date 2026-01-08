@@ -6,8 +6,7 @@ import { getToken } from "@/api/get-token";
 import { getMe, getUser } from "@/api/get-user";
 import { getChat, getChats } from "@/api/get-chats";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 
@@ -26,10 +25,9 @@ type Props = {
 };
 
 const Chat = ({ chatId }: Props) => {
-  const router = useRouter();
-
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
+  const shouldAutoScrollRef = useRef<boolean>(true);
   const [users, setUsers] = useState<Record<string, User>>({});
   const [user, setUser] = useState<User | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -39,13 +37,19 @@ const Chat = ({ chatId }: Props) => {
     SELF: [],
   });
   const [choosedChat, setChoosedChat] = useState<Chat | null>(null);
-  const [text, setText] = useState<string>("");
   const [messages, setMessages] = useState<Map<string, Message>>(new Map());
   const [socket, setSocket] = useState<Socket | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
+  const [lastMessageId, setLastMessageId] = useState<string | null>(null);
+  const pendingAcksRef = useRef<Map<string, number>>(new Map());
+  const messagesStateRef = useRef<Map<string, Message>>(messages);
+
+  useEffect(() => {
+    messagesStateRef.current = messages;
+  }, [messages]);
 
   const addMessages = (messages: Message[], to: "start" | "end" = "end") => {
     return setMessages((previous) => {
@@ -83,8 +87,15 @@ const Chat = ({ chatId }: Props) => {
         behavior,
       });
     },
-    [messagesRef],
+    [],
   );
+
+  const handleScroll = useCallback(() => {
+    if (!messagesRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = messagesRef.current;
+    shouldAutoScrollRef.current = scrollHeight - scrollTop - clientHeight < 100;
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -120,14 +131,18 @@ const Chat = ({ chatId }: Props) => {
       setChoosedChat(gettedChat);
       setUsers((previous) => ({ ...previous, [gettedUser.id]: gettedUser }));
 
-      setTimeout(() => {
-        scrollToBottom();
-      }, 200);
-
       setLoaded(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId, scrollToBottom]);
+
+  useEffect(() => {
+    if (!choosedChat || choosedChat.id === chatId) {
+      return;
+    }
+
+    window.history.replaceState(null, "", `/chat/${choosedChat.id}`);
+  }, [choosedChat, chatId]);
 
   useEffect(() => {
     if (!choosedChat) {
@@ -141,15 +156,26 @@ const Chat = ({ chatId }: Props) => {
       setSidebarShowed(true);
     }
     
+    setMessages(new Map());
+    setLastMessageId(null);
+    shouldAutoScrollRef.current = true;
+
     (async () => {
       const gettedMessages = (await getMessages({
         chatId: choosedChat.id,
         sort: "desc",
       }));
 
-      addMessages((gettedMessages || []).reverse());
+      if (gettedMessages && gettedMessages.length > 0) {
+        const reversedMessages = gettedMessages.reverse();
+        setMessages(
+          new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
+        );
+        setLastMessageId(reversedMessages[reversedMessages.length - 1].id);
+        scrollToBottom("instant");
+      }
     })();
-  }, [choosedChat, router, sidebarShowed]);
+  }, [choosedChat, sidebarShowed, scrollToBottom]);
 
   useEffect(() => {
     if (!token || !user) {
@@ -174,6 +200,7 @@ const Chat = ({ chatId }: Props) => {
 
       setUsers((previous) => ({ ...previous, [messageUser.id]: messageUser }));
       addMessages([message]);
+      setLastMessageId(message.id);
     });
 
     (() => {
@@ -203,42 +230,142 @@ const Chat = ({ chatId }: Props) => {
     };
   }, [chats, socket]);
 
-  const sendMessage = useCallback(() => {
-    if (!textareaRef.current || !socket || !user || !choosedChat) {
-      return;
-    }
+  const sendMessage = useCallback(async (messageText: string) => {
+    if (!socket || !user || !choosedChat) return;
 
-    const message = text.trim();
-    if (message === "") {
-      return;
-    }
+    const textTrimmed = messageText.trim();
+    if (textTrimmed === "") return;
 
-    const messageBody = {
+    const tempId = uuid();
+    const tempMessage = {
       senderId: user.id,
       chatId: choosedChat.id,
-      text: message,
-    } as Message;
+      text: textTrimmed,
+      id: tempId,
+      createdAt: new Date(),
+      pending: true,
+    } as unknown as Message;
 
-    addMessages([
-      {
-        ...messageBody,
-        id: uuid(),
-        createdAt: new Date(),
-      },
-    ]);
-    socket.emit("send_message", messageBody);
+    addMessages([tempMessage]);
+    setLastMessageId(tempId);
 
-    textareaRef.current.value = "";
-  }, [socket, user, choosedChat, text]);
+    try {
+      const timeout = window.setTimeout(() => {
+        setMessages((prev) => {
+          const next = new Map(prev);
+          const m = next.get(tempId);
+          if (!m) return prev;
+          next.set(tempId, { ...m, pending: false, failed: true } as unknown as Message);
+          return next;
+        });
+        pendingAcksRef.current.delete(tempId);
+      }, 8000);
 
-  const onSubmit = (event: FormEvent | KeyboardEvent) => {
-    event.preventDefault();
-    sendMessage();
+      pendingAcksRef.current.set(tempId, timeout as unknown as number);
+
+      socket.emit("send_message", { chatId: choosedChat.id, senderId: user.id, text: textTrimmed }, (serverMessage: Message | null) => {
+        const pending = pendingAcksRef.current.get(tempId);
+        if (pending) {
+          clearTimeout(pending as unknown as number);
+          pendingAcksRef.current.delete(tempId);
+        }
+
+        if (serverMessage) {
+          setMessages((prev) => {
+            const next = new Map(prev);
+            if (next.has(tempId)) next.delete(tempId);
+            next.set(serverMessage.id, serverMessage);
+            return next;
+          });
+          setLastMessageId(serverMessage.id);
+        } else {
+          setMessages((prev) => {
+            const next = new Map(prev);
+            const m = next.get(tempId);
+            if (!m) return prev;
+            next.set(tempId, { ...m, pending: false, failed: true } as unknown as Message);
+            return next;
+          });
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => {
+        const next = new Map(prev);
+        const m = next.get(tempId);
+        if (!m) return prev;
+        next.set(tempId, { ...m, pending: false, failed: true } as unknown as Message);
+        return next;
+      });
+    }
+  }, [socket, user, choosedChat]);
+
+  const onSubmit = (messageText: string) => {
+    void sendMessage(messageText);
   };
 
+  const retryMessage = useCallback((id: string) => {
+    if (!socket || !choosedChat || !user) return;
+
+    const msg = messagesStateRef.current.get(id);
+    if (!msg) return;
+
+    const text = msg.text;
+
+    setMessages((prev) => {
+      const next = new Map(prev);
+      const current = next.get(id);
+      if (!current) return prev;
+      next.set(id, { ...current, pending: true, failed: false } as unknown as Message);
+      return next;
+    });
+
+    setLastMessageId(id);
+
+    const timeout = window.setTimeout(() => {
+      setMessages((prev) => {
+        const next = new Map(prev);
+        const curr = next.get(id);
+        if (!curr) return prev;
+        next.set(id, { ...curr, pending: false, failed: true } as unknown as Message);
+        return next;
+      });
+      pendingAcksRef.current.delete(id);
+    }, 8000);
+
+    pendingAcksRef.current.set(id, timeout);
+
+    socket.emit("send_message", { chatId: choosedChat.id, senderId: user.id, text }, (serverMessage: Message | null) => {
+      const pending = pendingAcksRef.current.get(id);
+      if (pending) {
+        clearTimeout(pending);
+        pendingAcksRef.current.delete(id);
+      }
+      if (serverMessage) {
+        setMessages((prev) => {
+          const next = new Map(prev);
+          if (next.has(id)) next.delete(id);
+          next.set(serverMessage.id, serverMessage);
+          return next;
+        });
+        setLastMessageId(serverMessage.id);
+      } else {
+        setMessages((prev) => {
+          const next = new Map(prev);
+          const curr = next.get(id);
+          if (!curr) return prev;
+          next.set(id, { ...curr, pending: false, failed: true } as unknown as Message);
+          return next;
+        });
+      }
+    });
+  }, [socket, choosedChat, user]);
+
   useEffect(() => {
-    scrollToBottom("smooth");
-  }, [messages, scrollToBottom]);
+    if (shouldAutoScrollRef.current) {
+      scrollToBottom("smooth");
+    }
+  }, [lastMessageId, scrollToBottom]);
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -317,10 +444,11 @@ const Chat = ({ chatId }: Props) => {
             chat={choosedChat}
             messages={messages}
             onSubmit={onSubmit}
-            setText={setText}
             textareaRef={textareaRef}
             messagesRef={messagesRef}
             users={users}
+            onScroll={handleScroll}
+            onRetry={retryMessage}
           />
         )}
       </div>

@@ -1,5 +1,5 @@
 import type { Chat, Message, User } from "@/types";
-import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
+import type { RefObject } from "react";
 
 import { Messages } from "./message";
 import { MessageTextarea } from "./message-textarea";
@@ -7,11 +7,12 @@ import { MessageTextarea } from "./message-textarea";
 type ChoosedChatProps = {
   chat: Chat;
   messages: Map<string, Message>;
-  onSubmit: (event: FormEvent | KeyboardEvent) => void;
+  onSubmit: (text: string) => void;
   users: Record<string, User>;
-  setText: Dispatch<SetStateAction<string>>;
-  textareaRef: RefObject<HTMLTextAreaElement | null>;
+  textareaRef?: RefObject<HTMLTextAreaElement | null>;
   messagesRef: RefObject<HTMLDivElement | null>;
+  onScroll?: () => void;
+  onRetry?: (id: string) => void;
 };
 
 export const ChoosedChat = ({
@@ -19,9 +20,10 @@ export const ChoosedChat = ({
   messages,
   users,
   onSubmit,
-  setText,
   textareaRef,
   messagesRef,
+  onScroll,
+  onRetry,
 }: ChoosedChatProps) => {
   return (
     <>
@@ -36,16 +38,16 @@ export const ChoosedChat = ({
         </div>
       </div>
 
-      <div ref={messagesRef} className="flex-1 overflow-auto py-2">
-        <Messages messages={messages} users={users} />
-      </div>
+      <Messages
+        messages={messages}
+        users={users}
+        onRetry={onRetry}
+        messagesRef={messagesRef}
+        onScroll={onScroll}
+      />
 
       <div className="px-2 py-1 bg-(--bg-card) rounded-b-lg">
-        <MessageTextarea
-          textareaRef={textareaRef}
-          onSubmit={onSubmit}
-          setText={setText}
-        />
+        <MessageTextarea textareaRef={textareaRef} onSubmit={onSubmit} />
       </div>
     </>
   );
