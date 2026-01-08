@@ -30,8 +30,8 @@ export const getMessages = async ({
     init: {
       cache: "no-cache",
       next: {
-        revalidate: false
-      }
-    }
+        revalidate: false,
+      },
+    },
   });
 };

@@ -82,7 +82,7 @@ export const createEndpointUrl = ({
   if (endpoint) {
     return BASE_URL.overwrite({
       pathname: BASE_PATH_NAME + endpoint,
-      query: searchParams
+      query: searchParams,
     });
   }
 

@@ -1,42 +1,53 @@
-const urlPattern = /^(?:(?<protocol>[^:\/?#]+):)?(?:\/\/(?:(?<username>[^:@]+)(?::(?<password>[^@]+))?@)?(?<hostname>[^:\/?#]+)(?::(?<port>\d+))?)?(?<pathname>\/[^?#]*)?(?:\?(?<search>[^#]*))?(?:#(?<hash>.*))?/;
+const urlPattern =
+  /^(?:(?<protocol>[^:\/?#]+):)?(?:\/\/(?:(?<username>[^:@]+)(?::(?<password>[^@]+))?@)?(?<hostname>[^:\/?#]+)(?::(?<port>\d+))?)?(?<pathname>\/[^?#]*)?(?:\?(?<search>[^#]*))?(?:#(?<hash>.*))?/;
 
 export interface UrlType {
   origin: string;
   protocol: string;
-  username: string|null;
-  password: string|null;
+  username: string | null;
+  password: string | null;
   hostname: string;
-  port: string|null;
+  port: string | null;
   pathname: string;
-  search: string|null;
-  hash: string|null;
+  search: string | null;
+  hash: string | null;
 
   host: string;
   href: string;
   query: Map<string, string>;
-};
+}
 
 export type Nullable<T extends object> = {
   [P in keyof T]: T[P] | null;
-}
+};
 
 export class Url implements UrlType {
-  private static readonly nullableProperties = ["username", "password", "search", "hash", "port"];
+  private static readonly nullableProperties = [
+    "username",
+    "password",
+    "search",
+    "hash",
+    "port",
+  ];
   private _data: Omit<UrlType, "href">;
 
-  public static queryFromString(query: string|undefined): Map<string, string> {
+  public static queryFromString(
+    query: string | undefined,
+  ): Map<string, string> {
     if (!query) {
       return new Map();
     }
 
-    return new Map<string, string>(query.split("&").map(value => {
-      const queryData = value.split("=");
-      if (queryData.length !== 2) {
-        throw new Error("Bad query");
-      }
+    return new Map<string, string>(
+      query.split("&").map((value) => {
+        const queryData = value.split("=");
+        if (queryData.length !== 2) {
+          throw new Error("Bad query");
+        }
 
-      return queryData as [string, string];
-    }));
+        return queryData as [string, string];
+      }),
+    );
   }
 
   public static fromString(url: string) {
@@ -50,7 +61,9 @@ export class Url implements UrlType {
       throw new Error("Bad grouping");
     }
 
-    const host = groups.port ? `${groups.hostname}:${groups.port}` : groups.hostname
+    const host = groups.port
+      ? `${groups.hostname}:${groups.port}`
+      : groups.hostname;
 
     const parsed: UrlType = {
       protocol: groups.protocol,
@@ -59,18 +72,18 @@ export class Url implements UrlType {
       hostname: groups.hostname,
       port: groups.port || null,
       host: host,
-      pathname: groups.pathname || '/',
+      pathname: groups.pathname || "/",
       search: groups.search || null,
       query: this.queryFromString(groups.search),
       hash: groups.hash || null,
       href: url,
-      origin: groups.protocol ? `${groups.protocol}://${host}` : `//${host}`
-    }
+      origin: groups.protocol ? `${groups.protocol}://${host}` : `//${host}`,
+    };
 
     return parsed;
   }
 
-  public constructor(data: Url|string) {
+  public constructor(data: Url | string) {
     if (typeof data === "string") {
       this._data = Url.fromString(data);
     } else {
@@ -78,7 +91,7 @@ export class Url implements UrlType {
     }
   }
 
-  public overwrite(url: Omit<Partial<Nullable<UrlType>>, "origin"|"href">) {
+  public overwrite(url: Omit<Partial<Nullable<UrlType>>, "origin" | "href">) {
     this.paste("hash", url.hash);
     this.paste("password", url.password);
     this.paste("username", url.username);
@@ -91,13 +104,18 @@ export class Url implements UrlType {
       this.paste("hostname", hostname);
       this.paste("port", port);
       this.paste("host", url.host);
-      this.paste("origin", url.protocol ? `${url.protocol}://${url.host}` : `${this._data.protocol}://${url.host}`);
+      this.paste(
+        "origin",
+        url.protocol
+          ? `${url.protocol}://${url.host}`
+          : `${this._data.protocol}://${url.host}`,
+      );
     }
 
     if (url.hostname) {
       this.changeHost({ hostname: url.hostname });
     }
-    
+
     if (url.port !== undefined) {
       this.changeHost({ port: url.port });
     }
@@ -114,7 +132,12 @@ export class Url implements UrlType {
       this.paste("search", null);
       this._data.query = new Map();
     } else if (url.query !== undefined) {
-      this.paste("search", Array.from(url.query.entries()).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join("&"));
+      this.paste(
+        "search",
+        Array.from(url.query.entries())
+          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+          .join("&"),
+      );
       this._data.query = url.query;
     }
 
@@ -122,23 +145,32 @@ export class Url implements UrlType {
   }
 
   public toString(): string {
-    const { protocol, username, password, hostname, port, pathname, search, hash } = this._data;
+    const {
+      protocol,
+      username,
+      password,
+      hostname,
+      port,
+      pathname,
+      search,
+      hash,
+    } = this._data;
 
-    const authorization: string = username && password
-      ? `${username}:${password}@`
-      : "";
+    const authorization: string =
+      username && password ? `${username}:${password}@` : "";
     const host = this.buildHost(hostname, port);
-    const searchString = search
-      ? `?${search}` : "";
-    const hashString = hash
-      ? `#${hash}` : ""
+    const searchString = search ? `?${search}` : "";
+    const hashString = hash ? `#${hash}` : "";
 
     const output = `${protocol}://${authorization}${host}${pathname}${searchString}${hashString}`;
 
     return output;
   }
 
-  private changeHost({hostname, port}: Partial<Nullable<Pick<UrlType, "hostname"|"port">>>) {
+  private changeHost({
+    hostname,
+    port,
+  }: Partial<Nullable<Pick<UrlType, "hostname" | "port">>>) {
     const host = this.buildHost(hostname!, port);
 
     this.paste("hostname", hostname);
@@ -147,22 +179,26 @@ export class Url implements UrlType {
     this.paste("origin", `${this._data.protocol}://${host}`);
   }
 
-  private buildHost(hostname: string|undefined, port: string|undefined|null) {
+  private buildHost(
+    hostname: string | undefined,
+    port: string | undefined | null,
+  ) {
     if (hostname === null) {
       throw new Error("hostname can not be null");
     }
 
     const requiredHostname = hostname || this._data.hostname;
-    const maybePort = port === null
-      ? null
-      : port || this._data.port;
+    const maybePort = port === null ? null : port || this._data.port;
 
     return maybePort === null
       ? requiredHostname
       : `${requiredHostname}:${maybePort}`;
   }
 
-  private paste(key: keyof Omit<UrlType, "query">, value: string|undefined|null) {
+  private paste(
+    key: keyof Omit<UrlType, "query">,
+    value: string | undefined | null,
+  ) {
     if (value === undefined) {
       return;
     }
@@ -170,7 +206,7 @@ export class Url implements UrlType {
     if (typeof value !== "string") {
       if (!Url.nullableProperties.includes(key)) {
         throw new Error("Can not paste null to string");
-      };
+      }
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -236,7 +272,7 @@ export class Url implements UrlType {
   public get raw(): UrlType {
     return {
       ...this._data,
-      href: this.toString()
+      href: this.toString(),
     };
   }
 }

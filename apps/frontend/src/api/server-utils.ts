@@ -5,7 +5,11 @@ import type { Parameters } from "./utils";
 import { getToken } from "./get-token";
 import { createEndpointUrl, getCacheInit } from "./utils";
 
-export const endpointRequest = async ({ init, tokenFromCookie = true, ...data }: Parameters) => {
+export const endpointRequest = async ({
+  init,
+  tokenFromCookie = true,
+  ...data
+}: Parameters) => {
   const { next: requestInitNextFetch, cache: requestInitCache } = getCacheInit(
     data.cache,
   );
