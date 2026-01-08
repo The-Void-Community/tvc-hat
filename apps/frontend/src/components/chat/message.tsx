@@ -9,7 +9,11 @@ import { CircleProgress } from "tvuikit";
 import { IconOrAvatar } from "./icon";
 
 type MessageProps = {
-  message: MessageType & { showHeader?: boolean; pending?: boolean; failed?: boolean };
+  message: MessageType & {
+    showHeader?: boolean;
+    pending?: boolean;
+    failed?: boolean;
+  };
   sender?: User | undefined;
   onRetry?: (id: string) => void;
 };
@@ -30,19 +34,21 @@ const MessageInner = ({ message, sender, onRetry }: MessageProps) => {
         "flex items-start gap-2 px-4 rounded-md",
         "hover:bg-[var(--bg-component)] duration-100",
         showHeader ? "mt-2" : "",
-      ].filter(Boolean).join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {showHeader ? (
         <>
           <IconOrAvatar entity={sender} size={48} />
           <div className="flex flex-col w-full">
             <div className="flex items-center gap-1">
-              <span className="font-semibold">{sender?.nickname || sender?.username || "—"}</span>
+              <span className="font-semibold">
+                {sender?.nickname || sender?.username || "—"}
+              </span>
               <span className="text-mini flex items-center gap-2">
                 <span>{time}</span>
-                {message.pending && (
-                  <CircleProgress size={20} />
-                )}
+                {message.pending && <CircleProgress size={20} />}
                 {message.failed && onRetry && (
                   <button
                     onClick={() => onRetry(message.id)}
@@ -95,21 +101,18 @@ type MessagesProps = {
   messagesRef: RefObject<HTMLDivElement | null>;
   onScroll?: (e: UIEvent<HTMLDivElement>) => void;
   autoScrollToBottom?: boolean;
-  loading?: boolean;
 };
 
-export const Messages = ({ 
-  messages, 
-  users, 
-  onRetry, 
+export const Messages = ({
+  messages,
+  users,
+  onRetry,
   messagesRef,
   onScroll,
   autoScrollToBottom = false,
-  loading = false
 }: MessagesProps) => {
   const messagesArray = useMemo(
-    () =>
-      Array.from(messages.values()),
+    () => Array.from(messages.values()),
     [messages],
   );
 
@@ -130,11 +133,11 @@ export const Messages = ({
       const messageDateString = messageDate.toDateString();
 
       if (groups.length === 0) {
-        groups.push({ 
-          messages: [message], 
-          startMessage: message, 
-          startTime: messageTime, 
-          dateString: messageDateString 
+        groups.push({
+          messages: [message],
+          startMessage: message,
+          startTime: messageTime,
+          dateString: messageDateString,
         });
         continue;
       }
@@ -146,27 +149,33 @@ export const Messages = ({
       const isSameDate = messageDateString === lastGroup.dateString;
       const isWithinTenMin = timeDiff <= TEN_MIN;
 
-      if (prev.senderId !== message.senderId || !isSameDate || !isWithinTenMin) {
-        groups.push({ 
-          messages: [message], 
-          startMessage: message, 
-          startTime: messageTime, 
-          dateString: messageDateString 
+      if (
+        prev.senderId !== message.senderId ||
+        !isSameDate ||
+        !isWithinTenMin
+      ) {
+        groups.push({
+          messages: [message],
+          startMessage: message,
+          startTime: messageTime,
+          dateString: messageDateString,
         });
       } else {
         lastGroup.messages.push(message);
       }
     }
 
-    const result: Array<MessageType & { showHeader: boolean; dateString: string }> = [];
+    const result: Array<
+      MessageType & { showHeader: boolean; dateString: string }
+    > = [];
 
     for (const group of groups) {
       const { dateString } = group;
       group.messages.forEach((message, indexInGroup) => {
-        result.push({ 
-          ...message, 
-          showHeader: indexInGroup === 0, 
-          dateString 
+        result.push({
+          ...message,
+          showHeader: indexInGroup === 0,
+          dateString,
         });
       });
     }
@@ -179,7 +188,7 @@ export const Messages = ({
       return;
     }
 
-    messagesRef.current.scrollIntoView({block: "end"});
+    messagesRef.current.scrollIntoView({ block: "end" });
   }, [groupedMessages, autoScrollToBottom, messagesRef]);
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
@@ -187,20 +196,16 @@ export const Messages = ({
   };
 
   return (
-    <div 
+    <div
       ref={messagesRef}
       className="flex flex-col flex-1 overflow-y-auto py-2"
       onScroll={handleScroll}
     >
-      {loading && (
-        <div className="flex-1 flex-center py-6">
-          <CircleProgress size={36} />
-        </div>
-      )}
       {groupedMessages.map((message, index) => {
         const sender = users[message.senderId];
         const prevMessage = groupedMessages[index - 1];
-        const showDateSeparator = !prevMessage || message.dateString !== prevMessage.dateString;
+        const showDateSeparator =
+          !prevMessage || message.dateString !== prevMessage.dateString;
 
         return (
           <div key={message.id}>
@@ -214,11 +219,7 @@ export const Messages = ({
                 })}
               </div>
             )}
-            <Message 
-              message={message} 
-              sender={sender} 
-              onRetry={onRetry} 
-            />
+            <Message message={message} sender={sender} onRetry={onRetry} />
           </div>
         );
       })}

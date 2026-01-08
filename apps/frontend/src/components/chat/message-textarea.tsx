@@ -19,13 +19,17 @@ export const MessageTextarea = ({ onSubmit, textareaRef }: Props) => {
 
     const text = value.trim();
     if (text === "") return;
-    
+
     onSubmit(text);
     setValue("");
   };
 
   return (
-    <form id="send-message" className="flex items-center gap-2" onSubmit={handleSubmit}>
+    <form
+      id="send-message"
+      className="flex items-center gap-2"
+      onSubmit={handleSubmit}
+    >
       <div className="flex-1">
         <Textarea
           ref={textareaRef}
@@ -38,16 +42,20 @@ export const MessageTextarea = ({ onSubmit, textareaRef }: Props) => {
           ].join(" ")}
           onKeyDown={(e) => {
             if (e.key !== "Enter" || e.shiftKey) {
-              return
-            };
-            
+              return;
+            }
+
             e.preventDefault();
             handleSubmit(e);
           }}
         />
       </div>
 
-      <Button type="submit" className="p-2 rounded-lg cursor-pointer" overwriteClassName>
+      <Button
+        type="submit"
+        className="p-2 rounded-lg cursor-pointer"
+        overwriteClassName
+      >
         <HiPaperAirplane size={32} className="rotate-90" />
       </Button>
     </form>

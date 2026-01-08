@@ -1,32 +1,45 @@
-"use client"
+"use client";
 
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-import { Active, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Modal } from "tvuikit";
-import { AVAILABLE_CHAT_TYPES_TO_CREATE, ChatType, RUSSIAN_NAMES_OF_CHAT_TYPES } from "@/enums";
+import {
+  Active,
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Input,
+  Modal,
+} from "tvuikit";
+import {
+  AVAILABLE_CHAT_TYPES_TO_CREATE,
+  ChatType,
+  RUSSIAN_NAMES_OF_CHAT_TYPES,
+} from "@/enums";
 import { createChat } from "@/api/post-chat";
 import { useRouter } from "next/navigation";
 
 type Props = {
   state: [boolean, Dispatch<SetStateAction<boolean>>];
-}
+};
 
 export const CreateChatModal = ({ state }: Props) => {
   const router = useRouter();
 
-  const [chatType, setChatType] = useState<ChatType|null>(null);
+  const [chatType, setChatType] = useState<ChatType | null>(null);
   const [showed, setShowed] = state;
   const modalId = uuid();
 
   useEffect(() => {
     const keydownListener = (event: KeyboardEvent) => {
       if (!showed) {
-        return
+        return;
       }
-      
+
       if (!event.key) {
         return;
       }
@@ -35,11 +48,11 @@ export const CreateChatModal = ({ state }: Props) => {
         setShowed(false);
       }
     };
-    
+
     document.addEventListener("keydown", keydownListener);
     return () => {
       document.removeEventListener("keydown", keydownListener);
-    }
+    };
   }, [setShowed, showed]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -54,12 +67,12 @@ export const CreateChatModal = ({ state }: Props) => {
     }
 
     event.preventDefault();
-    
+
     const created = await createChat({
       type: chatType,
       chatname: chatname ? chatname.toString() : null,
       icon: icon ? icon.toString() : null,
-      name: name.toString()
+      name: name.toString(),
     });
 
     if (created && created.id) {
@@ -80,8 +93,8 @@ export const CreateChatModal = ({ state }: Props) => {
         onClick={(e) => {
           if ((e.target as HTMLElement)?.id !== modalId) {
             return;
-          };
-  
+          }
+
           setShowed(false);
         }}
       >
@@ -92,13 +105,27 @@ export const CreateChatModal = ({ state }: Props) => {
             className="create-chat flex flex-col gap-4 items-center justify-center h-full"
             onSubmit={onSubmit}
           >
-            <Input name="url" className="create-chat" placeholder="URL иконки" />
-            <Input name="name" className="create-chat" placeholder="Название чата" />
-            <Input name="chatname" className="create-chat" placeholder="Уникальное имя чата" />
+            <Input
+              name="url"
+              className="create-chat"
+              placeholder="URL иконки"
+            />
+            <Input
+              name="name"
+              className="create-chat"
+              placeholder="Название чата"
+            />
+            <Input
+              name="chatname"
+              className="create-chat"
+              placeholder="Уникальное имя чата"
+            />
             <Dropdown>
               <DropdownTrigger type="button">
                 <span>
-                  {chatType ? `Тип чата: ${RUSSIAN_NAMES_OF_CHAT_TYPES[chatType]}, выбрать другой?` : "Выбрать тип чата"}
+                  {chatType
+                    ? `Тип чата: ${RUSSIAN_NAMES_OF_CHAT_TYPES[chatType]}, выбрать другой?`
+                    : "Выбрать тип чата"}
                 </span>
               </DropdownTrigger>
               <DropdownMenu>
@@ -109,9 +136,7 @@ export const CreateChatModal = ({ state }: Props) => {
                       setChatType(type);
                     }}
                   >
-                    <span>
-                      {RUSSIAN_NAMES_OF_CHAT_TYPES[type]}
-                    </span>
+                    <span>{RUSSIAN_NAMES_OF_CHAT_TYPES[type]}</span>
                   </DropdownItem>
                 ))}
               </DropdownMenu>
@@ -123,5 +148,5 @@ export const CreateChatModal = ({ state }: Props) => {
         </div>
       </Modal>
     </Active>
-  )
-}
+  );
+};

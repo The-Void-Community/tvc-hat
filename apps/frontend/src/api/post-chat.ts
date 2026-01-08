@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { endpointRequestOrNull } from "./server-utils";
 
@@ -7,11 +7,11 @@ import { Chat } from "@/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export const createChat = async (data: {
-  type: ChatType,
-  name: string,
-  icon: string|null;
-  chatname: string|null;
-}): Promise<Chat|null> => {
+  type: ChatType;
+  name: string;
+  icon: string | null;
+  chatname: string | null;
+}): Promise<Chat | null> => {
   const chat = await endpointRequestOrNull({
     endpoint: "/chats/",
     cache: false,
@@ -20,7 +20,7 @@ export const createChat = async (data: {
   });
 
   revalidateTag("chats", {});
-  revalidatePath('/chat');
+  revalidatePath("/chat");
 
   return chat;
 };

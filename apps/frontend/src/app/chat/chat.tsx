@@ -44,7 +44,6 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
   const [lastMessageId, setLastMessageId] = useState<string | null>(null);
-  const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
   const pendingAcksRef = useRef<Map<string, number>>(new Map());
   const messagesStateRef = useRef<Map<string, Message>>(messages);
 
@@ -72,24 +71,21 @@ const Chat = ({ chatId }: Props) => {
     });
   };
 
-  const scrollToBottom = useCallback(
-    (behavior: ScrollBehavior = "instant") => {
-      if (!messagesRef.current) {
-        return;
-      }
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "instant") => {
+    if (!messagesRef.current) {
+      return;
+    }
 
-      if (behavior === "instant") {
-        messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-        return;
-      }
+    if (behavior === "instant") {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      return;
+    }
 
-      messagesRef.current.scrollTo({
-        top: messagesRef.current.scrollHeight,
-        behavior,
-      });
-    },
-    [],
-  );
+    messagesRef.current.scrollTo({
+      top: messagesRef.current.scrollHeight,
+      behavior,
+    });
+  }, []);
 
   const handleScroll = useCallback(() => {
     if (!messagesRef.current) return;
@@ -107,16 +103,14 @@ const Chat = ({ chatId }: Props) => {
       if (!gettedUser) {
         return;
       }
-      let gettedMessages: Message[] = [];
-      if (gettedChat) {
-        try {
-          setMessagesLoading(true);
-          const fetched = (await getMessages({ chatId: gettedChat.id, sort: "desc" })) || [];
-          gettedMessages = fetched.reverse();
-        } finally {
-          setMessagesLoading(false);
-        }
-      }
+      const gettedMessages = gettedChat
+        ? (
+            (await getMessages({
+              chatId: gettedChat.id,
+              sort: "desc",
+            })) || []
+          ).reverse()
+        : [];
 
       const gettedChats = (await getChats()) || [];
       const filtered = {
@@ -158,26 +152,24 @@ const Chat = ({ chatId }: Props) => {
     if ((isSelf || isDirect) && !sidebarShowed) {
       setSidebarShowed(true);
     }
-    
+
     setMessages(new Map());
     setLastMessageId(null);
     shouldAutoScrollRef.current = true;
 
     (async () => {
-      try {
-        setMessagesLoading(true);
-        const gettedMessages = (await getMessages({ chatId: choosedChat.id, sort: "desc" })) || [];
+      const gettedMessages = await getMessages({
+        chatId: choosedChat.id,
+        sort: "desc",
+      });
 
-        if (gettedMessages.length > 0) {
-          const reversedMessages = gettedMessages.reverse();
-          setMessages(
-            new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
-          );
-          setLastMessageId(reversedMessages[reversedMessages.length - 1].id);
-          scrollToBottom("instant");
-        }
-      } finally {
-        setMessagesLoading(false);
+      if (gettedMessages && gettedMessages.length > 0) {
+        const reversedMessages = gettedMessages.reverse();
+        setMessages(
+          new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
+        );
+        setLastMessageId(reversedMessages[reversedMessages.length - 1].id);
+        scrollToBottom("instant");
       }
     })();
   }, [choosedChat, sidebarShowed, scrollToBottom]);
@@ -235,136 +227,174 @@ const Chat = ({ chatId }: Props) => {
     };
   }, [chats, socket]);
 
-  const sendMessage = useCallback(async (messageText: string) => {
-    if (!socket || !user || !choosedChat) return;
+  const sendMessage = useCallback(
+    async (messageText: string) => {
+      if (!socket || !user || !choosedChat) return;
 
-    const textTrimmed = messageText.trim();
-    if (textTrimmed === "") return;
+      const textTrimmed = messageText.trim();
+      if (textTrimmed === "") return;
 
-    const tempId = uuid();
-    const tempMessage = {
-      senderId: user.id,
-      chatId: choosedChat.id,
-      text: textTrimmed,
-      id: tempId,
-      createdAt: new Date(),
-      pending: true,
-    } as unknown as Message;
+      const tempId = uuid();
+      const tempMessage = {
+        senderId: user.id,
+        chatId: choosedChat.id,
+        text: textTrimmed,
+        id: tempId,
+        createdAt: new Date(),
+        pending: true,
+      } as unknown as Message;
 
-    addMessages([tempMessage]);
-    setLastMessageId(tempId);
+      addMessages([tempMessage]);
+      setLastMessageId(tempId);
 
-    try {
-      const timeout = window.setTimeout(() => {
-        setMessages((prev) => {
-          const next = new Map(prev);
-          const m = next.get(tempId);
-          if (!m) return prev;
-          next.set(tempId, { ...m, pending: false, failed: true } as unknown as Message);
-          return next;
-        });
-        pendingAcksRef.current.delete(tempId);
-      }, 8000);
-
-      pendingAcksRef.current.set(tempId, timeout as unknown as number);
-
-      socket.emit("send_message", { chatId: choosedChat.id, senderId: user.id, text: textTrimmed }, (serverMessage: Message | null) => {
-        const pending = pendingAcksRef.current.get(tempId);
-        if (pending) {
-          clearTimeout(pending as unknown as number);
-          pendingAcksRef.current.delete(tempId);
-        }
-
-        if (serverMessage) {
-          setMessages((prev) => {
-            const next = new Map(prev);
-            if (next.has(tempId)) next.delete(tempId);
-            next.set(serverMessage.id, serverMessage);
-            return next;
-          });
-          setLastMessageId(serverMessage.id);
-        } else {
+      try {
+        const timeout = window.setTimeout(() => {
           setMessages((prev) => {
             const next = new Map(prev);
             const m = next.get(tempId);
             if (!m) return prev;
-            next.set(tempId, { ...m, pending: false, failed: true } as unknown as Message);
+            next.set(tempId, {
+              ...m,
+              pending: false,
+              failed: true,
+            } as unknown as Message);
             return next;
           });
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      setMessages((prev) => {
-        const next = new Map(prev);
-        const m = next.get(tempId);
-        if (!m) return prev;
-        next.set(tempId, { ...m, pending: false, failed: true } as unknown as Message);
-        return next;
-      });
-    }
-  }, [socket, user, choosedChat]);
+          pendingAcksRef.current.delete(tempId);
+        }, 8000);
+
+        pendingAcksRef.current.set(tempId, timeout as unknown as number);
+
+        socket.emit(
+          "send_message",
+          { chatId: choosedChat.id, senderId: user.id, text: textTrimmed },
+          (serverMessage: Message | null) => {
+            const pending = pendingAcksRef.current.get(tempId);
+            if (pending) {
+              clearTimeout(pending as unknown as number);
+              pendingAcksRef.current.delete(tempId);
+            }
+
+            if (serverMessage) {
+              setMessages((prev) => {
+                const next = new Map(prev);
+                if (next.has(tempId)) next.delete(tempId);
+                next.set(serverMessage.id, serverMessage);
+                return next;
+              });
+              setLastMessageId(serverMessage.id);
+            } else {
+              setMessages((prev) => {
+                const next = new Map(prev);
+                const m = next.get(tempId);
+                if (!m) return prev;
+                next.set(tempId, {
+                  ...m,
+                  pending: false,
+                  failed: true,
+                } as unknown as Message);
+                return next;
+              });
+            }
+          },
+        );
+      } catch (err) {
+        console.error(err);
+        setMessages((prev) => {
+          const next = new Map(prev);
+          const m = next.get(tempId);
+          if (!m) return prev;
+          next.set(tempId, {
+            ...m,
+            pending: false,
+            failed: true,
+          } as unknown as Message);
+          return next;
+        });
+      }
+    },
+    [socket, user, choosedChat],
+  );
 
   const onSubmit = (messageText: string) => {
     void sendMessage(messageText);
   };
 
-  const retryMessage = useCallback((id: string) => {
-    if (!socket || !choosedChat || !user) return;
+  const retryMessage = useCallback(
+    (id: string) => {
+      if (!socket || !choosedChat || !user) return;
 
-    const msg = messagesStateRef.current.get(id);
-    if (!msg) return;
+      const msg = messagesStateRef.current.get(id);
+      if (!msg) return;
 
-    const text = msg.text;
+      const text = msg.text;
 
-    setMessages((prev) => {
-      const next = new Map(prev);
-      const current = next.get(id);
-      if (!current) return prev;
-      next.set(id, { ...current, pending: true, failed: false } as unknown as Message);
-      return next;
-    });
-
-    setLastMessageId(id);
-
-    const timeout = window.setTimeout(() => {
       setMessages((prev) => {
         const next = new Map(prev);
-        const curr = next.get(id);
-        if (!curr) return prev;
-        next.set(id, { ...curr, pending: false, failed: true } as unknown as Message);
+        const current = next.get(id);
+        if (!current) return prev;
+        next.set(id, {
+          ...current,
+          pending: true,
+          failed: false,
+        } as unknown as Message);
         return next;
       });
-      pendingAcksRef.current.delete(id);
-    }, 8000);
 
-    pendingAcksRef.current.set(id, timeout);
+      setLastMessageId(id);
 
-    socket.emit("send_message", { chatId: choosedChat.id, senderId: user.id, text }, (serverMessage: Message | null) => {
-      const pending = pendingAcksRef.current.get(id);
-      if (pending) {
-        clearTimeout(pending);
-        pendingAcksRef.current.delete(id);
-      }
-      if (serverMessage) {
-        setMessages((prev) => {
-          const next = new Map(prev);
-          if (next.has(id)) next.delete(id);
-          next.set(serverMessage.id, serverMessage);
-          return next;
-        });
-        setLastMessageId(serverMessage.id);
-      } else {
+      const timeout = window.setTimeout(() => {
         setMessages((prev) => {
           const next = new Map(prev);
           const curr = next.get(id);
           if (!curr) return prev;
-          next.set(id, { ...curr, pending: false, failed: true } as unknown as Message);
+          next.set(id, {
+            ...curr,
+            pending: false,
+            failed: true,
+          } as unknown as Message);
           return next;
         });
-      }
-    });
-  }, [socket, choosedChat, user]);
+        pendingAcksRef.current.delete(id);
+      }, 8000);
+
+      pendingAcksRef.current.set(id, timeout);
+
+      socket.emit(
+        "send_message",
+        { chatId: choosedChat.id, senderId: user.id, text },
+        (serverMessage: Message | null) => {
+          const pending = pendingAcksRef.current.get(id);
+          if (pending) {
+            clearTimeout(pending);
+            pendingAcksRef.current.delete(id);
+          }
+          if (serverMessage) {
+            setMessages((prev) => {
+              const next = new Map(prev);
+              if (next.has(id)) next.delete(id);
+              next.set(serverMessage.id, serverMessage);
+              return next;
+            });
+            setLastMessageId(serverMessage.id);
+          } else {
+            setMessages((prev) => {
+              const next = new Map(prev);
+              const curr = next.get(id);
+              if (!curr) return prev;
+              next.set(id, {
+                ...curr,
+                pending: false,
+                failed: true,
+              } as unknown as Message);
+              return next;
+            });
+          }
+        },
+      );
+    },
+    [socket, choosedChat, user],
+  );
 
   useEffect(() => {
     if (shouldAutoScrollRef.current) {
@@ -432,7 +462,7 @@ const Chat = ({ chatId }: Props) => {
             setChoosedChat={setChoosedChat}
             chats={filteredChats.SELF}
             full
-            />
+          />
           <hr className="w-[60%] text-(--fg-mini-text)" />
           <ChatsNavigation
             choosedChat={choosedChat}
@@ -454,7 +484,6 @@ const Chat = ({ chatId }: Props) => {
             users={users}
             onScroll={handleScroll}
             onRetry={retryMessage}
-            loading={messagesLoading}
           />
         )}
       </div>

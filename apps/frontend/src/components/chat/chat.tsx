@@ -16,7 +16,7 @@ type ChatNavigationProps = {
   chat: Chat;
   choosedChat: Chat | null;
   setChoosedChat: Dispatch<SetStateAction<Chat | null>>;
-  full?: boolean
+  full?: boolean;
 } & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
 export const ChatNavigation = ({
@@ -24,7 +24,7 @@ export const ChatNavigation = ({
   choosedChat,
   setChoosedChat,
   className,
-  full = false
+  full = false,
 }: ChatNavigationProps) => {
   const handleMouseEnter = () => {
     void Promise.all([
@@ -53,9 +53,7 @@ export const ChatNavigation = ({
       }}
     >
       <IconOrAvatar entity={chat} />
-      {full && (
-        <span className="w-24 truncate">{chat.name}</span>
-      )}
+      {full && <span className="w-24 truncate">{chat.name}</span>}
     </div>
   );
 };
@@ -64,14 +62,14 @@ type ChatsNaviationProps = {
   chats: Chat[];
   choosedChat: Chat | null;
   setChoosedChat: Dispatch<SetStateAction<Chat | null>>;
-  full?: boolean
+  full?: boolean;
 };
 
 export const ChatsNavigation = ({
   chats,
   choosedChat,
   setChoosedChat,
-  full
+  full,
 }: ChatsNaviationProps) => {
   return (
     <div className="flex flex-col items-center gap-1">

@@ -31,14 +31,14 @@ export const getUser = cache(async (slug: string): Promise<User | null> => {
   if (!user) {
     return null;
   }
-  
+
   return user.user;
 });
 
 export const getMe = cache(
   async (token?: string | null): Promise<User | null> => {
     const cookie = await cookies();
-    
+
     const userFromCookie = cookie.get("user");
     if (userFromCookie) {
       return JSON.parse(userFromCookie.value);
@@ -49,7 +49,9 @@ export const getMe = cache(
       return null;
     }
 
-    cookie.set("user", JSON.stringify(user), { expires: new Date().getTime() +  5 * 60 * 1000});
+    cookie.set("user", JSON.stringify(user), {
+      expires: new Date().getTime() + 5 * 60 * 1000,
+    });
 
     return user;
   },

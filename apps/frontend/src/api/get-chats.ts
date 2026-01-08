@@ -12,9 +12,8 @@ export const getChat = cache(async (slug: string): Promise<Chat | null> => {
 });
 
 export const getChats = cache(async (): Promise<Chat[] | null> => {
-    return endpointRequestOrNull({
-      endpoint: "/chats/@me",
-      tags: ["chats"]
-    });
-  }
-);
+  return endpointRequestOrNull({
+    endpoint: "/chats/@me",
+    tags: ["chats"],
+  });
+});

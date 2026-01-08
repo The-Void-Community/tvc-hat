@@ -7,9 +7,7 @@ export const enum ChatType {
 export const RUSSIAN_NAMES_OF_CHAT_TYPES = {
   DIRECT: "Личное",
   GROUP: "Группа",
-  SELF: "Свои"
+  SELF: "Свои",
 };
 
-export const AVAILABLE_CHAT_TYPES_TO_CREATE = [
-  ChatType.group,
-]
+export const AVAILABLE_CHAT_TYPES_TO_CREATE = [ChatType.group];
