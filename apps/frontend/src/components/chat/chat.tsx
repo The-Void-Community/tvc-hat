@@ -1,40 +1,28 @@
 "use client";
 
+import type { Chat } from "@/types";
 import type {
   DetailedHTMLProps,
-  Dispatch,
   HTMLAttributes,
-  SetStateAction,
 } from "react";
-import type { Chat } from "@/types";
-import { getChat } from "@/api/get-chats";
-import { getMessages } from "@/api/get-messages";
 
+import { useMemo } from "react";
+
+import { ChatType } from "@/enums";
+import { useChat } from "@/contexts/chat.context";
 import { IconOrAvatar } from "./icon";
 
 type ChatNavigationProps = {
   chat: Chat;
-  choosedChat: Chat | null;
-  setChoosedChat: Dispatch<SetStateAction<Chat | null>>;
   full?: boolean;
 } & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
 export const ChatNavigation = ({
   chat,
-  choosedChat,
-  setChoosedChat,
   className,
   full = false,
 }: ChatNavigationProps) => {
-  const handleMouseEnter = () => {
-    void Promise.all([
-      getChat(chat.id),
-      getMessages({
-        chatId: chat.id,
-        sort: "desc",
-      }),
-    ]);
-  };
+  const { currentChat, setCurrentChat } = useChat();
 
   return (
     <div
@@ -43,13 +31,12 @@ export const ChatNavigation = ({
         "hover:bg-(--bg-component)",
         className,
       ].join(" ")}
-      onMouseEnter={handleMouseEnter}
       onClick={() => {
-        if (choosedChat?.id === chat.id) {
+        if (currentChat?.id === chat.id) {
           return;
         }
 
-        setChoosedChat(chat);
+        setCurrentChat(chat);
       }}
     >
       <IconOrAvatar entity={chat} />
@@ -59,26 +46,24 @@ export const ChatNavigation = ({
 };
 
 type ChatsNaviationProps = {
-  chats: Chat[];
-  choosedChat: Chat | null;
-  setChoosedChat: Dispatch<SetStateAction<Chat | null>>;
+  type: ChatType,
   full?: boolean;
 };
 
 export const ChatsNavigation = ({
-  chats,
-  choosedChat,
-  setChoosedChat,
+  type,
   full,
 }: ChatsNaviationProps) => {
+  const { filteredChats } = useChat();
+
+  const chats = useMemo(() => Array.from(filteredChats[type].values()), [filteredChats, type]);
+
   return (
     <div className="flex flex-col items-center gap-1">
       {chats.map((chat) => (
         <ChatNavigation
-          choosedChat={choosedChat}
-          setChoosedChat={setChoosedChat}
-          chat={chat}
           key={chat.id}
+          chat={chat}
           full={full}
         />
       ))}

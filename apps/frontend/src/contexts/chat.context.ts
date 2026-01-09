@@ -1,5 +1,6 @@
-import type { Message, User } from "@/types";
-import type { RefObject } from "react"
+import { FilteredChats } from "@/hooks/use-filtered-chats.hook";
+import type { Chat, Message, User } from "@/types";
+import type { RefObject, UIEvent } from "react"
 
 import { createContext, useContext } from "react"
 
@@ -7,11 +8,21 @@ type ChatContextType = {
   messages: Map<string, Message>;
   users: Map<string, User>;
   me: User;
+  currentChat: Chat|null;
 
   messagesRef: RefObject<HTMLDivElement | null>;
-  pendingMessages: RefObject<Map<string, number>>;
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
+  pendingMessages: RefObject<Map<string, boolean>>;
 
-  autoScrollEnabled: boolean;
+  filteredChats: FilteredChats;
+
+  setCurrentChat: (chat: Chat) => unknown;
+
+  retrySendMessage: (id: string) => unknown;
+  sendMessage: (text: string) => unknown;
+  onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
+
+  autoScrollEnabled: RefObject<boolean>;
 }
 
 export const ChatContext = createContext<ChatContextType | null>(null);

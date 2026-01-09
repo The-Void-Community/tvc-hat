@@ -19,11 +19,11 @@ export type EmitMessageParameters = Parameters<EmitMessageFunction>;
 
 export type UseWebsocketProps = {
   onRecieveMessage: (message: Message) => unknown;
-  chats: Chat[]
+  chats: Map<string, Chat>;
 }
 
 export const useWebsocket = ({ onRecieveMessage, chats }: UseWebsocketProps) => {
-  const [socket, setSocket] = useState<Socket | null>();
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -59,7 +59,7 @@ export const useWebsocket = ({ onRecieveMessage, chats }: UseWebsocketProps) => 
       return;
     }
 
-    socket.emit(Gateways.connectMany, chats.map(chat => chat.id));
+    socket.emit(Gateways.connectMany, Array.from(chats.keys()));
 
     return () => {
       socket.emit(Gateways.disconnectAll);

@@ -1,34 +1,24 @@
-import type { FrontendMessageProperties, MaybeFrontendMessage, Message, MessagesMap } from "@/types";
-import { useCallback, useState } from "react";
+import type { FrontendMessageProperties, MaybeFrontendMessage, Message } from "@/types";
+import { useCallback } from "react";
+import { useMap } from "./use-map.hook";
 
 export const useMessagesMap = () => {
-  const [messages, setMessages] = useState<MessagesMap>(new Map());
+  const {
+    map: messages,
+    addMany,
+    setMap
+  } = useMap<Message>();
 
   const addMessages = useCallback((messages: Message [], to: "start" | "end" = "end") => {
-    return setMessages((previous) => {
-      const newMessages = messages.map((message) => [message.id, message] as [string, Message]);
-      const oldMessages = Array.from(previous.entries());
-
-      if (to === "start") {
-        return new Map([
-          ...newMessages,
-          ...oldMessages,
-        ])
-      };
-
-      return new Map([
-        ...oldMessages,
-        ...newMessages,
-      ]);
-    });
-  }, []);
+    return addMany(messages, "id", to);
+  }, [addMany]);
 
   const updateOne = useCallback((id: string, message: MaybeFrontendMessage) => {
-    return setMessages((previous) => {
+    return setMap((previous) => {
       const map = new Map(previous);
       return map.set(id, message);
     })
-  }, []);
+  }, [setMap]);
 
   const setOne = useCallback((message: MaybeFrontendMessage, options?: FrontendMessageProperties) => {
     return updateOne(message.id, {
@@ -44,6 +34,7 @@ export const useMessagesMap = () => {
   return {
     messages,
     addMessages,
+    setMessages: setMap,
     updateOneMessage: updateOne,
     setOneMessage: setOne,
     markMessageAsFailed: markAsFailed

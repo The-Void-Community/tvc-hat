@@ -1,30 +1,13 @@
-import type { Chat, Message, User } from "@/types";
-import type { RefObject } from "react";
-
 import { Messages } from "./message";
 import { MessageTextarea } from "./message-textarea";
+import { useChat } from "@/contexts/chat.context";
 
-type ChoosedChatProps = {
-  chat: Chat;
-  messages: Map<string, Message>;
-  onSubmit: (text: string) => void;
-  users: Record<string, User>;
-  textareaRef?: RefObject<HTMLTextAreaElement | null>;
-  messagesRef: RefObject<HTMLDivElement | null>;
-  onScroll?: () => void;
-  onRetry?: (id: string) => void;
-};
+export const ChoosedChat = () => {
+  const { currentChat: chat } = useChat();
+  if (!chat) {
+    return <></>;
+  }
 
-export const ChoosedChat = ({
-  chat,
-  messages,
-  users,
-  onSubmit,
-  textareaRef,
-  messagesRef,
-  onScroll,
-  onRetry,
-}: ChoosedChatProps) => {
   return (
     <>
       <div className="bg-(--bg-smooth) rounded-t-lg py-3 px-4 border-(--bg-component)">
@@ -38,16 +21,10 @@ export const ChoosedChat = ({
         </div>
       </div>
 
-      <Messages
-        messages={messages}
-        users={users}
-        onRetry={onRetry}
-        messagesRef={messagesRef}
-        onScroll={onScroll}
-      />
+      <Messages />
 
       <div className="px-2 py-1 bg-(--bg-card) rounded-b-lg">
-        <MessageTextarea textareaRef={textareaRef} onSubmit={onSubmit} />
+        <MessageTextarea />
       </div>
     </>
   );

@@ -1,12 +1,13 @@
 "use client";
 
 import type { Message as MessageType, User } from "@/types";
-import type { RefObject, UIEvent } from "react";
+import type { UIEvent } from "react";
 
 import { memo, useMemo, useEffect } from "react";
 import { CircleProgress } from "tvuikit";
 
 import { IconOrAvatar } from "./icon";
+import { useChat } from "@/contexts/chat.context";
 
 type MessageProps = {
   message: MessageType & {
@@ -15,10 +16,11 @@ type MessageProps = {
     failed?: boolean;
   };
   sender?: User | undefined;
-  onRetry?: (id: string) => void;
 };
 
-const MessageInner = ({ message, sender, onRetry }: MessageProps) => {
+const MessageInner = ({ message, sender }: MessageProps) => {
+  const { retrySendMessage } = useChat();
+
   const time = useMemo(() => {
     return new Date(message.createdAt).toLocaleTimeString([], {
       hour: "2-digit",
@@ -34,9 +36,7 @@ const MessageInner = ({ message, sender, onRetry }: MessageProps) => {
         "flex items-start gap-2 px-4 rounded-md",
         "hover:bg-[var(--bg-component)] duration-100",
         showHeader ? "mt-2" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      ].join(" ")}
     >
       {showHeader ? (
         <>
@@ -49,9 +49,9 @@ const MessageInner = ({ message, sender, onRetry }: MessageProps) => {
               <span className="text-mini flex items-center gap-2">
                 <span>{time}</span>
                 {message.pending && <CircleProgress size={20} />}
-                {message.failed && onRetry && (
+                {message.failed && (
                   <button
-                    onClick={() => onRetry(message.id)}
+                    onClick={() => retrySendMessage(message.id)}
                     className="text-red-400 text-mini underline"
                     aria-label="Retry send"
                   >
@@ -94,23 +94,9 @@ export const Message = memo(MessageInner, (prev, next) => {
   return true;
 });
 
-type MessagesProps = {
-  messages: Map<string, MessageType>;
-  users: Record<string, User>;
-  onRetry?: (id: string) => void;
-  messagesRef: RefObject<HTMLDivElement | null>;
-  onScroll?: (e: UIEvent<HTMLDivElement>) => void;
-  autoScrollToBottom?: boolean;
-};
-
-export const Messages = ({
-  messages,
-  users,
-  onRetry,
-  messagesRef,
-  onScroll,
-  autoScrollToBottom = false,
-}: MessagesProps) => {
+export const Messages = () => {
+  const { messages, messagesRef, autoScrollEnabled, users, onScroll } = useChat();
+  
   const messagesArray = useMemo(
     () => Array.from(messages.values()),
     [messages],
@@ -184,12 +170,12 @@ export const Messages = ({
   }, [messagesArray]);
 
   useEffect(() => {
-    if (!autoScrollToBottom || !messagesRef.current) {
+    if (!autoScrollEnabled || !messagesRef.current) {
       return;
     }
 
     messagesRef.current.scrollIntoView({ block: "end" });
-  }, [groupedMessages, autoScrollToBottom, messagesRef]);
+  }, [groupedMessages, autoScrollEnabled, messagesRef]);
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     onScroll?.(e);
@@ -202,7 +188,13 @@ export const Messages = ({
       onScroll={handleScroll}
     >
       {groupedMessages.map((message, index) => {
-        const sender = users[message.senderId];
+        const sender = users.get(message.senderId);
+        if (!sender) {
+          return (
+            <span key={index}>Error: <a href="https://t.me/fockusty">t.me/fockusty</a></span>
+          );
+        }
+
         const prevMessage = groupedMessages[index - 1];
         const showDateSeparator =
           !prevMessage || message.dateString !== prevMessage.dateString;
@@ -219,7 +211,7 @@ export const Messages = ({
                 })}
               </div>
             )}
-            <Message message={message} sender={sender} onRetry={onRetry} />
+            <Message message={message} sender={sender} />
           </div>
         );
       })}

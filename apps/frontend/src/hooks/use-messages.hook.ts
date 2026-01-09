@@ -21,7 +21,7 @@ export const useMessages = ({
 }: UseMessagesProps) => {
   const messagesRef = useRef<HTMLDivElement | null>(null);
   
-  const { messages, addMessages, setOneMessage, updateOneMessage, markMessageAsFailed } = useMessagesMap();
+  const { messages, addMessages, setOneMessage, updateOneMessage, markMessageAsFailed, setMessages } = useMessagesMap();
   const { pendingRef, createPending, clearPending } = useMessagesPending();
 
   const trySendMessage = useCallback((message: MaybeFrontendMessage) => {
@@ -91,6 +91,7 @@ export const useMessages = ({
     markMessageAsFailed,
     clearPendingMessage: clearPending,
     createPendingMessage: createPending,
+    setMessages,
     sendMessage,
     messagesRef,
     pendingMessagesRef: pendingRef,

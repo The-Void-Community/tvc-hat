@@ -1,15 +1,14 @@
-import type { FormEvent, RefObject } from "react";
+import type { FormEvent } from "react";
+
+import { useChat } from "@/contexts/chat.context";
 
 import { useState } from "react";
 import { HiPaperAirplane } from "react-icons/hi";
 import { Button, Textarea } from "tvuikit";
 
-type Props = {
-  onSubmit: (text: string) => void;
-  textareaRef?: RefObject<HTMLTextAreaElement | null>;
-};
+export const MessageTextarea = () => {
+  const { sendMessage, textareaRef } = useChat();
 
-export const MessageTextarea = ({ onSubmit, textareaRef }: Props) => {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e?: FormEvent) => {
@@ -20,7 +19,7 @@ export const MessageTextarea = ({ onSubmit, textareaRef }: Props) => {
     const text = value.trim();
     if (text === "") return;
 
-    onSubmit(text);
+    sendMessage(text);
     setValue("");
   };
 
