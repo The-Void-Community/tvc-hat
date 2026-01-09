@@ -59,8 +59,9 @@ const Chat = ({ chatId }: Props) => {
     emitMessage,
   });
 
-  const { handleScroll, scrollToBottom, autoScrollEnabled } = useChatScroll({
+  const { handleScroll, autoScrollEnabled, toggleScrollToBottom } = useChatScroll({
     messagesRef,
+    messages,
   });
 
   async function onRecieveMessage(message: Message) {
@@ -104,11 +105,10 @@ const Chat = ({ chatId }: Props) => {
       addChats(gettedChats || [], "id");
       setCurrentChat(gettedChat);
       addUser(gettedUser.id, gettedUser);
-
+      toggleScrollToBottom(true);
       setLoaded(true);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addUser, chatId, scrollToBottom, setMessages]);
+  }, [addChats, addUser, chatId, setMessages, toggleScrollToBottom]);
 
   useEffect(() => {
     if (!currentChat || currentChat.id === chatId) {
@@ -127,12 +127,14 @@ const Chat = ({ chatId }: Props) => {
     const isDirect = currentChat.type === ChatType.direct;
 
     if ((isSelf || isDirect) && !sidebarShowed) {
-      setSidebarShowed(true);
+      (() => {
+        setSidebarShowed(true);
+      })();
     }
 
     setMessages(new Map());
-    autoScrollEnabled.current = true;
-
+    toggleScrollToBottom(true);
+    
     (async () => {
       const gettedMessages = await getMessages({
         chatId: currentChat.id,
@@ -144,16 +146,9 @@ const Chat = ({ chatId }: Props) => {
         setMessages(
           new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
         );
-        scrollToBottom("instant");
       }
     })();
-  }, [
-    currentChat,
-    sidebarShowed,
-    scrollToBottom,
-    setMessages,
-    autoScrollEnabled,
-  ]);
+  }, [currentChat, setMessages, sidebarShowed, toggleScrollToBottom]);
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;

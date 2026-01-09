@@ -1,12 +1,16 @@
 import type { RefObject } from "react";
-import { useCallback, useRef } from "react";
+import { MessagesMap } from "@/types";
+import { useCallback, useEffect } from "react";
+import { useToggleRef } from "./use-toggle-ref.hook";
 
 export type UseChatScrollProps = {
   messagesRef: RefObject<HTMLDivElement | null>;
+  messages: MessagesMap;
 };
 
-export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
-  const autoScrollEnabled = useRef<boolean>(false);
+export const useChatScroll = ({ messagesRef, messages }: UseChatScrollProps) => {
+  const [autoScrollEnabled, toggleAutoScroll] = useToggleRef();
+  const [scrollToBottomEnabled, toggleScrollToBottom] = useToggleRef();
 
   const scrollToBottom = useCallback(
     (behavior: ScrollBehavior = "instant") => {
@@ -31,12 +35,24 @@ export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
     if (!messagesRef.current) return;
 
     const { scrollTop, scrollHeight, clientHeight } = messagesRef.current;
-    autoScrollEnabled.current = scrollHeight - scrollTop - clientHeight < 100;
-  }, [messagesRef]);
+    toggleAutoScroll(scrollHeight - scrollTop - clientHeight < 100);
+  }, [messagesRef, toggleAutoScroll]);
+
+  useEffect(() => {
+    if (!scrollToBottomEnabled) {
+      return;
+    }
+
+    scrollToBottom("instant");
+    toggleScrollToBottom(false);
+  }, [messages, scrollToBottomEnabled, scrollToBottom, toggleScrollToBottom]);
 
   return {
     scrollToBottom,
     handleScroll,
     autoScrollEnabled,
+    toggleAutoScroll,
+    toggleScrollToBottom,
+    scrollToBottomEnabled
   };
 };
