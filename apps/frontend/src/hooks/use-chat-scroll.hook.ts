@@ -8,7 +8,10 @@ export type UseChatScrollProps = {
   messages: MessagesMap;
 };
 
-export const useChatScroll = ({ messagesRef, messages }: UseChatScrollProps) => {
+export const useChatScroll = ({
+  messagesRef,
+  messages,
+}: UseChatScrollProps) => {
   const [autoScrollEnabled, toggleAutoScroll] = useToggleRef();
   const [scrollToBottomEnabled, toggleScrollToBottom] = useToggleRef();
 
@@ -53,6 +56,6 @@ export const useChatScroll = ({ messagesRef, messages }: UseChatScrollProps) => 
     autoScrollEnabled,
     toggleAutoScroll,
     toggleScrollToBottom,
-    scrollToBottomEnabled
+    scrollToBottomEnabled,
   };
 };

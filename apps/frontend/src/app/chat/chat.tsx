@@ -38,7 +38,8 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
 
-  const { loading: messagesLoading, toggleLoading: toggleMessagesLoading } = useLoading();
+  const { loading: messagesLoading, toggleLoading: toggleMessagesLoading } =
+    useLoading();
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
@@ -46,7 +47,7 @@ const Chat = ({ chatId }: Props) => {
     chats,
     onRecieveMessage,
   });
-  
+
   const {
     addMessages,
     sendMessage,
@@ -61,10 +62,11 @@ const Chat = ({ chatId }: Props) => {
     emitMessage,
   });
 
-  const { handleScroll, autoScrollEnabled, toggleScrollToBottom } = useChatScroll({
-    messagesRef,
-    messages,
-  });
+  const { handleScroll, autoScrollEnabled, toggleScrollToBottom } =
+    useChatScroll({
+      messagesRef,
+      messages,
+    });
 
   async function onRecieveMessage(message: Message) {
     if (message.senderId === user?.id) {
@@ -84,7 +86,7 @@ const Chat = ({ chatId }: Props) => {
   useEffect(() => {
     return () => {
       closeConnection();
-    }
+    };
   }, [closeConnection]);
 
   useEffect(() => {
@@ -118,7 +120,14 @@ const Chat = ({ chatId }: Props) => {
       setLoaded(true);
       toggleMessagesLoading(false);
     })();
-  }, [addChats, addUser, chatId, setMessages, toggleMessagesLoading, toggleScrollToBottom]);
+  }, [
+    addChats,
+    addUser,
+    chatId,
+    setMessages,
+    toggleMessagesLoading,
+    toggleScrollToBottom,
+  ]);
 
   useEffect(() => {
     if (!currentChat || currentChat.id === chatId) {
@@ -145,7 +154,7 @@ const Chat = ({ chatId }: Props) => {
     setMessages(new Map());
     toggleScrollToBottom(true);
     toggleMessagesLoading(true);
-    
+
     (async () => {
       const gettedMessages = await getMessages({
         chatId: currentChat.id,
@@ -165,11 +174,17 @@ const Chat = ({ chatId }: Props) => {
 
       toggleMessagesLoading(false);
     })();
-  }, [currentChat, setMessages, sidebarShowed, toggleMessagesLoading, toggleScrollToBottom]);
+  }, [
+    currentChat,
+    setMessages,
+    sidebarShowed,
+    toggleMessagesLoading,
+    toggleScrollToBottom,
+  ]);
 
   const onSubmit = (text: string) => {
     void sendMessage(text);
-  }
+  };
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;

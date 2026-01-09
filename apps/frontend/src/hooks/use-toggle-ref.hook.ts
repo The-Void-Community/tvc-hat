@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react"
+import { useCallback, useRef } from "react";
 
 export const useToggleRef = (initialValue: boolean = false) => {
   const ref = useRef<boolean>(initialValue);
@@ -7,5 +7,5 @@ export const useToggleRef = (initialValue: boolean = false) => {
     ref.current = state || !ref.current;
   }, []);
 
-  return [ ref, toggle ] as const;
-}
+  return [ref, toggle] as const;
+};

@@ -95,8 +95,14 @@ export const Message = memo(MessageInner, (prev, next) => {
 });
 
 export const Messages = () => {
-  const { messages, messagesRef, autoScrollEnabled, users, messagesLoading, onScroll } =
-    useChat();
+  const {
+    messages,
+    messagesRef,
+    autoScrollEnabled,
+    users,
+    messagesLoading,
+    onScroll,
+  } = useChat();
 
   const messagesArray = useMemo(
     () => Array.from(messages.values()),
@@ -184,13 +190,10 @@ export const Messages = () => {
 
   if (messagesLoading.current) {
     return (
-      <div
-        ref={messagesRef}
-        className="flex-center flex-1"
-      >
+      <div ref={messagesRef} className="flex-center flex-1">
         <CircleProgress />
       </div>
-    )
+    );
   }
 
   return (

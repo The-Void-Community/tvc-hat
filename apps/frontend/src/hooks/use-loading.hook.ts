@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react"
+import { useCallback, useRef } from "react";
 
 export const useLoading = (initialValue: boolean = false) => {
   const loading = useRef<boolean>(initialValue);
@@ -9,6 +9,6 @@ export const useLoading = (initialValue: boolean = false) => {
 
   return {
     loading,
-    toggleLoading
+    toggleLoading,
   } as const;
-}
+};

@@ -78,7 +78,9 @@ export const useWebsocket = ({
         return;
       }
 
-      socket.emit(Gateways.sendMessage, message, (message: Message|null) => callback(message));
+      socket.emit(Gateways.sendMessage, message, (message: Message | null) =>
+        callback(message),
+      );
     },
     [socket],
   );
