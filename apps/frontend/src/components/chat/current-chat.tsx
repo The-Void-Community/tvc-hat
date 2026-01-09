@@ -1,8 +1,9 @@
-import { Messages } from "./message";
-import { MessageTextarea } from "./message-textarea";
 import { useChat } from "@/contexts/chat.context";
 
-export const ChoosedChat = () => {
+import { Messages } from "./message";
+import { MessageTextarea } from "./message-textarea";
+
+export const CurrentChat = () => {
   const { currentChat: chat } = useChat();
   if (!chat) {
     return <></>;

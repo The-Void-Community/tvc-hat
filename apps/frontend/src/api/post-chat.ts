@@ -1,9 +1,9 @@
 "use server";
 
-import { endpointRequestOrNull } from "./server-utils";
+import type { ChatType } from "@/enums";
+import type { Chat } from "@/types";
 
-import { ChatType } from "@/enums";
-import { Chat } from "@/types";
+import { endpointRequestOrNull } from "./server-utils";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export const createChat = async (data: {

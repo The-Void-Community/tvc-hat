@@ -3,8 +3,9 @@
 import type { User } from "@/types";
 
 import { cache } from "react";
-import { endpointRequestOrNull } from "./server-utils";
 import { cookies } from "next/headers";
+
+import { endpointRequestOrNull } from "./server-utils";
 
 export const getMeByToken = cache(
   async (token: string): Promise<User | null> => {

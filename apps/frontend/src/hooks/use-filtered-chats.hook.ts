@@ -1,5 +1,6 @@
 import type { ChatType } from "@/enums";
 import type { Chat } from "@/types";
+
 import { useCallback, useEffect, useState } from "react";
 
 export type FilteredChats = Record<ChatType, Map<string, Chat>>;

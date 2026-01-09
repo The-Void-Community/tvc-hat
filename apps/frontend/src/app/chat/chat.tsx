@@ -12,18 +12,18 @@ import { HiPlusCircle } from "react-icons/hi";
 import { Wrapper } from "@/components/wrapper.component";
 
 import { ChatsNavigation } from "@/components/chat/chat";
-import { ChoosedChat } from "@/components/chat/choosed-chat";
+import { CurrentChat } from "@/components/chat/current-chat";
 import { IconOrAvatar } from "@/components/chat/icon";
 import { CreateChatModal } from "@/components/chat/create-chat";
 
+import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
 import { useMessages } from "@/hooks/use-messages.hook";
 import { useWebsocket } from "@/hooks/use-websocket.hook";
 import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
+import { useMap } from "@/hooks/use-map.hook";
 
 import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
-import { useMap } from "@/hooks/use-map.hook";
-import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
 
 type Props = {
   chatId?: string;
@@ -38,11 +38,8 @@ const Chat = ({ chatId }: Props) => {
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
 
   const { map: chats, addMany: addChats } = useMap<Chat>();
-
-  const { filteredChats } = useFilteredChats({ chats });
-
   const { map: users, add: addUser } = useMap<User>();
-
+  const { filteredChats } = useFilteredChats({ chats });
   const { emitMessage, socket } = useWebsocket({
     chats,
     onRecieveMessage,
@@ -176,7 +173,7 @@ const Chat = ({ chatId }: Props) => {
         messagesRef,
         pendingMessages: pendingMessagesRef,
         textareaRef,
-        currentChat: currentChat,
+        currentChat,
         users,
       }}
     >
@@ -232,7 +229,7 @@ const Chat = ({ chatId }: Props) => {
         )}
 
         <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
-          {currentChat && <ChoosedChat />}
+          {currentChat && <CurrentChat />}
         </div>
       </Wrapper>
     </ChatContext.Provider>

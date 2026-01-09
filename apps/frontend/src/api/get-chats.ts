@@ -1,6 +1,7 @@
 "use server";
 
-import { Chat } from "@/types";
+import type { Chat } from "@/types";
+
 import { cache } from "react";
 import { endpointRequestOrNull } from "./server-utils";
 

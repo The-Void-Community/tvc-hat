@@ -1,4 +1,4 @@
-import { ChatType } from "@/enums";
+import type { ChatType } from "@/enums";
 
 export type Chat = {
   name: string;

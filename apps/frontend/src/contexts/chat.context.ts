@@ -1,4 +1,4 @@
-import { FilteredChats } from "@/hooks/use-filtered-chats.hook";
+import type { FilteredChats } from "@/hooks/use-filtered-chats.hook";
 import type { Chat, Message, User } from "@/types";
 import type { RefObject, UIEvent } from "react";
 

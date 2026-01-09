@@ -1,4 +1,4 @@
-import { UserStatus } from "@/enums";
+import type { UserStatus } from "@/enums";
 
 export type User = {
   id: string;

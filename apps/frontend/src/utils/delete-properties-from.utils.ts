@@ -1,4 +1,4 @@
-import { MaybeFrontendMessagePartial, MessageBody } from "@/types";
+import type { MaybeFrontendMessagePartial, MessageBody } from "@/types";
 
 export const deletePropertiesFrom = <
   Input extends object,

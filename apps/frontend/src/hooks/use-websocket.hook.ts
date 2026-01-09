@@ -1,13 +1,13 @@
 "use client";
 
-import type { Socket } from "socket.io-client";
 import type { Chat, Message } from "@/types";
-
-import { io } from "socket.io-client";
-
-import { useCallback, useEffect, useState } from "react";
+import type { Socket } from "socket.io-client";
 
 import { getToken } from "@/api/get-token";
+
+import { io } from "socket.io-client";
+import { useCallback, useEffect, useState } from "react";
+
 import { Gateways } from "@/enums";
 
 export type EmitMessageFunction = (

@@ -1,4 +1,4 @@
-import { MaybeFrontendMessage } from "@/types";
+import type { MaybeFrontendMessage } from "@/types";
 import { useRef } from "react";
 
 export const useMessagesPending = () => {
