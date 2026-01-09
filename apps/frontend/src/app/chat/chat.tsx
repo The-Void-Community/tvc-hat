@@ -21,6 +21,7 @@ import { useMessages } from "@/hooks/use-messages.hook";
 import { useWebsocket } from "@/hooks/use-websocket.hook";
 import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
 import { useMap } from "@/hooks/use-map.hook";
+import { useLoading } from "@/hooks/use-loading.hook";
 
 import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
@@ -37,6 +38,7 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
 
+  const { loading: messagesLoading, toggleLoading: toggleMessagesLoading } = useLoading();
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
@@ -44,7 +46,7 @@ const Chat = ({ chatId }: Props) => {
     chats,
     onRecieveMessage,
   });
-
+  
   const {
     addMessages,
     sendMessage,
@@ -81,6 +83,7 @@ const Chat = ({ chatId }: Props) => {
 
   useEffect(() => {
     (async () => {
+      toggleMessagesLoading(true);
       const gettedChat = chatId ? await getChat(chatId) : null;
 
       const gettedUser = await getMe();
@@ -102,13 +105,14 @@ const Chat = ({ chatId }: Props) => {
         new Map(gettedMessages.map((m) => [m.id, m] as [string, Message])),
       );
       setUser(gettedUser);
-      addChats(gettedChats || [], "id");
+      addChats(gettedChats, "id");
       setCurrentChat(gettedChat);
       addUser(gettedUser.id, gettedUser);
       toggleScrollToBottom(true);
       setLoaded(true);
+      toggleMessagesLoading(false);
     })();
-  }, [addChats, addUser, chatId, setMessages, toggleScrollToBottom]);
+  }, [addChats, addUser, chatId, setMessages, toggleMessagesLoading, toggleScrollToBottom]);
 
   useEffect(() => {
     if (!currentChat || currentChat.id === chatId) {
@@ -134,6 +138,7 @@ const Chat = ({ chatId }: Props) => {
 
     setMessages(new Map());
     toggleScrollToBottom(true);
+    toggleMessagesLoading(true);
     
     (async () => {
       const gettedMessages = await getMessages({
@@ -147,8 +152,14 @@ const Chat = ({ chatId }: Props) => {
           new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
         );
       }
+
+      if (gettedMessages?.length === 0) {
+        setMessages(new Map());
+      }
+
+      toggleMessagesLoading(false);
     })();
-  }, [currentChat, setMessages, sidebarShowed, toggleScrollToBottom]);
+  }, [currentChat, setMessages, sidebarShowed, toggleMessagesLoading, toggleScrollToBottom]);
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -161,6 +172,7 @@ const Chat = ({ chatId }: Props) => {
         sendMessage,
         onScroll: handleScroll,
         setCurrentChat,
+        messagesLoading,
         filteredChats,
         autoScrollEnabled,
         me: user,

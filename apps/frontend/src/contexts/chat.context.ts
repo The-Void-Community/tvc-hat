@@ -1,7 +1,7 @@
 import type { FilteredChats } from "@/hooks/use-filtered-chats.hook";
 import type { Chat, Message, User } from "@/types";
-import type { RefObject, UIEvent } from "react";
 
+import type { RefObject, UIEvent } from "react";
 import { createContext, useContext } from "react";
 
 type ChatContextType = {
@@ -13,6 +13,7 @@ type ChatContextType = {
   messagesRef: RefObject<HTMLDivElement | null>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
   pendingMessages: RefObject<Map<string, boolean>>;
+  messagesLoading: RefObject<boolean>;
 
   filteredChats: FilteredChats;
 

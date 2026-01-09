@@ -95,7 +95,7 @@ export const Message = memo(MessageInner, (prev, next) => {
 });
 
 export const Messages = () => {
-  const { messages, messagesRef, autoScrollEnabled, users, onScroll } =
+  const { messages, messagesRef, autoScrollEnabled, users, messagesLoading, onScroll } =
     useChat();
 
   const messagesArray = useMemo(
@@ -181,6 +181,17 @@ export const Messages = () => {
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     onScroll?.(e);
   };
+
+  if (messagesLoading.current) {
+    return (
+      <div
+        ref={messagesRef}
+        className="flex-center flex-1"
+      >
+        <CircleProgress />
+      </div>
+    )
+  }
 
   return (
     <div
