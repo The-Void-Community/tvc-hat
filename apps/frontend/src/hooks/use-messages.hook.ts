@@ -85,7 +85,7 @@ export const useMessages = ({
       }
 
       const trimmedText = text.trim();
-      if (Boolean(trimmedText)) {
+      if (!Boolean(trimmedText)) {
         return;
       }
 

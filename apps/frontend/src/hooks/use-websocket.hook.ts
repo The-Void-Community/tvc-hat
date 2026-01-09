@@ -66,12 +66,6 @@ export const useWebsocket = ({
     }
 
     socket.emit(Gateways.connectMany, Array.from(chats.keys()));
-
-    return () => {
-      socket.emit(Gateways.disconnectAll);
-      socket.disconnect();
-      socket.close();
-    };
   }, [socket, chats, onRecieveMessage]);
 
   const emitMessage = useCallback(
@@ -80,13 +74,28 @@ export const useWebsocket = ({
         return;
       }
 
-      return socket.emit(Gateways.sendMessage, message, callback);
+      if (!socket.connected) {
+        return;
+      }
+
+      socket.emit(Gateways.sendMessage, message, (message: Message|null) => callback(message));
     },
     [socket],
   );
 
+  const closeConnection = useCallback(() => {
+    if (!socket) {
+      return;
+    }
+
+    socket.emit(Gateways.disconnectAll);
+    socket.disconnect();
+    socket.close();
+  }, [socket]);
+
   return {
     socket,
+    closeConnection,
     emitMessage,
   };
 };

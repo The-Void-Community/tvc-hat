@@ -42,7 +42,7 @@ const Chat = ({ chatId }: Props) => {
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
-  const { emitMessage, socket } = useWebsocket({
+  const { emitMessage, closeConnection, socket } = useWebsocket({
     chats,
     onRecieveMessage,
   });
@@ -80,6 +80,12 @@ const Chat = ({ chatId }: Props) => {
     addMessages([message]);
     addUser(sender.id, sender);
   }
+
+  useEffect(() => {
+    return () => {
+      closeConnection();
+    }
+  }, [closeConnection]);
 
   useEffect(() => {
     (async () => {
@@ -161,6 +167,10 @@ const Chat = ({ chatId }: Props) => {
     })();
   }, [currentChat, setMessages, sidebarShowed, toggleMessagesLoading, toggleScrollToBottom]);
 
+  const onSubmit = (text: string) => {
+    void sendMessage(text);
+  }
+
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
   }
@@ -170,6 +180,7 @@ const Chat = ({ chatId }: Props) => {
       value={{
         retrySendMessage,
         sendMessage,
+        onSubmit,
         onScroll: handleScroll,
         setCurrentChat,
         messagesLoading,

@@ -21,6 +21,7 @@ type ChatContextType = {
 
   retrySendMessage: (id: string) => unknown;
   sendMessage: (text: string) => unknown;
+  onSubmit: (text: string) => unknown;
   onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
 
   autoScrollEnabled: RefObject<boolean>;

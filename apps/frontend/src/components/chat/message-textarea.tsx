@@ -7,7 +7,7 @@ import { HiPaperAirplane } from "react-icons/hi";
 import { Button, Textarea } from "tvuikit";
 
 export const MessageTextarea = () => {
-  const { sendMessage, textareaRef } = useChat();
+  const { onSubmit, textareaRef } = useChat();
 
   const [value, setValue] = useState("");
 
@@ -19,7 +19,7 @@ export const MessageTextarea = () => {
     const text = value.trim();
     if (text === "") return;
 
-    sendMessage(text);
+    onSubmit(text);
     setValue("");
   };
 
