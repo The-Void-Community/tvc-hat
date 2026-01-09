@@ -89,14 +89,17 @@ export class Gateway
     )
     body: SendMessageDto,
   ): Promise<Message> {
-    this.validateClientOrThrow(client);
-    this.validateChatOrThrow(body.chatId);
+    const senderId = await this.validateClientOrThrow(client);
+    await this.validateChatOrThrow(body.chatId);
 
     if (!client.rooms.has(body.chatId)) {
       throw new WsException("You not in a this chat");
     }
 
-    const { message } = await this.service.createMessageAndUpdateChat(body);
+    const { message } = await this.service.createMessageAndUpdateChat({
+      ...body,
+      senderId
+    });
     this.server.to(body.chatId).emit("receive_message", message);
 
     return message;

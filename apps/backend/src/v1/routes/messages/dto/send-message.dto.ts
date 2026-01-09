@@ -6,16 +6,12 @@ import { IsString } from "class-validator";
 
 type MessageData = Omit<
   Message,
-  "id" | "readedBy" | "deliveredTo" | "createdAt" | "updatedAt"
+  "id" | "readedBy" | "deliveredTo" | "createdAt" | "updatedAt" | "senderId"
 > & {
   createdAt?: Date;
 };
 
 export class SendMessageDto implements MessageData {
-  @ApiProperty()
-  @IsString()
-  senderId: string;
-
   @ApiProperty()
   @IsString()
   chatId: string;

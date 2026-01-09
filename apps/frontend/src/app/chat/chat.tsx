@@ -263,7 +263,7 @@ const Chat = ({ chatId }: Props) => {
           pendingAcksRef.current.delete(tempId);
         }, 8000);
 
-        pendingAcksRef.current.set(tempId, timeout as unknown as number);
+        pendingAcksRef.current.set(tempId, timeout);
 
         socket.emit(
           "send_message",
@@ -271,7 +271,7 @@ const Chat = ({ chatId }: Props) => {
           (serverMessage: Message | null) => {
             const pending = pendingAcksRef.current.get(tempId);
             if (pending) {
-              clearTimeout(pending as unknown as number);
+              clearTimeout(pending);
               pendingAcksRef.current.delete(tempId);
             }
 

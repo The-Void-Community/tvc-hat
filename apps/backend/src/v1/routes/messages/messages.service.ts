@@ -55,7 +55,7 @@ export class Service {
     throw new Error("Method not realized.");
   }
 
-  public async createMessageAndUpdateChat(data: SendMessageDto): Promise<{
+  public async createMessageAndUpdateChat(data: SendMessageDto & { senderId: string }): Promise<{
     message: Message;
     chat: Chat;
   }> {

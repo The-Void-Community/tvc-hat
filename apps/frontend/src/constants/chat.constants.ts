@@ -1,0 +1,1 @@
+export const MESSAGE_SEND_TIMEOUT = 8000;
