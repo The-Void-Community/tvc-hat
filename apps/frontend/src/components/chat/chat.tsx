@@ -1,10 +1,7 @@
 "use client";
 
 import type { Chat } from "@/types";
-import type {
-  DetailedHTMLProps,
-  HTMLAttributes,
-} from "react";
+import type { DetailedHTMLProps, HTMLAttributes } from "react";
 
 import { useMemo } from "react";
 
@@ -46,26 +43,22 @@ export const ChatNavigation = ({
 };
 
 type ChatsNaviationProps = {
-  type: ChatType,
+  type: ChatType;
   full?: boolean;
 };
 
-export const ChatsNavigation = ({
-  type,
-  full,
-}: ChatsNaviationProps) => {
+export const ChatsNavigation = ({ type, full }: ChatsNaviationProps) => {
   const { filteredChats } = useChat();
 
-  const chats = useMemo(() => Array.from(filteredChats[type].values()), [filteredChats, type]);
+  const chats = useMemo(
+    () => Array.from(filteredChats[type].values()),
+    [filteredChats, type],
+  );
 
   return (
     <div className="flex flex-col items-center gap-1">
       {chats.map((chat) => (
-        <ChatNavigation
-          key={chat.id}
-          chat={chat}
-          full={full}
-        />
+        <ChatNavigation key={chat.id} chat={chat} full={full} />
       ))}
     </div>
   );

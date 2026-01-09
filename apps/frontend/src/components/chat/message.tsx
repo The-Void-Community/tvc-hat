@@ -95,8 +95,9 @@ export const Message = memo(MessageInner, (prev, next) => {
 });
 
 export const Messages = () => {
-  const { messages, messagesRef, autoScrollEnabled, users, onScroll } = useChat();
-  
+  const { messages, messagesRef, autoScrollEnabled, users, onScroll } =
+    useChat();
+
   const messagesArray = useMemo(
     () => Array.from(messages.values()),
     [messages],
@@ -191,7 +192,9 @@ export const Messages = () => {
         const sender = users.get(message.senderId);
         if (!sender) {
           return (
-            <span key={index}>Error: <a href="https://t.me/fockusty">t.me/fockusty</a></span>
+            <span key={index}>
+              Error: <a href="https://t.me/fockusty">t.me/fockusty</a>
+            </span>
           );
         }
 

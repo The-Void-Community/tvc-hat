@@ -1,28 +1,34 @@
-"use client"
+"use client";
 
 import type { Socket } from "socket.io-client";
 import type { Chat, Message } from "@/types";
 
 import { io } from "socket.io-client";
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react";
 
 import { getToken } from "@/api/get-token";
 import { Gateways } from "@/enums";
 
-export type EmitMessageFunction = (message: {
-  chatId: string;
-  text: string;
-}, callback: (message: Message | null) => void) => void;
+export type EmitMessageFunction = (
+  message: {
+    chatId: string;
+    text: string;
+  },
+  callback: (message: Message | null) => void,
+) => void;
 
 export type EmitMessageParameters = Parameters<EmitMessageFunction>;
 
 export type UseWebsocketProps = {
   onRecieveMessage: (message: Message) => unknown;
   chats: Map<string, Chat>;
-}
+};
 
-export const useWebsocket = ({ onRecieveMessage, chats }: UseWebsocketProps) => {
+export const useWebsocket = ({
+  onRecieveMessage,
+  chats,
+}: UseWebsocketProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
@@ -51,7 +57,7 @@ export const useWebsocket = ({ onRecieveMessage, chats }: UseWebsocketProps) => 
 
     return () => {
       socket.removeListener(Gateways.receiveMessage, onRecieveMessage);
-    }
+    };
   }, [onRecieveMessage, socket]);
 
   useEffect(() => {
@@ -68,16 +74,19 @@ export const useWebsocket = ({ onRecieveMessage, chats }: UseWebsocketProps) => 
     };
   }, [socket, chats, onRecieveMessage]);
 
-  const emitMessage = useCallback((...[message, callback]: EmitMessageParameters) => {
-    if (!socket) {
-      return;
-    }
+  const emitMessage = useCallback(
+    (...[message, callback]: EmitMessageParameters) => {
+      if (!socket) {
+        return;
+      }
 
-    return socket.emit(Gateways.sendMessage, message, callback);
-  }, [socket]);
+      return socket.emit(Gateways.sendMessage, message, callback);
+    },
+    [socket],
+  );
 
   return {
     socket,
-    emitMessage
-  }
-}
+    emitMessage,
+  };
+};

@@ -1,14 +1,14 @@
 import { FilteredChats } from "@/hooks/use-filtered-chats.hook";
 import type { Chat, Message, User } from "@/types";
-import type { RefObject, UIEvent } from "react"
+import type { RefObject, UIEvent } from "react";
 
-import { createContext, useContext } from "react"
+import { createContext, useContext } from "react";
 
 type ChatContextType = {
   messages: Map<string, Message>;
   users: Map<string, User>;
   me: User;
-  currentChat: Chat|null;
+  currentChat: Chat | null;
 
   messagesRef: RefObject<HTMLDivElement | null>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
@@ -23,7 +23,7 @@ type ChatContextType = {
   onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
 
   autoScrollEnabled: RefObject<boolean>;
-}
+};
 
 export const ChatContext = createContext<ChatContextType | null>(null);
 export const useChat = () => {
@@ -33,4 +33,4 @@ export const useChat = () => {
   }
 
   return context;
-}
+};

@@ -37,26 +37,15 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
   const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
 
-  const {
-    map: chats,
-    addMany: addChats
-  } = useMap<Chat>();
+  const { map: chats, addMany: addChats } = useMap<Chat>();
 
-  const {
-    filteredChats
-  } = useFilteredChats({chats});
+  const { filteredChats } = useFilteredChats({ chats });
 
-  const {
-    map: users,
-    add: addUser,
-  } = useMap<User>();
+  const { map: users, add: addUser } = useMap<User>();
 
-  const {
-    emitMessage,
-    socket
-  } = useWebsocket({
+  const { emitMessage, socket } = useWebsocket({
     chats,
-    onRecieveMessage
+    onRecieveMessage,
   });
 
   const {
@@ -73,18 +62,17 @@ const Chat = ({ chatId }: Props) => {
     emitMessage,
   });
 
-  const {
-    handleScroll,
-    scrollToBottom,
-    autoScrollEnabled
-  } = useChatScroll({ messagesRef });
+  const { handleScroll, scrollToBottom, autoScrollEnabled } = useChatScroll({
+    messagesRef,
+  });
 
   async function onRecieveMessage(message: Message) {
     if (message.senderId === user?.id) {
       return;
     }
 
-    const sender = users.get(message.senderId) || await getUser(message.senderId);
+    const sender =
+      users.get(message.senderId) || (await getUser(message.senderId));
     if (!sender) {
       return;
     }
@@ -122,7 +110,7 @@ const Chat = ({ chatId }: Props) => {
 
       setLoaded(true);
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addUser, chatId, scrollToBottom, setMessages]);
 
   useEffect(() => {
@@ -162,28 +150,36 @@ const Chat = ({ chatId }: Props) => {
         scrollToBottom("instant");
       }
     })();
-  }, [currentChat, sidebarShowed, scrollToBottom, setMessages, autoScrollEnabled]);
+  }, [
+    currentChat,
+    sidebarShowed,
+    scrollToBottom,
+    setMessages,
+    autoScrollEnabled,
+  ]);
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
   }
 
   return (
-    <ChatContext.Provider value={{
-      retrySendMessage,
-      sendMessage,
-      onScroll: handleScroll,
-      setCurrentChat,
-      filteredChats,
-      autoScrollEnabled,
-      me: user,
-      messages,
-      messagesRef,
-      pendingMessages: pendingMessagesRef,
-      textareaRef,
-      currentChat: currentChat,
-      users
-    }}>
+    <ChatContext.Provider
+      value={{
+        retrySendMessage,
+        sendMessage,
+        onScroll: handleScroll,
+        setCurrentChat,
+        filteredChats,
+        autoScrollEnabled,
+        me: user,
+        messages,
+        messagesRef,
+        pendingMessages: pendingMessagesRef,
+        textareaRef,
+        currentChat: currentChat,
+        users,
+      }}
+    >
       <Wrapper className="gap-2">
         <nav
           className={[
