@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import type { FormEvent } from "react";
 
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
@@ -24,14 +24,14 @@ import { createChat } from "@/api/post-chat";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  state: [boolean, Dispatch<SetStateAction<boolean>>];
+  showed: boolean;
+  toggle: (state: boolean) => unknown
 };
 
-export const CreateChatModal = ({ state }: Props) => {
+export const CreateChatModal = ({ showed, toggle }: Props) => {
   const router = useRouter();
 
   const [chatType, setChatType] = useState<ChatType | null>(null);
-  const [showed, setShowed] = state;
   const modalId = uuid();
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const CreateChatModal = ({ state }: Props) => {
       }
 
       if (event.key.toLowerCase() === "escape") {
-        setShowed(false);
+        toggle(false);
       }
     };
 
@@ -53,7 +53,7 @@ export const CreateChatModal = ({ state }: Props) => {
     return () => {
       document.removeEventListener("keydown", keydownListener);
     };
-  }, [setShowed, showed]);
+  }, [toggle, showed]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     const form = new FormData(event.currentTarget);
@@ -81,7 +81,7 @@ export const CreateChatModal = ({ state }: Props) => {
       router.refresh();
     }
 
-    setShowed(false);
+    toggle(false);
   };
 
   return (
@@ -95,7 +95,7 @@ export const CreateChatModal = ({ state }: Props) => {
             return;
           }
 
-          setShowed(false);
+          toggle(false);
         }}
       >
         <div className="bg-(--bg-card) h-150 w-100 rounded-2xl">

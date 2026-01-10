@@ -19,7 +19,7 @@ export const ChatNavigation = ({
   className,
   full = false,
 }: ChatNavigationProps) => {
-  const { currentChat, setCurrentChat } = useChat();
+  const { currentChat, setCurrentChat, onChangeChat } = useChat();
 
   return (
     <div
@@ -34,6 +34,7 @@ export const ChatNavigation = ({
         }
 
         setCurrentChat(chat);
+        onChangeChat(chat);
       }}
     >
       <IconOrAvatar entity={chat} />

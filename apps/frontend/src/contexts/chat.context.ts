@@ -14,17 +14,23 @@ type ChatContextType = {
   textareaRef: RefObject<HTMLTextAreaElement | null>;
   pendingMessages: RefObject<Map<string, boolean>>;
   messagesLoading: RefObject<boolean>;
+  autoScrollEnabled: RefObject<boolean>;
+  
+  createModalShowed: boolean;
+  toggleCreateModal: (state: boolean) => unknown;
+
+  sidebarShowed: boolean;
+  toggleSidebar: (state: boolean) => unknown;
 
   filteredChats: FilteredChats;
 
   setCurrentChat: (chat: Chat) => unknown;
+  onChangeChat: (chat: Chat|null) => unknown;
 
   retrySendMessage: (id: string) => unknown;
   sendMessage: (text: string) => unknown;
   onSubmit: (text: string) => unknown;
   onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
-
-  autoScrollEnabled: RefObject<boolean>;
 };
 
 export const ChatContext = createContext<ChatContextType | null>(null);

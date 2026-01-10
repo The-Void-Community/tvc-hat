@@ -21,7 +21,7 @@ const Img = (src: string, size: number) => {
       width={size}
       src={src}
       alt="icon"
-      className="rounded-full"
+      className="noselect rounded-full"
     />
   );
 };
@@ -29,10 +29,12 @@ const Img = (src: string, size: number) => {
 const FirstCharOfNameIcon = (char: string, size: number) => {
   return (
     <div
-      className="bg-(--bg-smooth) p-4 rounded-full flex-center"
+      className="noselect bg-(--bg-smooth) p-4 rounded-full flex-center"
       style={{
         height: `${size}px`,
         width: `${size}px`,
+        minHeight: `${size}px`,
+        minWidth: `${size}px`,
       }}
     >
       {char}

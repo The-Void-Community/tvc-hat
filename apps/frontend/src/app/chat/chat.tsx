@@ -6,14 +6,12 @@ import { getMe, getUser } from "@/api/get-user";
 import { getChat, getChats } from "@/api/get-chats";
 import { getMessages } from "@/api/get-messages";
 
-import { useEffect, useRef, useState } from "react";
-import { HiPlusCircle } from "react-icons/hi";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Wrapper } from "@/components/wrapper.component";
 
 import { ChatsNavigation } from "@/components/chat/chat";
 import { CurrentChat } from "@/components/chat/current-chat";
-import { IconOrAvatar } from "@/components/chat/icon";
 import { CreateChatModal } from "@/components/chat/create-chat";
 
 import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
@@ -21,10 +19,11 @@ import { useMessages } from "@/hooks/use-messages.hook";
 import { useWebsocket } from "@/hooks/use-websocket.hook";
 import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
 import { useMap } from "@/hooks/use-map.hook";
-import { useLoading } from "@/hooks/use-loading.hook";
+import { useToggleRef, useToggleState } from "@/hooks/use-toggle.hook";
 
 import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
+import { MainNavigation } from "@/components/chat/main-navigation";
 
 type Props = {
   chatId?: string;
@@ -35,11 +34,10 @@ const Chat = ({ chatId }: Props) => {
   const [user, setUser] = useState<User | null>(null);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [sidebarShowed, setSidebarShowed] = useState<boolean>(false);
-  const [createModalShowed, setCreateModalShowed] = useState<boolean>(false);
-
-  const { loading: messagesLoading, toggleLoading: toggleMessagesLoading } =
-    useLoading();
+  
+  const [sidebarShowed, toggleSidebar] = useToggleState();
+  const [createModalShowed, toggleCreateModal] = useToggleState();
+  const [ messagesLoading, toggleMessagesLoading ] = useToggleRef();
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
@@ -146,9 +144,7 @@ const Chat = ({ chatId }: Props) => {
     const isDirect = currentChat.type === ChatType.direct;
 
     if ((isSelf || isDirect) && !sidebarShowed) {
-      (() => {
-        setSidebarShowed(true);
-      })();
+      toggleSidebar(true);
     }
 
     setMessages(new Map());
@@ -174,17 +170,23 @@ const Chat = ({ chatId }: Props) => {
 
       toggleMessagesLoading(false);
     })();
-  }, [
-    currentChat,
-    setMessages,
-    sidebarShowed,
-    toggleMessagesLoading,
-    toggleScrollToBottom,
-  ]);
+  }, [currentChat, setMessages, sidebarShowed, toggleMessagesLoading, toggleScrollToBottom, toggleSidebar]);
 
   const onSubmit = (text: string) => {
     void sendMessage(text);
   };
+
+  const onChangeChat = useCallback((chat: Chat|null) => {
+    if (!chat) {
+      return toggleSidebar(false);
+    }
+
+    if (chat.type === ChatType.group) {
+      return toggleSidebar(false);
+    }
+
+    toggleSidebar(true);
+  }, [toggleSidebar])
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -198,6 +200,11 @@ const Chat = ({ chatId }: Props) => {
         onSubmit,
         onScroll: handleScroll,
         setCurrentChat,
+        toggleCreateModal,
+        toggleSidebar,
+        onChangeChat,
+        createModalShowed,
+        sidebarShowed,
         messagesLoading,
         filteredChats,
         autoScrollEnabled,
@@ -211,47 +218,7 @@ const Chat = ({ chatId }: Props) => {
       }}
     >
       <Wrapper className="gap-2">
-        <nav
-          className={[
-            "bg-(--bg-card) rounded-lg overflow-y-auto overflow-x-hidden w-16",
-            "flex flex-col",
-          ].join(" ")}
-        >
-          <div className="flex flex-col items-center gap-1">
-            <div
-              className={[
-                "px-3 py-2 flex-center cursor-pointer",
-                "hover:bg-(--bg-component)",
-              ].join(" ")}
-              onClick={() => {
-                if (sidebarShowed) {
-                  return;
-                }
-
-                setSidebarShowed(true);
-              }}
-            >
-              <IconOrAvatar />
-            </div>
-
-            <hr className="w-[60%] text-(--fg-mini-text)" />
-            <ChatsNavigation type={ChatType.group} />
-
-            <div
-              className={[
-                "w-full text-(--fg-mini-text) px-3 py-2 flex-center gap-3 cursor-pointer rounded-lg transition-colors",
-                "hover:bg-(--bg-component)",
-              ].join(" ")}
-              onClick={() => {
-                setCreateModalShowed(true);
-              }}
-            >
-              <HiPlusCircle size={40} />
-            </div>
-          </div>
-        </nav>
-
-        <CreateChatModal state={[createModalShowed, setCreateModalShowed]} />
+        <MainNavigation />
 
         {sidebarShowed && (
           <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
@@ -264,6 +231,8 @@ const Chat = ({ chatId }: Props) => {
         <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
           {currentChat && <CurrentChat />}
         </div>
+
+        <CreateChatModal showed={createModalShowed} toggle={toggleCreateModal}/>
       </Wrapper>
     </ChatContext.Provider>
   );

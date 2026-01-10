@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import { MessagesMap } from "@/types";
 import { useCallback, useEffect } from "react";
-import { useToggleRef } from "./use-toggle-ref.hook";
+import { useToggleRef } from "./use-toggle.hook";
 
 export type UseChatScrollProps = {
   messagesRef: RefObject<HTMLDivElement | null>;
