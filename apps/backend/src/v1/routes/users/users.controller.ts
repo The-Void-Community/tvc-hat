@@ -90,7 +90,7 @@ export class Controller {
   @Delete(ROUTES.DELETE)
   public delete(
     @Req() req: Request,
-    @Param("slug", UserSlugPipe) slug: Slug<"username">
+    @Param("slug", UserSlugPipe) slug: Slug<"username">,
   ) {
     return this.service.delete(SlugPipe.resolve(req, slug));
   }

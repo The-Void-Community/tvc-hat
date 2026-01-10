@@ -90,10 +90,7 @@ export class Controller {
     summary: "Creaing a chat",
   })
   @Post(ROUTES.POST)
-  public post(
-    @Req() req: Request,
-    @Body() data: ChatCreateDto,
-  ) {
+  public post(@Req() req: Request, @Body() data: ChatCreateDto) {
     const { profileId } = Hash.parseOrThrow(req);
 
     return this.service.post(data, profileId);
@@ -109,7 +106,7 @@ export class Controller {
     @Body(new ValidationPipe()) data: ChatUpdateDto,
   ) {
     const { profileId } = Hash.parseOrThrow(req);
-    
+
     return this.service.put(SlugPipe.resolve(req, slug), data, profileId);
   }
 
@@ -136,14 +133,21 @@ export class Controller {
     @Body(new ValidationPipe()) data: RightsUpdateDto,
   ) {
     const { profileId } = Hash.parseOrThrow(req);
-    return this.service.patchRights(SlugPipe.resolve(req, slug), data, profileId);
+    return this.service.patchRights(
+      SlugPipe.resolve(req, slug),
+      data,
+      profileId,
+    );
   }
 
   @ApiOperation({
     summary: "Updating members in chat",
   })
   @Patch(ROUTES.PATCH_JOIN)
-  public patchJoin(@Req() req: Request, @Param("slug", ChatSlugPipe) slug: ChatSlug) {
+  public patchJoin(
+    @Req() req: Request,
+    @Param("slug", ChatSlugPipe) slug: ChatSlug,
+  ) {
     const { profileId } = Hash.parseOrThrow(req);
     return this.service.patchJoin(SlugPipe.resolve(req, slug), profileId);
   }
@@ -152,7 +156,10 @@ export class Controller {
     summary: "Deleting a chat",
   })
   @Delete(ROUTES.DELETE)
-  public delete(@Req() req: Request, @Param("slug", ChatSlugPipe) slug: ChatSlug) {
+  public delete(
+    @Req() req: Request,
+    @Param("slug", ChatSlugPipe) slug: ChatSlug,
+  ) {
     const { profileId } = Hash.parseOrThrow(req);
     return this.service.delete(SlugPipe.resolve(req, slug), profileId);
   }

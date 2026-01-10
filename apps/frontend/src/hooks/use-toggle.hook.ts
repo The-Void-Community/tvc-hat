@@ -13,9 +13,12 @@ export const useToggleRef = (initialValue: boolean = false) => {
 export const useToggleState = (initialValue: boolean = false) => {
   const [state, setState] = useState<boolean>(initialValue);
 
-  const toggle = useCallback((newState?: boolean) => {
-    setState(newState === undefined ? !state : newState);
-  }, [state]);
+  const toggle = useCallback(
+    (newState?: boolean) => {
+      setState(newState === undefined ? !state : newState);
+    },
+    [state],
+  );
 
   return [state, toggle] as const;
-}
+};

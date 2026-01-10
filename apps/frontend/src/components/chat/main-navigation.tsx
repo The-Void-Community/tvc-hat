@@ -26,16 +26,16 @@ export const MainNavigation = () => {
             if (sidebarShowed) {
               return;
             }
-    
+
             toggleSidebar(true);
           }}
         >
           <IconOrAvatar />
         </div>
-    
+
         <hr className="w-[60%] text-(--fg-mini-text)" />
         <ChatsNavigation type={ChatType.group} />
-    
+
         <div
           className={[
             "w-full text-(--fg-mini-text) px-3 py-2 flex-center gap-3 cursor-pointer rounded-lg transition-colors",
@@ -49,5 +49,5 @@ export const MainNavigation = () => {
         </div>
       </div>
     </nav>
-  )
-}
+  );
+};

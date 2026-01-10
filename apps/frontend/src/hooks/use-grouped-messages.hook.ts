@@ -14,7 +14,7 @@ export type DateGroup = {
 
 export const useGroupedMessages = (
   messagesArray: Message[],
-  formatFullDate: (date: Date) => string
+  formatFullDate: (date: Date) => string,
 ): DateGroup[] => {
   const groupedMessages = useMemo(() => {
     if (messagesArray.length === 0) return [];
@@ -62,7 +62,7 @@ export const useGroupedMessages = (
         ...message,
         showHeader: indexInGroup === 0,
         dateString: group.dateString,
-      }))
+      })),
     );
   }, [messagesArray]);
 

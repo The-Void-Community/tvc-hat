@@ -34,10 +34,10 @@ const Chat = ({ chatId }: Props) => {
   const [user, setUser] = useState<User | null>(null);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
-  
+
   const [sidebarShowed, toggleSidebar] = useToggleState();
   const [createModalShowed, toggleCreateModal] = useToggleState();
-  const [ messagesLoading, toggleMessagesLoading ] = useToggleRef();
+  const [messagesLoading, toggleMessagesLoading] = useToggleRef();
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
@@ -170,23 +170,33 @@ const Chat = ({ chatId }: Props) => {
 
       toggleMessagesLoading(false);
     })();
-  }, [currentChat, setMessages, sidebarShowed, toggleMessagesLoading, toggleScrollToBottom, toggleSidebar]);
+  }, [
+    currentChat,
+    setMessages,
+    sidebarShowed,
+    toggleMessagesLoading,
+    toggleScrollToBottom,
+    toggleSidebar,
+  ]);
 
   const onSubmit = (text: string) => {
     void sendMessage(text);
   };
 
-  const onChangeChat = useCallback((chat: Chat|null) => {
-    if (!chat) {
-      return toggleSidebar(false);
-    }
+  const onChangeChat = useCallback(
+    (chat: Chat | null) => {
+      if (!chat) {
+        return toggleSidebar(false);
+      }
 
-    if (chat.type === ChatType.group) {
-      return toggleSidebar(false);
-    }
+      if (chat.type === ChatType.group) {
+        return toggleSidebar(false);
+      }
 
-    toggleSidebar(true);
-  }, [toggleSidebar])
+      toggleSidebar(true);
+    },
+    [toggleSidebar],
+  );
 
   if (!user || !socket || !loaded) {
     return <div>loading...</div>;
@@ -232,7 +242,10 @@ const Chat = ({ chatId }: Props) => {
           {currentChat && <CurrentChat />}
         </div>
 
-        <CreateChatModal showed={createModalShowed} toggle={toggleCreateModal}/>
+        <CreateChatModal
+          showed={createModalShowed}
+          toggle={toggleCreateModal}
+        />
       </Wrapper>
     </ChatContext.Provider>
   );

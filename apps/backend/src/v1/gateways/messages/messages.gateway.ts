@@ -98,7 +98,7 @@ export class Gateway
 
     const { message } = await this.service.createMessageAndUpdateChat({
       ...body,
-      senderId
+      senderId,
     });
     this.server.to(body.chatId).emit("receive_message", message);
 

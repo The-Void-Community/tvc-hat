@@ -80,7 +80,8 @@ export const Message = memo(MessageInner, (previous, current) => {
   if (previous.message.id !== current.message.id) return false;
   if (previous.message.text !== current.message.text) return false;
   if (previous.message.createdAt !== current.message.createdAt) return false;
-  if (!!previous.message.showHeader !== !!current.message.showHeader) return false;
+  if (!!previous.message.showHeader !== !!current.message.showHeader)
+    return false;
 
   const prevSender = previous.sender;
   const nextSender = current.sender;

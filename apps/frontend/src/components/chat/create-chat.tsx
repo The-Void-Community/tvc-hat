@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   showed: boolean;
-  toggle: (state: boolean) => unknown
+  toggle: (state: boolean) => unknown;
 };
 
 export const CreateChatModal = ({ showed, toggle }: Props) => {

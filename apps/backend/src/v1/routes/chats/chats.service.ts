@@ -16,7 +16,9 @@ import BitField from "fbit-field";
 @Injectable()
 export class Service {
   public static resolveSlug(slug: string) {
-    return slug[0] === CHARS.chatname ? { chatname: slug.slice(1) } : { id: slug };
+    return slug[0] === CHARS.chatname
+      ? { chatname: slug.slice(1) }
+      : { id: slug };
   }
 
   public static hasRights(
@@ -62,9 +64,9 @@ export class Service {
     return this.prisma.chat.findMany({
       where: {
         members: {
-          has: id
-        }
-      }
+          has: id,
+        },
+      },
     });
   }
 
@@ -196,7 +198,7 @@ export class Service {
             select: {
               messages: true,
             },
-          })
+          });
 
     if (!chat) {
       throw new HttpException(

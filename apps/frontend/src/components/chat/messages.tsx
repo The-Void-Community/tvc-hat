@@ -22,7 +22,7 @@ export const Messages = () => {
 
   const messagesArray = useMemo(
     () => Array.from(messages.values()),
-    [messages]
+    [messages],
   );
 
   const { formatFullDate } = useDateFormatters();
@@ -71,7 +71,9 @@ export const Messages = () => {
               );
             }
 
-            return <Message key={message.id} message={message} sender={sender} />;
+            return (
+              <Message key={message.id} message={message} sender={sender} />
+            );
           })}
         </div>
       ))}

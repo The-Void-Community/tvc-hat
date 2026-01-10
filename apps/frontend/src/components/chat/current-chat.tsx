@@ -8,7 +8,7 @@ import { MessageTextarea } from "./message-textarea";
 
 type ChatContentProps = {
   chat: Chat;
-}
+};
 
 export const ChatHeader = memo(({ chat }: ChatContentProps) => {
   return (

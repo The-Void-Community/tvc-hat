@@ -15,7 +15,7 @@ type ChatContextType = {
   pendingMessages: RefObject<Map<string, boolean>>;
   messagesLoading: RefObject<boolean>;
   autoScrollEnabled: RefObject<boolean>;
-  
+
   createModalShowed: boolean;
   toggleCreateModal: (state: boolean) => unknown;
 
@@ -25,7 +25,7 @@ type ChatContextType = {
   filteredChats: FilteredChats;
 
   setCurrentChat: (chat: Chat) => unknown;
-  onChangeChat: (chat: Chat|null) => unknown;
+  onChangeChat: (chat: Chat | null) => unknown;
 
   retrySendMessage: (id: string) => unknown;
   sendMessage: (text: string) => unknown;
