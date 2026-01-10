@@ -11,9 +11,9 @@ export const MessageTextarea = () => {
 
   const [value, setValue] = useState("");
 
-  const handleSubmit = (e?: FormEvent) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
+  const handleSubmit = (event?: FormEvent) => {
+    if (event && event.preventDefault) {
+      event.preventDefault();
     }
 
     const text = value.trim();
@@ -32,12 +32,14 @@ export const MessageTextarea = () => {
       <Textarea
         ref={textareaRef}
         value={value}
+        wrap="hard"
         onChange={(e) => setValue(e.currentTarget.value)}
         placeholder="Ваше сообщение..."
+        overwriteClassName
         className={[
-          "w-full max-w-none bg-[#00000000] text-(length:--fs-mini)",
-          "py-2 px-4 min-h-[56px] h-[56px] max-h-[96px]",
-          "focus:outline-0",
+          "w-full resize-none text-(length:--fs-mini)",
+          "py-2 px-4 min-h-[56px] h-[56px] max-h-[280px]",
+          "focus:outline-0"
         ].join(" ")}
         onKeyDown={(event) => {
           if (event.key !== "Enter" || event.shiftKey) {
