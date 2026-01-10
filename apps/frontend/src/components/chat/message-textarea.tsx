@@ -26,29 +26,28 @@ export const MessageTextarea = () => {
   return (
     <form
       id="send-message"
-      className="bg-(--bg-smooth-ce) rounded-t-xl flex items-center gap-2"
+      className="bg-(--bg-smooth-ce) rounded-lg flex items-center gap-2"
       onSubmit={handleSubmit}
     >
-      <div className="flex-1">
-        <Textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => setValue(e.currentTarget.value)}
-          placeholder="Ваше сообщение..."
-          className={[
-            "w-full max-w-none resize-none bg-[#00000000] py-2 px-4 text-(length:--fs-mini) min-h-[40px]",
-            "focus:outline-0",
-          ].join(" ")}
-          onKeyDown={(event) => {
-            if (event.key !== "Enter" || event.shiftKey) {
-              return;
-            }
+      <Textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => setValue(e.currentTarget.value)}
+        placeholder="Ваше сообщение..."
+        className={[
+          "w-full max-w-none bg-[#00000000] text-(length:--fs-mini)",
+          "py-2 px-4 min-h-[56px] h-[56px] max-h-[96px]",
+          "focus:outline-0",
+        ].join(" ")}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" || event.shiftKey) {
+            return;
+          }
 
-            event.preventDefault();
-            handleSubmit(event);
-          }}
-        />
-      </div>
+          event.preventDefault();
+          handleSubmit(event);
+        }}
+      />
 
       <Button
         type="submit"

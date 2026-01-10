@@ -24,6 +24,8 @@ import { useToggleRef, useToggleState } from "@/hooks/use-toggle.hook";
 import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
 import { MainNavigation } from "@/components/chat/main-navigation";
+import { IconOrAvatar } from "@/components/chat/icon";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
 
 type Props = {
   chatId?: string;
@@ -41,9 +43,30 @@ const Chat = ({ chatId }: Props) => {
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
-  const { emitMessage, closeConnection, openConnection, socket } = useWebsocket({
+  const addMessagesRef = useRef<((messages: Message[]) => void) | null>(null);
+  const addUserRef = useRef<((id: string, user: User) => void) | null>(null);
+
+  const memoizedOnRecieveMessage = useCallback(
+    async (message: Message) => {
+      if (message.senderId === user?.id) {
+        return;
+      }
+
+      const sender =
+        users.get(message.senderId) || (await getUser(message.senderId));
+      if (!sender) {
+        return;
+      }
+
+      addMessagesRef.current?.([message]);
+      addUserRef.current?.(sender.id, sender);
+    },
+    [user?.id, users],
+  );
+
+  const { emitMessage, socket } = useWebsocket({
     chats,
-    onRecieveMessage,
+    onRecieveMessage: memoizedOnRecieveMessage,
   });
 
   const {
@@ -60,34 +83,16 @@ const Chat = ({ chatId }: Props) => {
     emitMessage,
   });
 
+  useEffect(() => {
+    addMessagesRef.current = addMessages;
+    addUserRef.current = addUser;
+  }, [addMessages, addUser]);
+
   const { handleScroll, autoScrollEnabled, toggleScrollToBottom } =
     useChatScroll({
       messagesRef,
       messages,
     });
-
-  async function onRecieveMessage(message: Message) {
-    if (message.senderId === user?.id) {
-      return;
-    }
-
-    const sender =
-      users.get(message.senderId) || (await getUser(message.senderId));
-    if (!sender) {
-      return;
-    }
-
-    addMessages([message]);
-    addUser(sender.id, sender);
-  }
-
-  useEffect(() => {
-    openConnection();
-    
-    return () => {
-      closeConnection();
-    };
-  }, [closeConnection, openConnection]);
 
   useEffect(() => {
     (async () => {
@@ -230,15 +235,40 @@ const Chat = ({ chatId }: Props) => {
       }}
     >
       <Wrapper className="gap-2">
-        <MainNavigation />
+        <div className="main-full flex flex-col h-full gap-2">
+          <div className="flex flex-1 gap-2">
+            <MainNavigation />
+            {sidebarShowed && (
+              <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
+                <ChatsNavigation type={ChatType.self} full />
+                <hr className="w-[60%] text-(--fg-mini-text)" />
+                <ChatsNavigation type={ChatType.direct} full />
+              </nav>
+            )}
+          </div>
 
-        {sidebarShowed && (
-          <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
-            <ChatsNavigation type={ChatType.self} full />
-            <hr className="w-[60%] text-(--fg-mini-text)" />
-            <ChatsNavigation type={ChatType.direct} full />
-          </nav>
-        )}
+          <Dropdown>
+            <DropdownTrigger
+              overwriteClassName
+              className={[
+                "cursor-pointer w-full rounded-lg min-h-[40px]",
+                "hover:bg-(--bg-smooth-light) duration-200"
+              ].join(" ")}
+            >
+              <div className="bg-(--bg-card) py-2 px-2 rounded-lg flex items-center gap-2">
+                <IconOrAvatar entity={user} size={40} />
+                <span className="truncate max-w-48">
+                  {user.nickname || user.username}
+                </span>
+              </div>
+            </DropdownTrigger>
+            <DropdownMenu>
+              <DropdownItem>
+                {user.nickname}
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
 
         <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
           {currentChat && <CurrentChat />}

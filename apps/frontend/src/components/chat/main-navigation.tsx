@@ -12,8 +12,9 @@ export const MainNavigation = () => {
   return (
     <nav
       className={[
-        "bg-(--bg-card) rounded-lg overflow-y-auto overflow-x-hidden w-16",
-        "flex flex-col",
+        "flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg",
+        "overflow-y-auto",
+        sidebarShowed ? "w-16" : "w-48"
       ].join(" ")}
     >
       <div className="flex flex-col items-center gap-1">
@@ -34,7 +35,7 @@ export const MainNavigation = () => {
         </div>
 
         <hr className="w-[60%] text-(--fg-mini-text)" />
-        <ChatsNavigation type={ChatType.group} />
+        <ChatsNavigation type={ChatType.group} full={!sidebarShowed} />
 
         <div
           className={[

@@ -1,12 +1,16 @@
 "use client";
 
+/**
+ * этот файл работает не правильно
+ */
+
 import type { Chat, Message } from "@/types";
 import type { Socket } from "socket.io-client";
 
 import { getToken } from "@/api/get-token";
 
 import { io } from "socket.io-client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Gateways } from "@/enums";
 
@@ -30,6 +34,7 @@ export const useWebsocket = ({
   chats,
 }: UseWebsocketProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const previousChatsRef = useRef<string[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -53,8 +58,32 @@ export const useWebsocket = ({
       return;
     }
 
-    socket.emit(Gateways.connectMany, Array.from(chats.keys()));
-  }, [socket, chats, onRecieveMessage]);
+    socket.on(Gateways.receiveMessage, onRecieveMessage);
+
+    return () => {
+      socket.removeListener(Gateways.receiveMessage, onRecieveMessage);
+    };
+  }, [onRecieveMessage, socket]);
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    const chatIds = Array.from(chats.keys());
+    const chatIdsString = JSON.stringify(chatIds.sort());
+    const previousString = JSON.stringify(previousChatsRef.current.sort());
+
+    if (chatIdsString !== previousString) {
+      previousChatsRef.current = chatIds;
+      
+      if (previousChatsRef.current.length === 0) {
+        socket.emit(Gateways.disconnectAll);
+      } else {
+        socket.emit(Gateways.connectMany, chatIds);
+      }
+    }
+  }, [socket, chats]);
 
   const emitMessage = useCallback(
     (...[message, callback]: EmitMessageParameters) => {
@@ -62,39 +91,13 @@ export const useWebsocket = ({
         return;
       }
 
-      if (!socket.connected) {
-        return;
-      }
-
-      socket.emit(Gateways.sendMessage, message, (message: Message | null) =>
-        callback(message),
-      );
+      return socket.emit(Gateways.sendMessage, message, callback);
     },
     [socket],
   );
 
-  const openConnection = useCallback(() => {
-    if (!socket) {
-      return;
-    }
-
-    socket.on(Gateways.receiveMessage, onRecieveMessage);
-  }, [onRecieveMessage, socket]);
-
-  const closeConnection = useCallback(() => {
-    if (!socket) {
-      return;
-    }
-
-    socket.emit(Gateways.disconnectAll);
-    socket.disconnect();
-    socket.close();
-  }, [socket]);
-
   return {
     socket,
-    closeConnection,
-    openConnection,
     emitMessage,
   };
 };

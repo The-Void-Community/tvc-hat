@@ -4,6 +4,7 @@ export const GATEWAYS = {
   SEND_MESSAGE: "send_message",
   DISCONNECT: "room_disconnect",
   DISCONNECT_MANY: "rooms_disconnect",
+  DISCONNECT_ALL: "disconnect_all",
   CONNECT_MANY: "rooms_connect",
   CONNECT: "room_connect",
 } as const;
