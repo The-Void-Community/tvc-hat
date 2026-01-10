@@ -252,7 +252,7 @@ const Chat = ({ chatId }: Props) => {
               overwriteClassName
               className={[
                 "cursor-pointer w-full rounded-lg min-h-[40px]",
-                "hover:bg-(--bg-smooth-light) duration-200"
+                "hover:bg-(--bg-smooth-light) duration-200",
               ].join(" ")}
             >
               <div className="bg-(--bg-card) py-2 px-2 rounded-lg flex items-center gap-2">
@@ -263,9 +263,7 @@ const Chat = ({ chatId }: Props) => {
               </div>
             </DropdownTrigger>
             <DropdownMenu>
-              <DropdownItem>
-                {user.nickname}
-              </DropdownItem>
+              <DropdownItem>{user.nickname}</DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>

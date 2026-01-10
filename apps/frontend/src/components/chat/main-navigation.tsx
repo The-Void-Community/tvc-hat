@@ -14,7 +14,7 @@ export const MainNavigation = () => {
       className={[
         "flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg",
         "overflow-y-auto",
-        sidebarShowed ? "w-16" : "w-48"
+        sidebarShowed ? "w-16" : "w-48",
       ].join(" ")}
     >
       <div className="flex flex-col items-center gap-1">

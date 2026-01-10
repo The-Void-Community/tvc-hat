@@ -76,7 +76,7 @@ export const useWebsocket = ({
 
     if (chatIdsString !== previousString) {
       previousChatsRef.current = chatIds;
-      
+
       if (previousChatsRef.current.length === 0) {
         socket.emit(Gateways.disconnectAll);
       } else {

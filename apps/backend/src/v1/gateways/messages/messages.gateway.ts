@@ -91,7 +91,7 @@ export class Gateway
   ): Promise<Message> {
     const senderId = await this.validateClientOrThrow(client);
     await this.validateChatOrThrow(body.chatId);
-    
+
     if (!client.rooms.has(body.chatId)) {
       console.log(client.id + " blocked");
       throw new WsException("You not in a this chat");
@@ -170,9 +170,7 @@ export class Gateway
   }
 
   @SubscribeMessage(GATEWAYS.DISCONNECT_ALL)
-  public handleDisconnectAll(
-    @ConnectedSocket() client: Socket,
-  ) {
+  public handleDisconnectAll(@ConnectedSocket() client: Socket) {
     console.log(client.id + " disconnected from all");
     const rooms = client.rooms.keys();
     for (const roomId of rooms) {
