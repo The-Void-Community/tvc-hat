@@ -26,7 +26,7 @@ export const MessageTextarea = () => {
   return (
     <form
       id="send-message"
-      className="flex items-center gap-2"
+      className="bg-(--bg-smooth-ce) rounded-t-xl flex items-center gap-2"
       onSubmit={handleSubmit}
     >
       <div className="flex-1">
@@ -36,16 +36,16 @@ export const MessageTextarea = () => {
           onChange={(e) => setValue(e.currentTarget.value)}
           placeholder="Ваше сообщение..."
           className={[
-            "w-full max-w-none resize-none rounded-md bg-[#00000000] p-2 text-sm min-h-[40px]",
+            "w-full max-w-none resize-none bg-[#00000000] py-2 px-4 text-(length:--fs-mini) min-h-[40px]",
             "focus:outline-0",
           ].join(" ")}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter" || e.shiftKey) {
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" || event.shiftKey) {
               return;
             }
 
-            e.preventDefault();
-            handleSubmit(e);
+            event.preventDefault();
+            handleSubmit(event);
           }}
         />
       </div>

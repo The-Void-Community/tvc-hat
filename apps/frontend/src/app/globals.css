@@ -10,6 +10,9 @@
   --bg-default: #0a0a0a;
   --bg-component: #00000065;
   --bg-smooth: #111111;
+  --bg-smooth-light: #333333;
+  --bg-smooth-ce: #111111ce;
+  --bg-section: #1a1a1a90;
   --bg-card: #27272790;
 
   --image-bg: url("/background.png");

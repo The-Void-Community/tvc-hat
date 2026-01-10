@@ -51,12 +51,12 @@ export const Messages = () => {
   return (
     <div
       ref={messagesRef}
-      className="flex flex-col flex-1 overflow-y-auto py-2"
+      className="flex flex-col flex-1 overflow-y-auto py-4"
       onScroll={handleScroll}
     >
       {groupsWithDates.map((group) => (
         <div key={group.dateString}>
-          <div className="px-4 py-2 my-2 text-center text-mini sticky top-0 z-10">
+          <div className="px-4 py-2 my-2 text-center text-mini">
             <span className="bg-(--bg-smooth-light) py-1 px-2 rounded-lg">
               {group.formattedDate}
             </span>
