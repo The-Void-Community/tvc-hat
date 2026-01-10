@@ -41,7 +41,7 @@ const Chat = ({ chatId }: Props) => {
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
-  const { emitMessage, closeConnection, socket } = useWebsocket({
+  const { emitMessage, closeConnection, openConnection, socket } = useWebsocket({
     chats,
     onRecieveMessage,
   });
@@ -82,10 +82,12 @@ const Chat = ({ chatId }: Props) => {
   }
 
   useEffect(() => {
+    openConnection();
+    
     return () => {
       closeConnection();
     };
-  }, [closeConnection]);
+  }, [closeConnection, openConnection]);
 
   useEffect(() => {
     (async () => {

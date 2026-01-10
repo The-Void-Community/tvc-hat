@@ -53,18 +53,6 @@ export const useWebsocket = ({
       return;
     }
 
-    socket.on(Gateways.receiveMessage, onRecieveMessage);
-
-    return () => {
-      socket.removeListener(Gateways.receiveMessage, onRecieveMessage);
-    };
-  }, [onRecieveMessage, socket]);
-
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
-
     socket.emit(Gateways.connectMany, Array.from(chats.keys()));
   }, [socket, chats, onRecieveMessage]);
 
@@ -85,6 +73,14 @@ export const useWebsocket = ({
     [socket],
   );
 
+  const openConnection = useCallback(() => {
+    if (!socket) {
+      return;
+    }
+
+    socket.on(Gateways.receiveMessage, onRecieveMessage);
+  }, [onRecieveMessage, socket]);
+
   const closeConnection = useCallback(() => {
     if (!socket) {
       return;
@@ -98,6 +94,7 @@ export const useWebsocket = ({
   return {
     socket,
     closeConnection,
+    openConnection,
     emitMessage,
   };
 };
