@@ -2,25 +2,29 @@ import type { FormEvent } from "react";
 
 import { useChat } from "@/contexts/chat.context";
 
-import { useState } from "react";
 import { HiPaperAirplane } from "react-icons/hi";
 import { Button, Textarea } from "tvuikit";
 
 export const MessageTextarea = () => {
   const { onSubmit, textareaRef } = useChat();
 
-  const [value, setValue] = useState("");
-
   const handleSubmit = (event?: FormEvent) => {
-    if (event && event.preventDefault) {
+    if (!textareaRef.current) {
+      return
+    }
+
+    if (event) {
       event.preventDefault();
     }
 
+    const { value } = textareaRef.current;
     const text = value.trim();
-    if (text === "") return;
+    if (text === "") {
+      return;
+    }
 
+    textareaRef.current.value = "";
     onSubmit(text);
-    setValue("");
   };
 
   return (
@@ -31,9 +35,7 @@ export const MessageTextarea = () => {
     >
       <Textarea
         ref={textareaRef}
-        value={value}
         wrap="hard"
-        onChange={(e) => setValue(e.currentTarget.value)}
         placeholder="Ваше сообщение..."
         overwriteClassName
         className={[
