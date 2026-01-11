@@ -1,5 +1,5 @@
 import type { Nullable, UrlType } from "@/constants/url";
-import { BASE_PATH_NAME, BASE_URL } from "@/constants/url";
+import { BASE_PATH_NAME, API_ORIGIN } from "@/constants/url";
 
 export type AvailableQueryTypes =
   | string
@@ -82,13 +82,13 @@ export const createEndpointUrl = ({
   );
 
   if (endpoint) {
-    return BASE_URL.overwrite({
+    return API_ORIGIN.overwrite({
       pathname: BASE_PATH_NAME + endpoint,
       query: searchParams,
     });
   }
 
-  return BASE_URL.overwrite({
+  return API_ORIGIN.overwrite({
     ...url,
     query: searchParams,
   });
