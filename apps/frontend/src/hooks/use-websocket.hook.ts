@@ -13,6 +13,7 @@ import { io } from "socket.io-client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Gateways } from "@/enums";
+import { WEBSCOKET_URL } from "@/constants/url";
 
 export type EmitMessageFunction = (
   message: {
@@ -43,7 +44,7 @@ export const useWebsocket = ({
         return;
       }
 
-      const websocket = io("http://localhost:8080/chat", {
+      const websocket = io(WEBSCOKET_URL.href, {
         extraHeaders: {
           authorization: `Bearer ${token}`,
         },

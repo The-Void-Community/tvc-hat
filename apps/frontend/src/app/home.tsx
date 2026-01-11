@@ -6,6 +6,7 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "tvuikit";
+import { API_AUTH_URL } from "@/constants/url";
 
 type Props = {
   query: Promise<{ token?: string }>;
@@ -41,7 +42,7 @@ const Home = ({ query }: Props) => {
         <Button
           className="bg-(--bg-smooth)"
           onClick={() => {
-            window.location.href = "http://localhost:8080/api/v1/auth/google";
+            window.location.href = API_AUTH_URL.href;
           }}
         >
           Войти с помощью Google

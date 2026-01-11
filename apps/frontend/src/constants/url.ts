@@ -278,8 +278,7 @@ export class Url implements UrlType {
 }
 
 export const BASE_PATH_NAME = "/api/v1";
-/**
- * НЕ ЗАБЫТЬ ВЫНЕСТИ В .ENV
- */
-export const API_URL: string = "http://localhost:8080" + BASE_PATH_NAME;
-export const BASE_URL: Url = new Url(API_URL);
+export const API_ORIGIN = new Url("http://localhost:8000");
+export const API_URL: Url = API_ORIGIN.overwrite({ pathname: BASE_PATH_NAME });
+export const WEBSCOKET_URL: Url = API_ORIGIN.overwrite({ pathname: "/chat" });
+export const API_AUTH_URL: Url = API_ORIGIN.overwrite({ pathname: "/api/v1/auth/google "});
