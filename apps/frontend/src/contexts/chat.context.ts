@@ -28,7 +28,7 @@ type ChatContextType = {
   onChangeChat: (chat: Chat | null) => unknown;
 
   retrySendMessage: (id: string) => unknown;
-  sendMessage: (text: string) => unknown;
+  sendMessage: (text: string, chatId: string) => unknown;
   onSubmit: (text: string) => unknown;
   onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
 };

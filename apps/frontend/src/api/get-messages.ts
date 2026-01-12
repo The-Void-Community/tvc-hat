@@ -1,6 +1,7 @@
 "use server";
 
 import type { Message } from "@/types";
+import { revalidateTag } from "next/cache";
 
 import { endpointRequestOrNull } from "./server-utils";
 
@@ -26,6 +27,10 @@ export const getMessages = async ({
       sort,
       chatId,
     },
-    cache: false,
+    tags: [`messages-${chatId}`],
   });
+};
+
+export const revalidateMessages = async (chatId: string) => {
+  revalidateTag(`messages-${chatId}`, {});
 };

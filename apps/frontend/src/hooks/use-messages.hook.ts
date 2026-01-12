@@ -9,19 +9,18 @@ import { useCallback, useRef } from "react";
 import { v4 as uuid } from "uuid";
 
 import { changeFrontendMessageToMessageBody } from "@/utils/delete-properties-from.utils";
+import { revalidateMessages } from "@/api/get-messages";
 
 import { useMessagesMap } from "./use-messages-map.hook";
 import { useMessagesPending } from "./use-messages-pending.hook";
 
 export type UseMessagesProps = {
   emitMessage: EmitMessageFunction;
-  currentChatId: string | null;
   myId: string | null;
 };
 
 export const useMessages = ({
   emitMessage,
-  currentChatId,
   myId,
 }: UseMessagesProps) => {
   const messagesRef = useRef<HTMLDivElement | null>(null);
@@ -42,7 +41,7 @@ export const useMessages = ({
       createPending(message);
 
       try {
-        return emitMessage(messageBody, (serverMessage) => {
+        return emitMessage(messageBody, async (serverMessage) => {
           clearPending(message.id);
 
           if (!serverMessage) {
@@ -50,6 +49,7 @@ export const useMessages = ({
           }
 
           updateOneMessage(message.id, serverMessage);
+          await revalidateMessages(messageBody.chatId);
         });
       } catch (error) {
         console.error(error);
@@ -79,8 +79,8 @@ export const useMessages = ({
   );
 
   const sendMessage = useCallback(
-    (text: string) => {
-      if (!currentChatId || !myId) {
+    (text: string, chatId: string) => {
+      if (!myId) {
         return;
       }
 
@@ -91,7 +91,7 @@ export const useMessages = ({
 
       const frontendMessageId = uuid();
       const messageBody: MessageBody = {
-        chatId: currentChatId,
+        chatId,
         text: trimmedText,
       };
       const frontendMessage: FrontendMessage = {
@@ -107,7 +107,7 @@ export const useMessages = ({
       addMessages([frontendMessage]);
       trySendMessage(frontendMessage);
     },
-    [addMessages, currentChatId, myId, trySendMessage],
+    [addMessages, myId, trySendMessage],
   );
 
   return {

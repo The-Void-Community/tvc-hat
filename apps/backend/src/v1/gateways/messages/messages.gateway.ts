@@ -91,6 +91,7 @@ export class Gateway
   ): Promise<Message> {
     const senderId = await this.validateClientOrThrow(client);
     await this.validateChatOrThrow(body.chatId);
+    console.log(senderId + " sending message");
 
     if (!client.rooms.has(body.chatId)) {
       console.log(client.id + " blocked");

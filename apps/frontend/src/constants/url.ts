@@ -83,7 +83,7 @@ export class Url implements UrlType {
     return parsed;
   }
 
-  public constructor(data: Url | string) {
+  public constructor(data: Url | UrlType | string) {
     if (typeof data === "string") {
       this._data = Url.fromString(data);
     } else {
@@ -142,6 +142,10 @@ export class Url implements UrlType {
     }
 
     return this;
+  }
+
+  public overwriteAndCreate(url: Omit<Partial<Nullable<UrlType>>, "origin" | "href">) {
+    return new Url(this.raw).overwrite(url);
   }
 
   public toString(): string {
@@ -279,6 +283,6 @@ export class Url implements UrlType {
 
 export const BASE_PATH_NAME = "/api/v1";
 export const API_ORIGIN = new Url("http://localhost:8080");
-export const API_URL: Url = API_ORIGIN.overwrite({ pathname: BASE_PATH_NAME });
-export const WEBSCOKET_URL: Url = API_ORIGIN.overwrite({ pathname: "/chat" });
-export const API_AUTH_URL: Url = API_ORIGIN.overwrite({ pathname: "/api/v1/auth/google "});
+export const API_URL: Url = API_ORIGIN.overwriteAndCreate({ pathname: BASE_PATH_NAME });
+export const WEBSCOKET_URL: Url = API_ORIGIN.overwriteAndCreate({ pathname: "/chat" });
+export const API_AUTH_URL: Url = API_ORIGIN.overwriteAndCreate({ pathname: "/api/v1/auth/google "});

@@ -78,7 +78,6 @@ const Chat = ({ chatId }: Props) => {
     messagesRef,
     messages,
   } = useMessages({
-    currentChatId: currentChat?.id || null,
     myId: user?.id || null,
     emitMessage,
   });
@@ -187,7 +186,10 @@ const Chat = ({ chatId }: Props) => {
   ]);
 
   const onSubmit = (text: string) => {
-    void sendMessage(text);
+    if (!currentChat) {
+      return;
+    }
+    void sendMessage(text, currentChat.id);
   };
 
   const onChangeChat = useCallback(
