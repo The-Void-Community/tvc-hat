@@ -25,7 +25,7 @@ import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
 import { MainNavigation } from "@/components/chat/main-navigation";
 import { IconOrAvatar } from "@/components/chat/icon";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
 
 type Props = {
   chatId?: string;
@@ -236,12 +236,21 @@ const Chat = ({ chatId }: Props) => {
         users,
       }}
     >
-      <Wrapper className="gap-2">
-        <div className="main-full flex flex-col h-full gap-2">
+      <div className="relative h-screen w-screen flex gap-2 p-8">
+        <div className="h-full flex flex-col h-full gap-2">
           <div className="flex flex-1 gap-2">
             <MainNavigation />
             {sidebarShowed && (
               <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
+                <Button
+                  className="mt-2" // <---- ИСПРАВИТЬ
+                  onClick={() => {
+                    // handleFind()
+                  }}
+                >
+                  Find
+                </Button>
+
                 <ChatsNavigation type={ChatType.self} full />
                 <hr className="w-[60%] text-(--fg-mini-text)" />
                 <ChatsNavigation type={ChatType.direct} full />
@@ -249,7 +258,7 @@ const Chat = ({ chatId }: Props) => {
             )}
           </div>
 
-          <Dropdown>
+          <Dropdown defaultVertialPosition="top">
             <DropdownTrigger
               overwriteClassName
               className={[
@@ -278,7 +287,7 @@ const Chat = ({ chatId }: Props) => {
           showed={createModalShowed}
           toggle={toggleCreateModal}
         />
-      </Wrapper>
+      </div>
     </ChatContext.Provider>
   );
 };
