@@ -1,14 +1,16 @@
 import type { Request } from "express";
-import type { ChatSlug } from "@/v1/pipes/slug.pipe";
+import type { ChatSlug, UserSlug } from "@/v1/pipes/slug.pipe";
 
 import { ChatCreateDto } from "./dto/chat-create.dto";
 import { ChatUpdateDto } from "./dto/chat-update.dto";
 import { RightsUpdateDto } from "./dto/rights-update.dto";
 
+import { Service as UsersService } from "@1/routes/users/users.service";
+
 import { Public } from "@/decorators";
 import { AuthGuard } from "@1/guards/auth/auth.guard";
-import { ChatSlugPipe, SlugPipe } from "@/v1/pipes/slug.pipe";
-import Hash from "@/v1/services/hash.service";
+import { ChatSlugPipe, SlugPipe, UserSlugPipe } from "@/v1/pipes/slug.pipe";
+import { Hash } from "@/v1/services/hash.service";
 
 import {
   Controller as NestController,
@@ -26,6 +28,7 @@ import {
   Req,
   Query,
   ParseArrayPipe,
+  HttpException,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 
@@ -54,7 +57,7 @@ import { CacheTTL } from "@nestjs/cache-manager";
     "Does not have an authentication token in headers (`headers.authorization`)",
 })
 export class Controller {
-  public constructor(private readonly service: Service) {}
+  public constructor(private readonly service: Service, private readonly usersService: UsersService) {}
 
   @ApiOperation({
     summary: "Getting a chats by slugs",
@@ -73,7 +76,6 @@ export class Controller {
   })
   @Get(ROUTES.GET_ONE)
   @CacheTTL(5)
-  @Public()
   public getOne(
     @Req() req: Request,
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
@@ -84,6 +86,27 @@ export class Controller {
     }
 
     return this.service.getOne(slug.value);
+  }
+
+  @ApiOperation({
+    summary: "Getting a DM chat by user slug"
+  })
+  @Get(ROUTES.GET_BY_USER)
+  public async getByUser(
+    @Req() req: Request,
+    @Param("userSlug", UserSlugPipe) slug: UserSlug,
+  ) {
+    if (slug.type === "me") {
+      throw new HttpException("Slug can not be \"@me\"", HttpStatus.BAD_REQUEST);
+    }
+    
+    const { profileId } = Hash.parseOrThrow(req);
+    const user = await this.usersService.getOne(slug.value);
+    if (!user) {
+      throw new HttpException("User not found", HttpStatus.BAD_REQUEST);
+    }
+
+    return this.service.getDirectChat(profileId, user.id);
   }
 
   @ApiOperation({

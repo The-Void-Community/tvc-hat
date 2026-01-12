@@ -48,7 +48,7 @@ export class Service {
 
   public constructor(private readonly prisma: PrismaService) {}
 
-  public async getMany(slugs: string[]): Promise<Chat[]> {
+  public getMany(slugs: string[]): Promise<Chat[]> {
     return this.prisma.chat.findMany({
       where: {
         OR: slugs.map((slug) => Service.resolveSlug(slug)),
@@ -56,11 +56,11 @@ export class Service {
     });
   }
 
-  public async getOne(slug: IdOrChatname): Promise<Chat | null> {
+  public getOne(slug: IdOrChatname): Promise<Chat | null> {
     return this.prisma.chat.findUnique({ where: slug });
   }
 
-  public async getUserChats(id: string) {
+  public getUserChats(id: string) {
     return this.prisma.chat.findMany({
       where: {
         members: {
@@ -70,7 +70,30 @@ export class Service {
     });
   }
 
-  public async post(data: ChatCreateDto, userId: string): Promise<Chat> {
+  public getDirectChat(userOne: string, userTwo: string): Promise<Chat | null> {
+    return this.prisma.chat.findUnique({
+      where: {
+        chatname: `${userOne}:${userTwo}`,
+        OR: [{
+          chatname: `${userTwo}:${userOne}`
+        }]
+      }
+    })
+  }
+
+  public createDirectChat(userOne: string, userTwo: string): Promise<Chat> {
+    return this.prisma.chat.create({
+      data: {
+        name: `${userOne}:${userTwo}`,
+        chatname: `${userOne}:${userTwo}`,
+        ownerId: "tvc-hat",
+        members: [userOne, userTwo],
+        type: "DIRECT",
+      }
+    });
+  }
+
+  public post(data: ChatCreateDto, userId: string): Promise<Chat> {
     return this.prisma.chat.create({
       data: {
         ...data,

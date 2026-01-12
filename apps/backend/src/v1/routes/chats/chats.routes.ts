@@ -3,6 +3,7 @@ const ROUTE = "chats";
 const ROUTES = {
   GET_MANY: "/",
   GET_ONE: "/:slug",
+  GET_BY_USER: "/u/:userSlug",
 
   POST: "/",
 
