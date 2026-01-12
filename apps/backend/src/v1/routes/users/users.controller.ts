@@ -6,6 +6,7 @@ import { UserUpdateDto } from "./dto/user-update.dto";
 import { Public } from "@/decorators";
 import { AuthGuard } from "@1/guards/auth/auth.guard";
 import { SlugPipe, UserSlugPipe } from "@/v1/pipes/slug.pipe";
+import { Hash } from "@/v1/services/hash.service";
 
 import {
   Controller as NestController,
@@ -53,11 +54,16 @@ export class Controller {
   })
   @Get(ROUTES.GET_ONE)
   @Public()
-  public getOne(
+  public async getOne(
     @Req() req: Request,
     @Param("slug", UserSlugPipe) slug: Slug<"username">,
   ) {
-    return this.service.getOne(SlugPipe.resolve(req, slug));
+    const { profileId } = Hash.parseOrThrow(req);
+    const hasRelation = slug.type !== "me"
+      ? await this.service.usersHasRelationBySlug(slug.value, { id: profileId })
+      : true;
+
+    return this.service.getOne(SlugPipe.resolve(req, slug), hasRelation);
   }
 
   @ApiOperation({
