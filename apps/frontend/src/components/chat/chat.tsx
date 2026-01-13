@@ -8,18 +8,28 @@ import { useMemo } from "react";
 import { ChatType } from "@/enums";
 import { useChat } from "@/contexts/chat.context";
 import { IconOrAvatar } from "./icon";
+import { useDirectChatAvatar, useDirectChatName } from "@/hooks/use-direct-chat.hook";
 
 type ChatNavigationProps = {
   chat: Chat;
   full?: boolean;
+  type: ChatType;
 } & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
 export const ChatNavigation = ({
   chat,
   className,
   full = false,
+  type
 }: ChatNavigationProps) => {
-  const { currentChat, setCurrentChat, onChangeChat } = useChat();
+  const { currentChat, setCurrentChat, onChangeChat, me, users } = useChat();
+  const chatName = useDirectChatName({
+    type, myId: me.id, name: chat.name, users
+  });
+  const entity = useDirectChatAvatar({
+    myId: me.id, users,
+    chat: chat,
+  });
 
   return (
     <div
@@ -37,8 +47,8 @@ export const ChatNavigation = ({
         onChangeChat(chat);
       }}
     >
-      <IconOrAvatar entity={chat} />
-      {full && <span className="w-24 truncate">{chat.name}</span>}
+      <IconOrAvatar entity={entity} />
+      {full && <span className="w-24 truncate">{chatName}</span>}
     </div>
   );
 };
@@ -59,7 +69,12 @@ export const ChatsNavigation = ({ type, full }: ChatsNaviationProps) => {
   return (
     <div className="flex flex-col items-center gap-1">
       {chats.map((chat) => (
-        <ChatNavigation key={chat.id} chat={chat} full={full} />
+        <ChatNavigation
+          key={chat.id}
+          chat={chat}
+          full={full}
+          type={type}
+        />
       ))}
     </div>
   );

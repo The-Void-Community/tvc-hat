@@ -4,11 +4,9 @@ import type { Chat, Message, User } from "@/types";
 
 import { getMe, getUser } from "@/api/get-user";
 import { getChat, getChats } from "@/api/get-chats";
-import { getMessages } from "@/api/get-messages";
+import { getMessages, revalidateMessages } from "@/api/get-messages";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-
-import { Wrapper } from "@/components/wrapper.component";
 
 import { ChatsNavigation } from "@/components/chat/chat";
 import { CurrentChat } from "@/components/chat/current-chat";
@@ -25,7 +23,8 @@ import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
 import { MainNavigation } from "@/components/chat/main-navigation";
 import { IconOrAvatar } from "@/components/chat/icon";
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
+import { useUserFind } from "@/hooks/use-user-find";
 
 type Props = {
   chatId?: string;
@@ -60,8 +59,12 @@ const Chat = ({ chatId }: Props) => {
 
       addMessagesRef.current?.([message]);
       addUserRef.current?.(sender.id, sender);
+      
+      if (currentChat) {
+        revalidateMessages(currentChat.id);
+      }
     },
-    [user?.id, users],
+    [currentChat, user?.id, users],
   );
 
   const { emitMessage, socket } = useWebsocket({
@@ -92,6 +95,11 @@ const Chat = ({ chatId }: Props) => {
       messagesRef,
       messages,
     });
+
+  const {
+    Modal: UserFindModal,
+    Trigger: UserFindTrigger,
+  } = useUserFind();
 
   useEffect(() => {
     (async () => {
@@ -242,14 +250,7 @@ const Chat = ({ chatId }: Props) => {
             <MainNavigation />
             {sidebarShowed && (
               <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
-                <Button
-                  className="mt-2" // <---- ИСПРАВИТЬ
-                  onClick={() => {
-                    // handleFind()
-                  }}
-                >
-                  Find
-                </Button>
+                <UserFindTrigger className="mt-2" />
 
                 <ChatsNavigation type={ChatType.self} full />
                 <hr className="w-[60%] text-(--fg-mini-text)" />
@@ -275,6 +276,11 @@ const Chat = ({ chatId }: Props) => {
             </DropdownTrigger>
             <DropdownMenu>
               <DropdownItem>{user.nickname}</DropdownItem>
+              <DropdownItem
+                onClick={() => {
+                  navigator.clipboard.writeText(user.username);
+                }}
+              >Скопировать имя пользователя</DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>
@@ -282,6 +288,8 @@ const Chat = ({ chatId }: Props) => {
         <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
           {currentChat && <CurrentChat />}
         </div>
+
+        <UserFindModal />
 
         <CreateChatModal
           showed={createModalShowed}

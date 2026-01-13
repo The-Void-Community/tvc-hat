@@ -1,7 +1,7 @@
 import type { Chat, User } from "@/types";
 import Image from "next/image";
 
-type IconOrAvatar =
+export type IconOrAvatar =
   | {
       icon: string | null;
     }

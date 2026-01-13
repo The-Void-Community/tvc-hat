@@ -6,20 +6,28 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 
 import { endpointRequestOrNull } from "./server-utils";
+import { getToken } from "./get-token";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export const getMeByToken = cache(
-  async (token: string): Promise<User | null> => {
+  async (token: string, cookie: ReadonlyRequestCookies): Promise<User | null> => {
     const user = await endpointRequestOrNull({ endpoint: "/auth/@me", token });
     if (!user) {
       return null;
     }
+    cookie.set("auth", user.auth);
 
     return user.user;
   },
 );
 
 export const getMeByCookie = cache(async (): Promise<User | null> => {
-  const user = await endpointRequestOrNull({ endpoint: "/auth/@me" });
+  const token = await getToken();
+  if (!token) {
+    return null;
+  }
+
+  const user = await endpointRequestOrNull({ endpoint: "/auth/@me", token });
   if (!user) {
     return null;
   }
@@ -33,7 +41,11 @@ export const getUser = cache(async (slug: string): Promise<User | null> => {
     return null;
   }
 
-  return user.user;
+  if ("user" in user) {
+    return user.user;
+  }
+
+  return user;
 });
 
 export const getMe = cache(
@@ -45,7 +57,11 @@ export const getMe = cache(
       return JSON.parse(userFromCookie.value);
     }
 
-    const user = await (token ? getMeByToken(token) : getMeByCookie());
+    if (token) {
+      cookie.set("token", token);
+    }
+
+    const user = await (token ? getMeByToken(token, cookie) : getMeByCookie());
     if (!user) {
       return null;
     }
