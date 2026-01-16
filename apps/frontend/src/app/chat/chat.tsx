@@ -98,10 +98,15 @@ const Chat = ({ chatId }: Props) => {
 
   const { Modal: UserFindModal } = useUserFind();
 
-  const { oldestMessageId, hasMore: hasMoreMessages, handleChatChange, loadStartMessages } = useChatMessages({
+  const {
+    oldestMessageId,
+    hasMore: hasMoreMessages,
+    handleChatChange,
+    loadStartMessages,
+  } = useChatMessages({
     setMessages,
     toggleMessagesLoading,
-    toggleScrollToBottom
+    toggleScrollToBottom,
   });
 
   const { loaded, load } = useChatInitialization({
@@ -120,24 +125,30 @@ const Chat = ({ chatId }: Props) => {
     oldestMessageId,
     hasMore: hasMoreMessages,
   });
-  
-  const onSubmit = useCallback((text: string) => {
-    if (!currentChat) {
-      return;
-    }
-    
-    sendMessage(text, currentChat.id);
-    toggleScrollToBottom(true);
-  }, [currentChat, sendMessage, toggleScrollToBottom]);
 
-  const showSidebar = useCallback((chatType: ChatType) => {
-    const isSelf = chatType === ChatType.self;
-    const isDirect = chatType === ChatType.direct;
+  const onSubmit = useCallback(
+    (text: string) => {
+      if (!currentChat) {
+        return;
+      }
 
-    if ((isSelf || isDirect) && !sidebarShowed) {
-      toggleSidebar(true);
-    }
-  }, [sidebarShowed, toggleSidebar])
+      sendMessage(text, currentChat.id);
+      toggleScrollToBottom(true);
+    },
+    [currentChat, sendMessage, toggleScrollToBottom],
+  );
+
+  const showSidebar = useCallback(
+    (chatType: ChatType) => {
+      const isSelf = chatType === ChatType.self;
+      const isDirect = chatType === ChatType.direct;
+
+      if ((isSelf || isDirect) && !sidebarShowed) {
+        toggleSidebar(true);
+      }
+    },
+    [sidebarShowed, toggleSidebar],
+  );
 
   const updateUrlState = useCallback((newChatId: string) => {
     window.history.replaceState(null, "", `/chat/${newChatId}`);
@@ -178,12 +189,12 @@ const Chat = ({ chatId }: Props) => {
       addChats(data.chats, "id");
       setCurrentChat(data.initialChat);
       addUser(data.user.id, data.user);
-      
+
       if (data.initialChat) {
         showSidebar(data.initialChat.type);
-      };
+      }
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!user || !socket || !loaded) {

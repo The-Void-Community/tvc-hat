@@ -41,19 +41,27 @@ export const useChatMessages = ({
       toggleMessagesLoading(false);
       toggleScrollToBottom(true);
     },
-    [setMessages, toggleMessagesLoading, loadInitialMessages, toggleScrollToBottom],
+    [
+      setMessages,
+      toggleMessagesLoading,
+      loadInitialMessages,
+      toggleScrollToBottom,
+    ],
   );
 
-  const handleChatChange = useCallback((chat: Chat) => {
-    setOldestMessageId(undefined);
-    setHasMore(false);
-    loadStartMessages(chat.id);
-  }, [loadStartMessages]);
+  const handleChatChange = useCallback(
+    (chat: Chat) => {
+      setOldestMessageId(undefined);
+      setHasMore(false);
+      loadStartMessages(chat.id);
+    },
+    [loadStartMessages],
+  );
 
   return {
     loadStartMessages,
     oldestMessageId,
     hasMore,
-    handleChatChange
+    handleChatChange,
   };
 };

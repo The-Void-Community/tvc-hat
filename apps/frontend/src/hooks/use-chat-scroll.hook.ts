@@ -49,10 +49,7 @@ export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
 
   useEffect(() => {
     handleMessagesLoad();
-  }, [
-    messagesRef,
-    handleMessagesLoad
-  ]);
+  }, [messagesRef, handleMessagesLoad]);
 
   return {
     handleMessagesLoad,

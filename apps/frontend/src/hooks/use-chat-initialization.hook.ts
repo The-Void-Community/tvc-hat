@@ -5,12 +5,12 @@ import { getChat, getChats } from "@/api/get-chats";
 
 export type UseChatInitializationProps = {
   chatId?: string;
-  loadStartMessages: (chatId: string) => Promise<void>,
+  loadStartMessages: (chatId: string) => Promise<void>;
 };
 
 export const useChatInitialization = ({
   chatId,
-  loadStartMessages
+  loadStartMessages,
 }: UseChatInitializationProps) => {
   const [loaded, setLoaded] = useState(false);
 
@@ -29,7 +29,7 @@ export const useChatInitialization = ({
 
     if (chatId) {
       await loadStartMessages(chatId);
-    };
+    }
 
     setLoaded(true);
 
@@ -37,10 +37,11 @@ export const useChatInitialization = ({
       user: fetchedUser,
       chats,
       initialChat: fetchedChat || null,
-    }
-  }, [chatId, loadStartMessages])
+    };
+  }, [chatId, loadStartMessages]);
 
   return {
-    loaded, load
+    loaded,
+    load,
   };
 };
