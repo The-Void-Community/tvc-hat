@@ -2,15 +2,15 @@
 
 import type { Chat, Message, User } from "@/types";
 
-import { getMe, getUser } from "@/api/get-user";
-import { getChat, getChats } from "@/api/get-chats";
-import { getMessages, revalidateMessages } from "@/api/get-messages";
+import { getUser } from "@/api/get-user";
+import { revalidateMessages } from "@/api/get-messages";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { ChatsNavigation } from "@/components/chat/chat";
 import { CurrentChat } from "@/components/chat/current-chat";
 import { CreateChatModal } from "@/components/chat/create-chat";
+import { ChatSidebar } from "@/components/chat/chat-sidebar";
+import { UserProfileDropdown } from "@/components/chat/user-profile-dropdown";
 
 import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
 import { useMessages } from "@/hooks/use-messages.hook";
@@ -18,12 +18,12 @@ import { useWebsocket } from "@/hooks/use-websocket.hook";
 import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
 import { useMap } from "@/hooks/use-map.hook";
 import { useToggleRef, useToggleState } from "@/hooks/use-toggle.hook";
+import { useChatInitialization } from "@/hooks/use-chat-initialization.hook";
+import { useChatMessages } from "@/hooks/use-chat-messages.hook";
 
 import { ChatContext } from "@/contexts/chat.context";
 import { ChatType } from "@/enums";
 import { MainNavigation } from "@/components/chat/main-navigation";
-import { IconOrAvatar } from "@/components/chat/icon";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
 import { useUserFind } from "@/hooks/use-user-find";
 
 type Props = {
@@ -34,7 +34,6 @@ const Chat = ({ chatId }: Props) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  const [loaded, setLoaded] = useState<boolean>(false);
 
   const [sidebarShowed, toggleSidebar] = useToggleState();
   const [createModalShowed, toggleCreateModal] = useToggleState();
@@ -42,6 +41,7 @@ const Chat = ({ chatId }: Props) => {
   const { map: chats, addMany: addChats } = useMap<Chat>();
   const { map: users, add: addUser } = useMap<User>();
   const { filteredChats } = useFilteredChats({ chats });
+
   const addMessagesRef = useRef<((messages: Message[]) => void) | null>(null);
   const addUserRef = useRef<((id: string, user: User) => void) | null>(null);
 
@@ -96,47 +96,27 @@ const Chat = ({ chatId }: Props) => {
       messages,
     });
 
-  const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
+  const { Modal: UserFindModal } = useUserFind();
 
-  useEffect(() => {
-    (async () => {
-      toggleMessagesLoading(true);
-      const gettedChat = chatId ? await getChat(chatId) : null;
-
-      const gettedUser = await getMe();
-      if (!gettedUser) {
-        return;
-      }
-      const gettedMessages = gettedChat
-        ? (
-            (await getMessages({
-              chatId: gettedChat.id,
-              sort: "desc",
-            })) || []
-          ).reverse()
-        : [];
-
-      const gettedChats = (await getChats()) || [];
-
-      setMessages(
-        new Map(gettedMessages.map((m) => [m.id, m] as [string, Message])),
-      );
-      setUser(gettedUser);
-      addChats(gettedChats, "id");
-      setCurrentChat(gettedChat);
-      addUser(gettedUser.id, gettedUser);
-      toggleScrollToBottom(true);
-      setLoaded(true);
-      toggleMessagesLoading(false);
-    })();
-  }, [
-    addChats,
-    addUser,
+  const { loaded, loading: initLoading } = useChatInitialization({
     chatId,
+    onInitialized: useCallback(
+      ({ user: initializedUser, chats: initializedChats, initialChat }) => {
+        setUser(initializedUser);
+        addChats(initializedChats, "id");
+        setCurrentChat(initialChat);
+        addUser(initializedUser.id, initializedUser);
+      },
+      [addChats, addUser],
+    ),
+  });
+
+  useChatMessages({
+    currentChat,
     setMessages,
-    toggleMessagesLoading,
     toggleScrollToBottom,
-  ]);
+    toggleMessagesLoading,
+  });
 
   useEffect(() => {
     if (!currentChat || currentChat.id === chatId) {
@@ -157,38 +137,7 @@ const Chat = ({ chatId }: Props) => {
     if ((isSelf || isDirect) && !sidebarShowed) {
       toggleSidebar(true);
     }
-
-    setMessages(new Map());
-    toggleScrollToBottom(true);
-    toggleMessagesLoading(true);
-
-    (async () => {
-      const gettedMessages = await getMessages({
-        chatId: currentChat.id,
-        sort: "desc",
-      });
-
-      if (gettedMessages && gettedMessages.length > 0) {
-        const reversedMessages = gettedMessages.reverse();
-        setMessages(
-          new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
-        );
-      }
-
-      if (gettedMessages?.length === 0) {
-        setMessages(new Map());
-      }
-
-      toggleMessagesLoading(false);
-    })();
-  }, [
-    currentChat,
-    setMessages,
-    sidebarShowed,
-    toggleMessagesLoading,
-    toggleScrollToBottom,
-    toggleSidebar,
-  ]);
+  }, [currentChat, sidebarShowed, toggleSidebar]);
 
   const onSubmit = (text: string) => {
     if (!currentChat) {
@@ -212,7 +161,7 @@ const Chat = ({ chatId }: Props) => {
     [toggleSidebar],
   );
 
-  if (!user || !socket || !loaded) {
+  if (!user || !socket || !loaded || initLoading) {
     return <div>loading...</div>;
   }
 
@@ -245,43 +194,10 @@ const Chat = ({ chatId }: Props) => {
         <div className="h-full flex flex-col h-full gap-2">
           <div className="flex flex-1 gap-2">
             <MainNavigation />
-            {sidebarShowed && (
-              <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
-                <UserFindTrigger className="mt-2" />
-
-                <ChatsNavigation type={ChatType.self} full />
-                <hr className="w-[60%] text-(--fg-mini-text)" />
-                <ChatsNavigation type={ChatType.direct} full />
-              </nav>
-            )}
+            {sidebarShowed && <ChatSidebar />}
           </div>
 
-          <Dropdown defaultVertialPosition="top">
-            <DropdownTrigger
-              overwriteClassName
-              className={[
-                "cursor-pointer w-full rounded-lg min-h-[40px]",
-                "hover:bg-(--bg-smooth-light) duration-200",
-              ].join(" ")}
-            >
-              <div className="bg-(--bg-card) py-2 px-2 rounded-lg flex items-center gap-2">
-                <IconOrAvatar entity={user} size={40} />
-                <span className="truncate max-w-48">
-                  {user.nickname || user.username}
-                </span>
-              </div>
-            </DropdownTrigger>
-            <DropdownMenu>
-              <DropdownItem>{user.nickname}</DropdownItem>
-              <DropdownItem
-                onClick={() => {
-                  navigator.clipboard.writeText(user.username);
-                }}
-              >
-                Скопировать имя пользователя
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          <UserProfileDropdown user={user} />
         </div>
 
         <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
