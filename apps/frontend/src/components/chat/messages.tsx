@@ -51,7 +51,10 @@ export const Messages = () => {
       const currentScrollHeight = messagesRef.current.scrollHeight;
       const previousScrollHeight = previousScrollHeightRef.current;
 
-      if (previousScrollHeight > 0 && currentScrollHeight > previousScrollHeight) {
+      if (
+        previousScrollHeight > 0 &&
+        currentScrollHeight > previousScrollHeight
+      ) {
         const scrollDifference = currentScrollHeight - previousScrollHeight;
         messagesRef.current.scrollTop += scrollDifference;
       }
@@ -79,7 +82,7 @@ export const Messages = () => {
     const canLoad = shouldLoad && !loading;
     if (!canLoad) {
       return;
-    };
+    }
 
     const { scrollTop } = messagesRef.current;
     if (scrollTop < 200) {
@@ -89,7 +92,7 @@ export const Messages = () => {
         loadingOlderRef.current = false;
       });
     }
-  }
+  };
 
   if (messagesLoading.current) {
     return (

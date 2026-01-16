@@ -116,24 +116,24 @@ const Chat = ({ chatId }: Props) => {
     ),
   });
 
-  const {
-    oldestMessageId,
-    hasMore: hasMoreMessages,
-  } = useChatMessages({
+  const { oldestMessageId, hasMore: hasMoreMessages } = useChatMessages({
     currentChat,
     setMessages,
     toggleScrollToBottom,
     toggleMessagesLoading,
   });
 
-  const { loadOlderMessages, hasMore, loading: loadingOlder } =
-    useMessagePagination({
-      chatId: currentChat?.id || "",
-      addMessages,
-      toggleMessagesLoading,
-      oldestMessageId,
-      hasMore: hasMoreMessages,
-    });
+  const {
+    loadOlderMessages,
+    hasMore,
+    loading: loadingOlder,
+  } = useMessagePagination({
+    chatId: currentChat?.id || "",
+    addMessages,
+    toggleMessagesLoading,
+    oldestMessageId,
+    hasMore: hasMoreMessages,
+  });
 
   useEffect(() => {
     if (!currentChat || currentChat.id === chatId) {

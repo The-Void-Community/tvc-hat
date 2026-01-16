@@ -36,7 +36,8 @@ export const useMessagePagination = ({
   }, [initialHasMore]);
 
   const loadOlderMessages = useCallback(async () => {
-    const currentOldestId = initialOldestMessageId ?? oldestMessageIdRef.current;
+    const currentOldestId =
+      initialOldestMessageId ?? oldestMessageIdRef.current;
     const currentHasMore = initialHasMore ?? hasMoreRef.current;
 
     if (!currentOldestId || !currentHasMore || loaded.current || !chatId) {

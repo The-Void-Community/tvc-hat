@@ -17,7 +17,9 @@ export const useChatMessages = ({
   toggleMessagesLoading,
 }: UseChatMessagesProps) => {
   const { loadInitialMessages } = useMessageLoader();
-  const [oldestMessageId, setOldestMessageId] = useState<string | undefined>(undefined);
+  const [oldestMessageId, setOldestMessageId] = useState<string | undefined>(
+    undefined,
+  );
   const [hasMore, setHasMore] = useState<boolean>(false);
 
   const loadMessages = useCallback(
@@ -42,7 +44,12 @@ export const useChatMessages = ({
       toggleMessagesLoading(false);
       toggleScrollToBottom(true);
     },
-    [setMessages, toggleScrollToBottom, toggleMessagesLoading, loadInitialMessages],
+    [
+      setMessages,
+      toggleScrollToBottom,
+      toggleMessagesLoading,
+      loadInitialMessages,
+    ],
   );
 
   useEffect(() => {

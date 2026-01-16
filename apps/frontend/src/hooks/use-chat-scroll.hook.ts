@@ -7,9 +7,7 @@ export type UseChatScrollProps = {
   messagesRef: RefObject<HTMLDivElement | null>;
 };
 
-export const useChatScroll = ({
-  messagesRef,
-}: UseChatScrollProps) => {
+export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
   const [autoScrollEnabled, toggleAutoScroll] = useToggleRef();
   const [scrollToBottomEnabled, toggleScrollToBottom] = useToggleState(false);
 
@@ -47,7 +45,12 @@ export const useChatScroll = ({
 
     scrollToBottom("instant");
     toggleScrollToBottom(false);
-  }, [scrollToBottomEnabled, scrollToBottom, messagesRef, toggleScrollToBottom]);
+  }, [
+    scrollToBottomEnabled,
+    scrollToBottom,
+    messagesRef,
+    toggleScrollToBottom,
+  ]);
 
   return {
     scrollToBottom,

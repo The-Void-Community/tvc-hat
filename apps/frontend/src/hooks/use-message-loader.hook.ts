@@ -53,7 +53,10 @@ export const useMessageLoader = () => {
     async ({
       chatId,
       count = 100,
-    }: Omit<LoadMessagesOptions, "positionMessageId">): Promise<LoadMessagesResult> => {
+    }: Omit<
+      LoadMessagesOptions,
+      "positionMessageId"
+    >): Promise<LoadMessagesResult> => {
       return loadMessages({ chatId, count });
     },
     [loadMessages],
