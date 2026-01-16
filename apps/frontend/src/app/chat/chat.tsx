@@ -11,20 +11,26 @@ import { CurrentChat } from "@/components/chat/current-chat";
 import { CreateChatModal } from "@/components/chat/create-chat";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { UserProfileDropdown } from "@/components/chat/user-profile-dropdown";
+import { MainNavigation } from "@/components/chat/main-navigation";
 
-import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
-import { useMessages } from "@/hooks/use-messages.hook";
 import { useWebsocket } from "@/hooks/use-websocket.hook";
-import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
-import { useMap } from "@/hooks/use-map.hook";
-import { useToggleRef, useToggleState } from "@/hooks/use-toggle.hook";
-import { useChatInitialization } from "@/hooks/use-chat-initialization.hook";
+
+import { useMessages } from "@/hooks/use-messages.hook";
+import { useMessagePagination } from "@/hooks/use-message-pagination.hook";
+
 import { useChatMessages } from "@/hooks/use-chat-messages.hook";
 
-import { ChatContext } from "@/contexts/chat.context";
-import { ChatType } from "@/enums";
-import { MainNavigation } from "@/components/chat/main-navigation";
+import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
+import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
+import { useChatInitialization } from "@/hooks/use-chat-initialization.hook";
+
+import { useToggleRef, useToggleState } from "@/hooks/use-toggle.hook";
+import { useMap } from "@/hooks/use-map.hook";
 import { useUserFind } from "@/hooks/use-user-find";
+
+import { ChatType } from "@/enums";
+
+import { ChatContext } from "@/contexts/chat.context";
 
 type Props = {
   chatId?: string;
@@ -93,7 +99,6 @@ const Chat = ({ chatId }: Props) => {
   const { handleScroll, autoScrollEnabled, toggleScrollToBottom } =
     useChatScroll({
       messagesRef,
-      messages,
     });
 
   const { Modal: UserFindModal } = useUserFind();
@@ -111,12 +116,24 @@ const Chat = ({ chatId }: Props) => {
     ),
   });
 
-  useChatMessages({
+  const {
+    oldestMessageId,
+    hasMore: hasMoreMessages,
+  } = useChatMessages({
     currentChat,
     setMessages,
     toggleScrollToBottom,
     toggleMessagesLoading,
   });
+
+  const { loadOlderMessages, hasMore, loading: loadingOlder } =
+    useMessagePagination({
+      chatId: currentChat?.id || "",
+      addMessages,
+      toggleMessagesLoading,
+      oldestMessageId,
+      hasMore: hasMoreMessages,
+    });
 
   useEffect(() => {
     if (!currentChat || currentChat.id === chatId) {
@@ -188,6 +205,9 @@ const Chat = ({ chatId }: Props) => {
         textareaRef,
         currentChat,
         users,
+        loadOlderMessages: currentChat ? loadOlderMessages : undefined,
+        hasMoreMessages: hasMore,
+        isLoadingOlderMessages: loadingOlder,
       }}
     >
       <div className="relative h-screen w-screen flex gap-2 p-8">

@@ -1,8 +1,7 @@
-import type { Chat, Message } from "@/types";
-import { getMessages } from "@/api/get-messages";
-import { useCallback, useEffect } from "react";
-import { useToggleRef } from "./use-toggle.hook";
-import type { MessagesMap } from "@/types";
+import type { Chat, Message, MessagesMap } from "@/types";
+
+import { useCallback, useEffect, useState } from "react";
+import { useMessageLoader } from "./use-message-loader.hook";
 
 export type UseChatMessagesProps = {
   currentChat: Chat | null;
@@ -17,29 +16,33 @@ export const useChatMessages = ({
   toggleScrollToBottom,
   toggleMessagesLoading,
 }: UseChatMessagesProps) => {
+  const { loadInitialMessages } = useMessageLoader();
+  const [oldestMessageId, setOldestMessageId] = useState<string | undefined>(undefined);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+
   const loadMessages = useCallback(
     async (chatId: string) => {
       setMessages(new Map());
-      toggleScrollToBottom(true);
       toggleMessagesLoading(true);
 
-      const fetchedMessages = await getMessages({
-        chatId,
-        sort: "desc",
-      });
+      const result = await loadInitialMessages({ chatId });
 
-      if (fetchedMessages && fetchedMessages.length > 0) {
-        const reversedMessages = fetchedMessages.reverse();
+      if (result.messages.length > 0) {
         setMessages(
-          new Map(reversedMessages.map((m) => [m.id, m] as [string, Message])),
+          new Map(result.messages.map((m) => [m.id, m] as [string, Message])),
         );
+        setOldestMessageId(result.oldestMessageId);
+        setHasMore(result.hasMore);
       } else {
         setMessages(new Map());
+        setOldestMessageId(undefined);
+        setHasMore(false);
       }
 
       toggleMessagesLoading(false);
+      toggleScrollToBottom(true);
     },
-    [setMessages, toggleScrollToBottom, toggleMessagesLoading],
+    [setMessages, toggleScrollToBottom, toggleMessagesLoading, loadInitialMessages],
   );
 
   useEffect(() => {
@@ -47,10 +50,16 @@ export const useChatMessages = ({
       return;
     }
 
-    void loadMessages(currentChat.id);
+    (() => {
+      setOldestMessageId(undefined);
+      setHasMore(false);
+      loadMessages(currentChat.id);
+    })();
   }, [currentChat, loadMessages]);
 
   return {
     loadMessages,
+    oldestMessageId,
+    hasMore,
   };
 };

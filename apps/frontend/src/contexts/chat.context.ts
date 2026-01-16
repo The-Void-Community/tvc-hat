@@ -31,6 +31,9 @@ type ChatContextType = {
   sendMessage: (text: string, chatId: string) => unknown;
   onSubmit: (text: string) => unknown;
   onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
+  loadOlderMessages?: () => Promise<boolean>;
+  hasMoreMessages?: boolean;
+  isLoadingOlderMessages?: boolean;
 };
 
 export const ChatContext = createContext<ChatContextType | null>(null);

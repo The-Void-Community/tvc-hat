@@ -1,14 +1,16 @@
 "use client";
 
 import type { UIEvent } from "react";
-import { useChat } from "@/contexts/chat.context";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { CircleProgress } from "tvuikit";
 
 import { Message } from "./message";
+
 import { useDateFormatters } from "@/hooks/use-date-formatters.hook";
 import { useGroupedMessages } from "@/hooks/use-grouped-messages.hook";
+
+import { useChat } from "@/contexts/chat.context";
 
 export const Messages = () => {
   const {
@@ -18,7 +20,14 @@ export const Messages = () => {
     users,
     messagesLoading,
     onScroll,
+    loadOlderMessages,
+    hasMoreMessages,
+    isLoadingOlderMessages: loadingOlderMessages,
   } = useChat();
+
+  const loadingOlderRef = useRef(false);
+  const previousScrollHeightRef = useRef<number>(0);
+  const wasLoadingOlderRef = useRef(false);
 
   const messagesArray = useMemo(
     () => Array.from(messages.values()),
@@ -29,16 +38,58 @@ export const Messages = () => {
   const groupsWithDates = useGroupedMessages(messagesArray, formatFullDate);
 
   useEffect(() => {
-    if (!autoScrollEnabled || !messagesRef.current) {
+    if (loadingOlderMessages) {
+      wasLoadingOlderRef.current = true;
       return;
     }
 
-    messagesRef.current.scrollIntoView({ block: "end" });
-  }, [groupsWithDates, autoScrollEnabled, messagesRef]);
+    if (!messagesRef.current) {
+      return;
+    }
+
+    if (wasLoadingOlderRef.current) {
+      const currentScrollHeight = messagesRef.current.scrollHeight;
+      const previousScrollHeight = previousScrollHeightRef.current;
+
+      if (previousScrollHeight > 0 && currentScrollHeight > previousScrollHeight) {
+        const scrollDifference = currentScrollHeight - previousScrollHeight;
+        messagesRef.current.scrollTop += scrollDifference;
+      }
+
+      wasLoadingOlderRef.current = false;
+      previousScrollHeightRef.current = currentScrollHeight;
+      return;
+    }
+
+    if (autoScrollEnabled && messagesRef.current) {
+      messagesRef.current.scrollIntoView({ block: "end" });
+      previousScrollHeightRef.current = messagesRef.current.scrollHeight;
+    }
+  }, [groupsWithDates, autoScrollEnabled, messagesRef, loadingOlderMessages]);
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     onScroll?.(e);
-  };
+
+    if (!messagesRef.current) {
+      return;
+    }
+
+    const shouldLoad = loadOlderMessages && hasMoreMessages;
+    const loading = loadingOlderMessages || loadingOlderRef.current;
+    const canLoad = shouldLoad && !loading;
+    if (!canLoad) {
+      return;
+    };
+
+    const { scrollTop } = messagesRef.current;
+    if (scrollTop < 200) {
+      previousScrollHeightRef.current = messagesRef.current.scrollHeight;
+      loadingOlderRef.current = true;
+      loadOlderMessages().finally(() => {
+        loadingOlderRef.current = false;
+      });
+    }
+  }
 
   if (messagesLoading.current) {
     return (
@@ -54,6 +105,11 @@ export const Messages = () => {
       className="flex flex-col flex-1 overflow-y-auto py-4"
       onScroll={handleScroll}
     >
+      {loadingOlderMessages && hasMoreMessages && (
+        <div className="flex justify-center py-2">
+          <CircleProgress size={20} />
+        </div>
+      )}
       {groupsWithDates.map((group) => (
         <div key={group.dateString}>
           <div className="px-4 py-2 my-2 text-center text-mini">
