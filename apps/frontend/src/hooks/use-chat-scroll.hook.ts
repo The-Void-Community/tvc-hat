@@ -38,21 +38,24 @@ export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
     toggleAutoScroll(scrollHeight - scrollTop - clientHeight < 100);
   }, [messagesRef, toggleAutoScroll]);
 
-  useEffect(() => {
-    if (!scrollToBottomEnabled || !messagesRef.current) {
+  const handleMessagesLoad = useCallback(() => {
+    if (!scrollToBottomEnabled) {
       return;
     }
 
     scrollToBottom("instant");
     toggleScrollToBottom(false);
+  }, [scrollToBottom, scrollToBottomEnabled, toggleScrollToBottom]);
+
+  useEffect(() => {
+    handleMessagesLoad();
   }, [
-    scrollToBottomEnabled,
-    scrollToBottom,
     messagesRef,
-    toggleScrollToBottom,
+    handleMessagesLoad
   ]);
 
   return {
+    handleMessagesLoad,
     scrollToBottom,
     handleScroll,
     autoScrollEnabled,

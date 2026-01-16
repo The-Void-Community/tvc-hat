@@ -1,17 +1,15 @@
 import type { Chat, Message, MessagesMap } from "@/types";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useMessageLoader } from "./use-message-loader.hook";
 
 export type UseChatMessagesProps = {
-  currentChat: Chat | null;
   setMessages: (messages: MessagesMap) => void;
   toggleScrollToBottom: (enabled: boolean) => void;
   toggleMessagesLoading: (loading: boolean) => void;
 };
 
 export const useChatMessages = ({
-  currentChat,
   setMessages,
   toggleScrollToBottom,
   toggleMessagesLoading,
@@ -22,13 +20,12 @@ export const useChatMessages = ({
   );
   const [hasMore, setHasMore] = useState<boolean>(false);
 
-  const loadMessages = useCallback(
+  const loadStartMessages = useCallback(
     async (chatId: string) => {
       setMessages(new Map());
       toggleMessagesLoading(true);
 
       const result = await loadInitialMessages({ chatId });
-
       if (result.messages.length > 0) {
         setMessages(
           new Map(result.messages.map((m) => [m.id, m] as [string, Message])),
@@ -44,29 +41,19 @@ export const useChatMessages = ({
       toggleMessagesLoading(false);
       toggleScrollToBottom(true);
     },
-    [
-      setMessages,
-      toggleScrollToBottom,
-      toggleMessagesLoading,
-      loadInitialMessages,
-    ],
+    [setMessages, toggleMessagesLoading, loadInitialMessages, toggleScrollToBottom],
   );
 
-  useEffect(() => {
-    if (!currentChat) {
-      return;
-    }
-
-    (() => {
-      setOldestMessageId(undefined);
-      setHasMore(false);
-      loadMessages(currentChat.id);
-    })();
-  }, [currentChat, loadMessages]);
+  const handleChatChange = useCallback((chat: Chat) => {
+    setOldestMessageId(undefined);
+    setHasMore(false);
+    loadStartMessages(chat.id);
+  }, [loadStartMessages]);
 
   return {
-    loadMessages,
+    loadStartMessages,
     oldestMessageId,
     hasMore,
+    handleChatChange
   };
 };

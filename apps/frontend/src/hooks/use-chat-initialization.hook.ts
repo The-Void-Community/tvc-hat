@@ -1,54 +1,46 @@
-import type { Chat, User } from "@/types";
+import { useCallback, useState } from "react";
+
 import { getMe } from "@/api/get-user";
 import { getChat, getChats } from "@/api/get-chats";
-import { useEffect, useState } from "react";
 
 export type UseChatInitializationProps = {
   chatId?: string;
-  onInitialized: (data: {
-    user: User;
-    chats: Chat[];
-    initialChat: Chat | null;
-  }) => void;
+  loadStartMessages: (chatId: string) => Promise<void>,
 };
 
 export const useChatInitialization = ({
   chatId,
-  onInitialized,
+  loadStartMessages
 }: UseChatInitializationProps) => {
   const [loaded, setLoaded] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
+  const load = useCallback(async () => {
+    const [fetchedChat, fetchedUser, fetchedChats] = await Promise.all([
+      chatId ? getChat(chatId) : null,
+      getMe(),
+      getChats(),
+    ]);
 
-      const [fetchedChat, fetchedUser, fetchedChats] = await Promise.all([
-        chatId ? getChat(chatId) : null,
-        getMe(),
-        getChats(),
-      ]);
+    if (!fetchedUser) {
+      return;
+    }
 
-      if (!fetchedUser) {
-        setLoading(false);
-        return;
-      }
+    const chats = fetchedChats || [];
 
-      const chats = fetchedChats || [];
+    if (chatId) {
+      await loadStartMessages(chatId);
+    };
 
-      onInitialized({
-        user: fetchedUser,
-        chats,
-        initialChat: fetchedChat || null,
-      });
+    setLoaded(true);
 
-      setLoaded(true);
-      setLoading(false);
-    })();
-  }, [chatId, onInitialized]);
+    return {
+      user: fetchedUser,
+      chats,
+      initialChat: fetchedChat || null,
+    }
+  }, [chatId, loadStartMessages])
 
   return {
-    loaded,
-    loading,
+    loaded, load
   };
 };
