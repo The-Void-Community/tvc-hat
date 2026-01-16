@@ -5,6 +5,7 @@ import Hash from "@1/services/hash.service";
 import authErrors from "@1/errors/guards/auth.errors";
 
 import PrismaService from "@/database/prisma.service";
+import { HttpException, HttpStatus } from "@nestjs/common";
 
 export class Service {
   public static async validateRequest(
@@ -14,22 +15,22 @@ export class Service {
     const { successed, id, token, profileId } = Hash.parse(req);
 
     if (!successed) {
-      throw new Error(authErrors.hashParseError);
+      throw new HttpException(authErrors.hashParseError, HttpStatus.UNAUTHORIZED);
     }
 
     const findedUser = await prisma.authUser.findUnique({
       where: { id },
     });
     if (!findedUser) {
-      throw new Error(authErrors.userNotFound);
+      throw new HttpException(authErrors.userNotFound, HttpStatus.UNAUTHORIZED);
     }
 
     if (findedUser.profileId !== profileId) {
-      throw new Error(authErrors.profileIdError);
+      throw new HttpException(authErrors.profileIdError, HttpStatus.UNAUTHORIZED);
     }
 
     if (token !== new Hash().execute(findedUser.accessToken)) {
-      throw new Error(authErrors.tokenError);
+      throw new HttpException(authErrors.tokenError, HttpStatus.UNAUTHORIZED);
     }
 
     const profileUser = prisma.user.findUnique({
@@ -38,7 +39,7 @@ export class Service {
       },
     });
     if (!profileUser) {
-      throw new Error(authErrors.profileNotFound);
+      throw new HttpException(authErrors.profileNotFound, HttpStatus.UNAUTHORIZED);
     }
 
     console.log("User access granted");

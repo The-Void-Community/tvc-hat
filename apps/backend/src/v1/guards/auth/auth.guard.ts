@@ -1,5 +1,4 @@
 import type { Request } from "express";
-import type { Observable } from "rxjs";
 
 import { Reflector } from "@nestjs/core";
 import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
@@ -16,9 +15,9 @@ export class AuthGuard implements CanActivate {
     private readonly prisma: PrismaService,
   ) {}
 
-  public canActivate(
+  public async canActivate(
     context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  ): Promise<boolean> {
     const isPublic = this.reflector.get<boolean>(
       "isPublic",
       context.getHandler(),
@@ -30,7 +29,8 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
 
     try {
-      return Service.validateRequest(request, this.prisma);
+      const data = await Service.validateRequest(request, this.prisma);
+      return data;
     } catch (error) {
       logger.error(error, {
         hostname: request.hostname,

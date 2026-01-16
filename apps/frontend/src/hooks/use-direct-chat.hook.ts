@@ -75,7 +75,7 @@ export const useDirectChatName = (data: UseChatNameProps) => {
   }
 
   if (!user) {
-    return data.name;
+    return "Loading...";
   }
 
   return user.nickname || user.username;

@@ -4,7 +4,8 @@ const ROUTES = {
   GET_MANY: "/",
   GET_ONE: "/:slug",
   GET_BY_USER: "/u/:userSlug",
-
+  
+  POST_DIRECT_CHAT: "/u/:userSlug",
   POST: "/",
 
   PUT: "/:slug",

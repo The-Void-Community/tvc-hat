@@ -110,6 +110,27 @@ export class Controller {
   }
 
   @ApiOperation({
+    summary: "Getting a DM chat by user slug"
+  })
+  @Post(ROUTES.POST_DIRECT_CHAT)
+  public async postDirectChat(
+    @Req() req: Request,
+    @Param("userSlug", UserSlugPipe) slug: UserSlug,
+  ) {
+    if (slug.type === "me") {
+      throw new HttpException("Slug can not be \"@me\"", HttpStatus.BAD_REQUEST);
+    }
+    
+    const { profileId } = Hash.parseOrThrow(req);
+    const user = await this.usersService.getOne(slug.value);
+    if (!user) {
+      throw new HttpException("User not found", HttpStatus.BAD_REQUEST);
+    }
+
+    return this.service.createDirectChat(profileId, user.id);
+  }
+
+  @ApiOperation({
     summary: "Creaing a chat",
   })
   @Post(ROUTES.POST)
