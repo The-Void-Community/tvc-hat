@@ -10,7 +10,7 @@ export const MessageTextarea = () => {
 
   const handleSubmit = (event?: FormEvent) => {
     if (!textareaRef.current) {
-      return
+      return;
     }
 
     if (event) {
@@ -41,7 +41,7 @@ export const MessageTextarea = () => {
         className={[
           "w-full resize-none text-(length:--fs-mini)",
           "py-2 px-4 min-h-[56px] h-[56px] max-h-[280px]",
-          "focus:outline-0"
+          "focus:outline-0",
         ].join(" ")}
         onKeyDown={(event) => {
           if (event.key !== "Enter" || event.shiftKey) {

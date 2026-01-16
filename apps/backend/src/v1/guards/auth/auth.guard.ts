@@ -15,9 +15,7 @@ export class AuthGuard implements CanActivate {
     private readonly prisma: PrismaService,
   ) {}
 
-  public async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.get<boolean>(
       "isPublic",
       context.getHandler(),

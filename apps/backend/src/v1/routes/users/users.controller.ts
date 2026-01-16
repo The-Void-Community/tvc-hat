@@ -59,9 +59,12 @@ export class Controller {
     @Param("slug", UserSlugPipe) slug: Slug<"username">,
   ) {
     const { profileId } = Hash.parseOrThrow(req);
-    const hasRelation = slug.type !== "me"
-      ? await this.service.usersHasRelationBySlug(slug.value, { id: profileId })
-      : true;
+    const hasRelation =
+      slug.type !== "me"
+        ? await this.service.usersHasRelationBySlug(slug.value, {
+            id: profileId,
+          })
+        : true;
 
     return this.service.getOne(SlugPipe.resolve(req, slug), hasRelation);
   }

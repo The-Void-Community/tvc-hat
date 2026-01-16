@@ -57,7 +57,10 @@ import { CacheTTL } from "@nestjs/cache-manager";
     "Does not have an authentication token in headers (`headers.authorization`)",
 })
 export class Controller {
-  public constructor(private readonly service: Service, private readonly usersService: UsersService) {}
+  public constructor(
+    private readonly service: Service,
+    private readonly usersService: UsersService,
+  ) {}
 
   @ApiOperation({
     summary: "Getting a chats by slugs",
@@ -89,7 +92,7 @@ export class Controller {
   }
 
   @ApiOperation({
-    summary: "Getting a DM chat by user slug"
+    summary: "Getting a DM chat by user slug",
   })
   @Get(ROUTES.GET_BY_USER)
   public async getByUser(
@@ -97,9 +100,9 @@ export class Controller {
     @Param("userSlug", UserSlugPipe) slug: UserSlug,
   ) {
     if (slug.type === "me") {
-      throw new HttpException("Slug can not be \"@me\"", HttpStatus.BAD_REQUEST);
+      throw new HttpException('Slug can not be "@me"', HttpStatus.BAD_REQUEST);
     }
-    
+
     const { profileId } = Hash.parseOrThrow(req);
     const user = await this.usersService.getOne(slug.value);
     if (!user) {
@@ -110,7 +113,7 @@ export class Controller {
   }
 
   @ApiOperation({
-    summary: "Getting a DM chat by user slug"
+    summary: "Getting a DM chat by user slug",
   })
   @Post(ROUTES.POST_DIRECT_CHAT)
   public async postDirectChat(
@@ -118,9 +121,9 @@ export class Controller {
     @Param("userSlug", UserSlugPipe) slug: UserSlug,
   ) {
     if (slug.type === "me") {
-      throw new HttpException("Slug can not be \"@me\"", HttpStatus.BAD_REQUEST);
+      throw new HttpException('Slug can not be "@me"', HttpStatus.BAD_REQUEST);
     }
-    
+
     const { profileId } = Hash.parseOrThrow(req);
     const user = await this.usersService.getOne(slug.value);
     if (!user) {

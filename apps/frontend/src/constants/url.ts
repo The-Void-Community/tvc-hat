@@ -144,7 +144,9 @@ export class Url implements UrlType {
     return this;
   }
 
-  public overwriteAndCreate(url: Omit<Partial<Nullable<UrlType>>, "origin" | "href">) {
+  public overwriteAndCreate(
+    url: Omit<Partial<Nullable<UrlType>>, "origin" | "href">,
+  ) {
     return new Url(this.raw).overwrite(url);
   }
 
@@ -283,6 +285,12 @@ export class Url implements UrlType {
 
 export const BASE_PATH_NAME = "/api/v1";
 export const API_ORIGIN = new Url("http://localhost:8080");
-export const API_URL: Url = API_ORIGIN.overwriteAndCreate({ pathname: BASE_PATH_NAME });
-export const WEBSCOKET_URL: Url = API_ORIGIN.overwriteAndCreate({ pathname: "/chat" });
-export const API_AUTH_URL: Url = API_ORIGIN.overwriteAndCreate({ pathname: "/api/v1/auth/google "});
+export const API_URL: Url = API_ORIGIN.overwriteAndCreate({
+  pathname: BASE_PATH_NAME,
+});
+export const WEBSCOKET_URL: Url = API_ORIGIN.overwriteAndCreate({
+  pathname: "/chat",
+});
+export const API_AUTH_URL: Url = API_ORIGIN.overwriteAndCreate({
+  pathname: "/api/v1/auth/google ",
+});

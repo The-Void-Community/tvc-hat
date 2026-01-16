@@ -8,17 +8,17 @@ export type UseChatNameProps = {
   name: string;
   myId: string;
   users: Map<string, User>;
-}
+};
 
 const formatDirectChatName = async ({
   name,
   myId,
-  users
+  users,
 }: {
-  name: string,
-  myId: string,
-  users: Map<string, User>
-}): Promise<User|null> => {
+  name: string;
+  myId: string;
+  users: Map<string, User>;
+}): Promise<User | null> => {
   const splitted = name.split(":");
   const index = splitted.indexOf(myId);
 
@@ -39,15 +39,15 @@ const formatDirectChatName = async ({
 
   users.set(gettedUser.id, gettedUser);
   return gettedUser;
-}
+};
 
 export const useDirectChat = ({
   type,
   myId,
   name,
-  users
+  users,
 }: UseChatNameProps) => {
-  const [user, setUser] = useState<User|null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (type !== ChatType.direct) {
@@ -69,7 +69,7 @@ export const useDirectChat = ({
 
 export const useDirectChatName = (data: UseChatNameProps) => {
   const user = useDirectChat(data);
-  
+
   if (data.type !== ChatType.direct) {
     return data.name;
   }
@@ -84,7 +84,7 @@ export const useDirectChatName = (data: UseChatNameProps) => {
 type Entity = User | Chat | string;
 
 export const useDirectChatAvatar = (data: {
-  chat: Chat,
+  chat: Chat;
   myId: string;
   users: Map<string, User>;
 }): Entity => {
@@ -92,9 +92,9 @@ export const useDirectChatAvatar = (data: {
     myId: data.myId,
     name: data.chat.name,
     type: data.chat.type,
-    users: data.users
+    users: data.users,
   });
-  
+
   if (data.chat.type !== ChatType.direct || !user) {
     return data.chat;
   }

@@ -8,7 +8,10 @@ import { useMemo } from "react";
 import { ChatType } from "@/enums";
 import { useChat } from "@/contexts/chat.context";
 import { IconOrAvatar } from "./icon";
-import { useDirectChatAvatar, useDirectChatName } from "@/hooks/use-direct-chat.hook";
+import {
+  useDirectChatAvatar,
+  useDirectChatName,
+} from "@/hooks/use-direct-chat.hook";
 
 type ChatNavigationProps = {
   chat: Chat;
@@ -20,14 +23,18 @@ export const ChatNavigation = ({
   chat,
   className,
   full = false,
-  type
+  type,
 }: ChatNavigationProps) => {
   const { currentChat, setCurrentChat, onChangeChat, me, users } = useChat();
   const chatName = useDirectChatName({
-    type, myId: me.id, name: chat.name, users
+    type,
+    myId: me.id,
+    name: chat.name,
+    users,
   });
   const entity = useDirectChatAvatar({
-    myId: me.id, users,
+    myId: me.id,
+    users,
     chat: chat,
   });
 
@@ -69,12 +76,7 @@ export const ChatsNavigation = ({ type, full }: ChatsNaviationProps) => {
   return (
     <div className="flex flex-col items-center gap-1">
       {chats.map((chat) => (
-        <ChatNavigation
-          key={chat.id}
-          chat={chat}
-          full={full}
-          type={type}
-        />
+        <ChatNavigation key={chat.id} chat={chat} full={full} type={type} />
       ))}
     </div>
   );

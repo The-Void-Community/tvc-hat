@@ -12,18 +12,18 @@ import AppModule from "./app.module";
 
 import { env } from "f@/env";
 
-import { networkInterfaces } from "os"
+import { networkInterfaces } from "os";
 const nets = networkInterfaces();
 const results: {
-  [key: string]: string[]
-} = {}
+  [key: string]: string[];
+} = {};
 for (const name of Object.keys(nets)) {
   if (!nets[name]) {
     continue;
   }
 
   for (const net of nets[name]) {
-    const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4;
+    const familyV4Value = typeof net.family === "string" ? "IPv4" : 4;
     if (net.family !== familyV4Value || net.internal) {
       continue;
     }
@@ -68,6 +68,14 @@ initSentry({
   SwaggerModule.setup("api/docs", app, documentFactory);
 
   await app.listen(env.PORT);
-  console.log("http://localhost:"+env.PORT);
-  console.log(Object.keys(results).flatMap(key => results[key].map(hostname => key + ": http://"+hostname+":"+env.PORT)).join("\n"));
+  console.log("http://localhost:" + env.PORT);
+  console.log(
+    Object.keys(results)
+      .flatMap((key) =>
+        results[key].map(
+          (hostname) => key + ": http://" + hostname + ":" + env.PORT,
+        ),
+      )
+      .join("\n"),
+  );
 })();

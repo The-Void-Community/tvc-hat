@@ -19,7 +19,7 @@ export const ChatHeader = memo(({ chat }: ChatContentProps) => {
     myId: me.id,
     name: chat.name,
     users,
-    type: chat.type
+    type: chat.type,
   });
   const chatName = chat.type === ChatType.direct ? usedChatName : chat.name;
 

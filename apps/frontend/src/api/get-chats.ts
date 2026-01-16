@@ -10,9 +10,11 @@ export const getDirectChat = async (userSlug: string): Promise<Chat | null> => {
     endpoint: `/chats/u/${userSlug}`,
     tags: [`chat/u/${userSlug}`],
   });
-}
+};
 
-export const getDirectChatOrCreate = async (userSlug: string): Promise<Chat> => {
+export const getDirectChatOrCreate = async (
+  userSlug: string,
+): Promise<Chat> => {
   const chat = await getDirectChat(userSlug);
 
   if (chat) {
@@ -23,10 +25,10 @@ export const getDirectChatOrCreate = async (userSlug: string): Promise<Chat> => 
     endpoint: `/chats/u/${userSlug}`,
     tags: [`chats/u/${userSlug}`],
     init: {
-      method: "POST"
-    }
-  })
-}
+      method: "POST",
+    },
+  });
+};
 
 export const getChat = cache(async (slug: string): Promise<Chat | null> => {
   return endpointRequestOrNull({

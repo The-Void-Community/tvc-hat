@@ -74,11 +74,13 @@ export class Service {
     return this.prisma.chat.findUnique({
       where: {
         chatname: `${userOne}:${userTwo}`,
-        OR: [{
-          chatname: `${userTwo}:${userOne}`
-        }]
-      }
-    })
+        OR: [
+          {
+            chatname: `${userTwo}:${userOne}`,
+          },
+        ],
+      },
+    });
   }
 
   public createDirectChat(userOne: string, userTwo: string): Promise<Chat> {
@@ -89,7 +91,7 @@ export class Service {
         ownerId: "tvc-hat",
         members: [userOne, userTwo],
         type: "DIRECT",
-      }
+      },
     });
   }
 

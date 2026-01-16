@@ -15,7 +15,10 @@ export class Service {
     const { successed, id, token, profileId } = Hash.parse(req);
 
     if (!successed) {
-      throw new HttpException(authErrors.hashParseError, HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        authErrors.hashParseError,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const findedUser = await prisma.authUser.findUnique({
@@ -26,7 +29,10 @@ export class Service {
     }
 
     if (findedUser.profileId !== profileId) {
-      throw new HttpException(authErrors.profileIdError, HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        authErrors.profileIdError,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (token !== new Hash().execute(findedUser.accessToken)) {
@@ -39,7 +45,10 @@ export class Service {
       },
     });
     if (!profileUser) {
-      throw new HttpException(authErrors.profileNotFound, HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        authErrors.profileNotFound,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     console.log("User access granted");

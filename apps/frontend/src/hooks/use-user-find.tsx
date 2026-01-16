@@ -11,11 +11,10 @@ import { Button, ButtonProps, Input } from "tvuikit";
 
 export const enum FindTypes {
   USER = "пользователя",
-  CHAT = "чата"
+  CHAT = "чата",
 }
 
 export const useUserFind = () => {
-
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { opened, toggleOpened, Modal } = useModal();
   const [notification, setNotification] = useState<ReactNode>(<></>);
@@ -38,14 +37,14 @@ export const useUserFind = () => {
       >
         {children}
       </Button>
-    )
-  }
+    );
+  };
 
   const handleUserFound = (user: User) => {
     getDirectChatOrCreate(user.id).then((chat) => {
       console.log(chat);
     });
-  }
+  };
 
   const handleSubmit = () => {
     if (!inputRef.current) {
@@ -54,24 +53,28 @@ export const useUserFind = () => {
 
     const username = inputRef.current.value.trim();
     if (!username) {
-      return setNotification((
-        <span className="text-red-500">Введите <strong>корректное</strong> имя пользователя!</span>
-      ));
+      return setNotification(
+        <span className="text-red-500">
+          Введите <strong>корректное</strong> имя пользователя!
+        </span>,
+      );
     }
 
     getUser(`@${username}`).then((user) => {
       if (!user) {
-        return setNotification((
-          <span className="text-red-500">Пользователь не был найден {":<"}</span>
-        ));
+        return setNotification(
+          <span className="text-red-500">
+            Пользователь не был найден {":<"}
+          </span>,
+        );
       }
-        
-      handleUserFound(user); 
-      return setNotification((
-        <span className="text-green-500">Пользователь был найден {":>"}</span>
-      ));
+
+      handleUserFound(user);
+      return setNotification(
+        <span className="text-green-500">Пользователь был найден {":>"}</span>,
+      );
     });
-  }
+  };
 
   const Component = () => {
     return (
@@ -80,19 +83,17 @@ export const useUserFind = () => {
           <h4>Поиск {findType}</h4>
           <span>Введите имя пользователя:</span>
           <Input ref={inputRef} />
-          <Button onClick={handleSubmit}>
-            Отправить запрос
-          </Button>
+          <Button onClick={handleSubmit}>Отправить запрос</Button>
           {notification}
         </div>
       </Modal>
-    )
-  }
+    );
+  };
 
   return {
     opened,
     toggleOpened,
     Modal: Component,
-    Trigger
-  }
+    Trigger,
+  };
 };

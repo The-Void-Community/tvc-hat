@@ -12,16 +12,16 @@ export const useModal = (initialProps?: Partial<ModalProps>) => {
       if (!opened) {
         return;
       }
-  
+
       if (!event.key) {
         return;
       }
-  
+
       if (event.key.toLowerCase() === "escape") {
         toggleOpened(false);
       }
     };
-  
+
     document.addEventListener("keydown", keydownListener);
     return () => {
       document.removeEventListener("keydown", keydownListener);
@@ -37,7 +37,7 @@ export const useModal = (initialProps?: Partial<ModalProps>) => {
     } = {
       ...initialProps,
       ...props,
-    }
+    };
 
     return (
       <Active actived={opened}>
@@ -56,12 +56,12 @@ export const useModal = (initialProps?: Partial<ModalProps>) => {
           {...data}
         />
       </Active>
-    )
-  }
+    );
+  };
 
   return {
-    opened, 
+    opened,
     toggleOpened,
-    Modal: Component
-  }
-}
+    Modal: Component,
+  };
+};

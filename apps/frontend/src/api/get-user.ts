@@ -10,7 +10,10 @@ import { getToken } from "./get-token";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export const getMeByToken = cache(
-  async (token: string, cookie: ReadonlyRequestCookies): Promise<User | null> => {
+  async (
+    token: string,
+    cookie: ReadonlyRequestCookies,
+  ): Promise<User | null> => {
     const user = await endpointRequestOrNull({ endpoint: "/auth/@me", token });
     if (!user) {
       return null;

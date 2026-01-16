@@ -19,10 +19,7 @@ export type UseMessagesProps = {
   myId: string | null;
 };
 
-export const useMessages = ({
-  emitMessage,
-  myId,
-}: UseMessagesProps) => {
+export const useMessages = ({ emitMessage, myId }: UseMessagesProps) => {
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const {

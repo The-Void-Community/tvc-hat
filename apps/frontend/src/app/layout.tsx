@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import type { ReactNode } from "react";
 
@@ -17,20 +17,20 @@ const RootLayout = ({
   children: ReactNode;
 }>) => {
   const pathname = usePathname();
-  const noLayoutRoutes = ["/chat"]; 
-  const hideLayout = noLayoutRoutes.some(r => pathname.startsWith(r));
+  const noLayoutRoutes = ["/chat"];
+  const hideLayout = noLayoutRoutes.some((r) => pathname.startsWith(r));
 
   if (hideLayout) {
     return (
       <html data-shiftshift-theme="system" lang="ru">
-      <title>Hat</title>
-      <meta name="description" content="The Void Chat" />
-      <body>
-        <div className="background"></div>
+        <title>Hat</title>
+        <meta name="description" content="The Void Chat" />
+        <body>
+          <div className="background"></div>
           {children}
         </body>
       </html>
-    )
+    );
   }
 
   return (

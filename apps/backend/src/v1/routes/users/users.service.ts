@@ -10,13 +10,16 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 export class Service {
   public constructor(private readonly prisma: PrismaService) {}
 
-  public async usersHasRelationBySlug(firstSlug: IdOrUsername, secondSlug: IdOrUsername) {
+  public async usersHasRelationBySlug(
+    firstSlug: IdOrUsername,
+    secondSlug: IdOrUsername,
+  ) {
     if ("id" in firstSlug && "id" in secondSlug) {
       if (firstSlug.id === secondSlug.id) {
         return true;
       }
     }
-    
+
     if ("username" in firstSlug && "username" in secondSlug) {
       if (firstSlug.username === secondSlug.username) {
         return true;
@@ -38,14 +41,18 @@ export class Service {
       return true;
     }
 
-    const chats = first.chats.length <= second.chats.length
-      ? [first.chats, second.chats] as const
-      : [second.chats, first.chats] as const;
+    const chats =
+      first.chats.length <= second.chats.length
+        ? ([first.chats, second.chats] as const)
+        : ([second.chats, first.chats] as const);
 
-    return chats[0].some(chat => chats[1].includes(chat));
+    return chats[0].some((chat) => chats[1].includes(chat));
   }
 
-  public getOne(slug: IdOrUsername, hasRelation: boolean = true): Promise<User | null> {
+  public getOne(
+    slug: IdOrUsername,
+    hasRelation: boolean = true,
+  ): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: slug,
       select: {
@@ -60,7 +67,7 @@ export class Service {
         lastSeenAt: hasRelation,
         chats: hasRelation,
         createdAt: hasRelation,
-      }
+      },
     });
   }
 

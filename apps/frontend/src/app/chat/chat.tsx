@@ -59,7 +59,7 @@ const Chat = ({ chatId }: Props) => {
 
       addMessagesRef.current?.([message]);
       addUserRef.current?.(sender.id, sender);
-      
+
       if (currentChat) {
         revalidateMessages(currentChat.id);
       }
@@ -96,10 +96,7 @@ const Chat = ({ chatId }: Props) => {
       messages,
     });
 
-  const {
-    Modal: UserFindModal,
-    Trigger: UserFindTrigger,
-  } = useUserFind();
+  const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
 
   useEffect(() => {
     (async () => {
@@ -280,7 +277,9 @@ const Chat = ({ chatId }: Props) => {
                 onClick={() => {
                   navigator.clipboard.writeText(user.username);
                 }}
-              >Скопировать имя пользователя</DropdownItem>
+              >
+                Скопировать имя пользователя
+              </DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>
