@@ -1,31 +1,34 @@
-"use client"
+"use client";
 
 import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from "react";
 import type { User } from "@/types";
 import { useRef, useState } from "react";
 
 import { Button, CircleProgress, Input } from "tvuikit";
-import { HiUser, HiPencilAlt, HiX, HiCheck } from "react-icons/hi"
+import { HiUser, HiPencilAlt, HiX, HiCheck } from "react-icons/hi";
 
 import { IconOrAvatar } from "./chat/icon";
 
 import { useChat } from "@/contexts/chat.context";
 import { patchMe } from "@/api/patch-user";
 
-type DivProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+type DivProps = DetailedHTMLProps<
+  HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>;
 type NonNullable<T extends object> = {
   [P in keyof T]: Exclude<T[P], null>;
-}
+};
 
 type OnlyStringProperties<T extends object> = {
-  [P in keyof T]: T[P] extends string ? P : never
+  [P in keyof T]: T[P] extends string ? P : never;
 }[keyof T];
 
 type EditableUserSettingsPropetryItemProps = Omit<DivProps, "property"> & {
-  label: ReactNode,
+  label: ReactNode;
   property: OnlyStringProperties<Required<NonNullable<User>>>;
-  children: string
-}
+  children: string;
+};
 
 const EditableUserSettingsPropetryItem = ({
   children,
@@ -51,7 +54,7 @@ const EditableUserSettingsPropetryItem = ({
     }
 
     setPending(true);
-    const newUser = await patchMe({ [property]: value })
+    const newUser = await patchMe({ [property]: value });
     if (!newUser) {
       return setPending(false);
     }
@@ -60,50 +63,66 @@ const EditableUserSettingsPropetryItem = ({
     addUser(newUser.id, newUser);
 
     setPending(false);
-  }
+  };
 
   const whenNotPending = !pending && (
     <>
-      {!editing && <HiPencilAlt className="cursor-pointer" size={24} onClick={() => setEditing(true)}/>}
-      {editing && <HiCheck className="cursor-pointer" size={24} onClick={() => {
-        setEditing(false);
-        handleSubmit();
-      }} />}
-      {editing && <HiX className="cursor-pointer" size={24} onClick={() => setEditing(false)} />}
+      {!editing && (
+        <HiPencilAlt
+          className="cursor-pointer"
+          size={24}
+          onClick={() => setEditing(true)}
+        />
+      )}
+      {editing && (
+        <HiCheck
+          className="cursor-pointer"
+          size={24}
+          onClick={() => {
+            setEditing(false);
+            handleSubmit();
+          }}
+        />
+      )}
+      {editing && (
+        <HiX
+          className="cursor-pointer"
+          size={24}
+          onClick={() => setEditing(false)}
+        />
+      )}
     </>
   );
 
-  const whenPending = pending && (
-    <CircleProgress size={24} />
-  )
+  const whenPending = pending && <CircleProgress size={24} />;
 
   return (
     <div {...props}>
       <span>{label}:</span>
       <div className="flex gap-2 items-center">
         <div className="bg-(--bg-smooth-ce) w-fit h-fit py-1 px-2 rounded-md">
-          {
-            editing
-              ? <Input
-                  ref={inputRef}
-                  defaultValue={children}
-                  className="bg-[0]"
-                />
-              : children
-          }
+          {editing ? (
+            <Input ref={inputRef} defaultValue={children} className="bg-[0]" />
+          ) : (
+            children
+          )}
         </div>
         {whenPending}
         {whenNotPending}
       </div>
     </div>
-  )
-}
+  );
+};
 
 type UserSettingsPropetryItemProps = DivProps & {
   label: ReactNode;
-}
+};
 
-const UserSettingsPropetryItem = ({ children, label, ...props }: UserSettingsPropetryItemProps) => {
+const UserSettingsPropetryItem = ({
+  children,
+  label,
+  ...props
+}: UserSettingsPropetryItemProps) => {
   return (
     <div {...props}>
       <span>{label}:</span>
@@ -111,8 +130,8 @@ const UserSettingsPropetryItem = ({ children, label, ...props }: UserSettingsPro
         {children}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const UserSettings = () => {
   const Navigation = () => {
@@ -121,9 +140,9 @@ const UserSettings = () => {
         <HiUser size={24} />
         <span>Аккаунт</span>
       </>
-    )
-  }
-  
+    );
+  };
+
   const Component = () => {
     const { me } = useChat();
 
@@ -170,18 +189,18 @@ const UserSettings = () => {
 
   return {
     Navigation,
-    Component
-  }
-}
+    Component,
+  };
+};
 
 const SETTINGS_TYPES = {
-  "USER": UserSettings()
+  USER: UserSettings(),
 } as const;
 
 type SettingsKeys = keyof typeof SETTINGS_TYPES;
 
 export const Settings = () => {
-  const [ choosedSettings, setChoosedSettings ] = useState<SettingsKeys>("USER");
+  const [choosedSettings, setChoosedSettings] = useState<SettingsKeys>("USER");
 
   return (
     <div className="bg-(--bg-card) h-full w-full rounded-2xl flex">
@@ -196,10 +215,10 @@ export const Settings = () => {
           </Button>
         ))}
       </nav>
-      
+
       <section className="flex-1 py-2 px-4">
         {SETTINGS_TYPES[choosedSettings].Component()}
       </section>
     </div>
-  )
-}
+  );
+};

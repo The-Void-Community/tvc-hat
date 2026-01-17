@@ -42,7 +42,7 @@ const modules: RegisterModule[] = [
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
-        transform: true
+        transform: true,
       }),
     },
   ],

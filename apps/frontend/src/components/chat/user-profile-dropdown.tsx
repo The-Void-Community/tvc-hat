@@ -46,7 +46,7 @@ export const UserProfileDropdown = ({ user }: UserProfileDropdownProps) => {
           </SettingsTrigger>
         </DropdownMenu>
       </Dropdown>
-      
+
       <SettingsModal />
     </>
   );

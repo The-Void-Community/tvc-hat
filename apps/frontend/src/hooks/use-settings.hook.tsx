@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import { DropdownItem, DropdownItemProps } from "tvuikit";
-import { useModal } from "./use-modal.hook"
+import { useModal } from "./use-modal.hook";
 import { Settings } from "@/components/settings.component";
 
 export const useSettings = () => {
@@ -30,13 +30,13 @@ export const useSettings = () => {
       <Modal className="bg-(--bg-smooth-ce) p-24 h-full flex-center">
         <Settings />
       </Modal>
-    )
-  }
+    );
+  };
 
   return {
     opened,
     toggleOpened,
     SettingsModal: Component,
-    SettingsTrigger: Trigger
-  }
-}
+    SettingsTrigger: Trigger,
+  };
+};
