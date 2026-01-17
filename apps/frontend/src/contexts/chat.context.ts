@@ -33,7 +33,7 @@ type ChatContextType = {
   onScroll: (event: UIEvent<HTMLDivElement>) => unknown;
   loadOlderMessages?: () => Promise<boolean>;
   hasMoreMessages?: boolean;
-  isLoadingOlderMessages?: boolean;
+  loadingOlderMessages?: boolean;
 };
 
 export const ChatContext = createContext<ChatContextType | null>(null);

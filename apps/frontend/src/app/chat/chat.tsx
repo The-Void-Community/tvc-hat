@@ -226,7 +226,7 @@ const Chat = ({ chatId }: Props) => {
         users,
         loadOlderMessages: currentChat ? loadOlderMessages : undefined,
         hasMoreMessages: hasMore,
-        isLoadingOlderMessages: loadingOlder,
+        loadingOlderMessages: loadingOlder,
       }}
     >
       <div className="relative h-screen w-screen flex gap-2 p-8">

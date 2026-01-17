@@ -22,7 +22,7 @@ export const Messages = () => {
     onScroll,
     loadOlderMessages,
     hasMoreMessages,
-    isLoadingOlderMessages: loadingOlderMessages,
+    loadingOlderMessages: loadingOlderMessages,
   } = useChat();
 
   const loadingOlderRef = useRef(false);
