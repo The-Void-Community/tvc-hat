@@ -40,6 +40,12 @@ export const useUserFind = () => {
     );
   };
 
+  /* НЕ ЗАБЫТЬ ДОДЕЛАТЬ */
+  /* НЕ ЗАБЫТЬ ДОДЕЛАТЬ */
+  /* НЕ ЗАБЫТЬ ДОДЕЛАТЬ */
+  /* НЕ ЗАБЫТЬ ДОДЕЛАТЬ */
+  /* НЕ ЗАБЫТЬ ДОДЕЛАТЬ */
+  /* НЕ ЗАБЫТЬ ДОДЕЛАТЬ */
   const handleUserFound = (user: User) => {
     getDirectChatOrCreate(user.id).then((chat) => {
       console.log(chat);

@@ -212,6 +212,8 @@ const Chat = ({ chatId }: Props) => {
         toggleCreateModal,
         toggleSidebar,
         onChangeChat,
+        addUser,
+        setUser,
         createModalShowed,
         sidebarShowed,
         messagesLoading,

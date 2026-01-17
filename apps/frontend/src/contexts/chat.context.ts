@@ -16,6 +16,9 @@ type ChatContextType = {
   messagesLoading: RefObject<boolean>;
   autoScrollEnabled: RefObject<boolean>;
 
+  addUser: (key: string, data: User) => void;
+  setUser: (user: User) => void;
+
   createModalShowed: boolean;
   toggleCreateModal: (state: boolean) => unknown;
 
