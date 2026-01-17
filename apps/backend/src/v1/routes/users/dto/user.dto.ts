@@ -18,7 +18,7 @@ export class UserDto implements User {
 
   @ApiProperty()
   @IsString()
-  @Transform(({ value }) => stringTransform(value))
+  @Transform(({ value }) => stringTransform(value)?.toLowerCase?.())
   username: string;
   @ApiProperty()
   @IsString()

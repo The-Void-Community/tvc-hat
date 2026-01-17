@@ -41,7 +41,9 @@ const modules: RegisterModule[] = [
     PrismaService,
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe,
+      useValue: new ValidationPipe({
+        transform: true
+      }),
     },
   ],
 })

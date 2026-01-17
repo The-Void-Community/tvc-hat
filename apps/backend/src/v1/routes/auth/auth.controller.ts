@@ -95,7 +95,6 @@ export class AuthController {
         }
 
         const { auth } = data;
-
         if (!auth) {
           return res.send(500);
         }

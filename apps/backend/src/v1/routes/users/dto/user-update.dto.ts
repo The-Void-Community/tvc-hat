@@ -18,7 +18,7 @@ export class UserUpdateDto implements Partial<UserData> {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => stringTransform(value))
+  @Transform(({ value }) => stringTransform(value)?.toLowerCase?.())
   username?: string | undefined;
   @ApiProperty()
   @IsString()
