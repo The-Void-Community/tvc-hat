@@ -22,10 +22,10 @@ export type UseMessageSenderProps = {
 
 export const useMessageSender = ({ emitMessage, myId, state }: UseMessageSenderProps) => {
   const {
-    map: {
+    store: {
       markMessageAsFailed: markAsFailed,
       addMessages,
-      messages,
+      entities,
       updateOneMessage
     }
   } = state;
@@ -62,12 +62,12 @@ export const useMessageSender = ({ emitMessage, myId, state }: UseMessageSenderP
 
   const retrySendMessage = useCallback(
     (id: string) => {
-      const message = messages.get(id);
+      const message = entities[id];
       if (!message) return;
 
       return trySendMessage(message);
     },
-    [messages, trySendMessage]
+    [entities, trySendMessage]
   );
 
   const sendMessage = useCallback(

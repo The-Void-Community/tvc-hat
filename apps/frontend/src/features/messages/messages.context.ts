@@ -1,25 +1,30 @@
-import type { MessagesMap } from "@/types";
 import type { RefObject, UIEvent } from "react";
-
-import { createContext } from "@/utils/create-context.utils"
+import { createContext } from "@/utils/create-context.utils";
+import { useMessagesStore } from "./hooks/use-messages-store.hook";
 
 type MessagesContextType = {
-  messages: MessagesMap;
-  pendingMessages: RefObject<Map<string, boolean>>;
+  store: ReturnType<typeof useMessagesStore>;
 
   messagesRef: RefObject<HTMLDivElement | null>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
 
-  onTextareaSubmit: (text: string) => void;
-  onMessagesScroll: (event: UIEvent<HTMLDivElement>) => void;
+  pendingMessages: RefObject<Map<string, boolean>>;
 
-  sendMessages: (text: string, chatId: string) => void;
+  sendMessage: (text: string, chatId: string) => void;
   retrySendMessage: (id: string) => void;
+  loadOlderMessages: () => Promise<boolean>;
 
-  loadOldMessages: () => Promise<boolean>;
+  onMessagesScroll: (event: UIEvent<HTMLDivElement>) => void;
+  onTextareaSubmit: (text: string) => void;
+  
+  messagesLoading: boolean;
+  toggleMessagesAvailable: (state?: boolean) => void;
+  autoScrollEnabled: boolean;
 
-  oldMessagesAvailble: boolean;
+  oldMessagesAvailable: boolean;
+  toggleOldMessagesAvailable: (state?: boolean) => void;
   oldMessagesLoading: boolean;
-}
+  toggleOldMessagesLoading: (state?: boolean) => void;
+};
 
-export const [ MessagesContext, useMessages ] = createContext<MessagesContextType>();
+export const [MessagesContext, useMessages] = createContext<MessagesContextType>();

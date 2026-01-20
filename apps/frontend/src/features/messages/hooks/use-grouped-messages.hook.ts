@@ -1,7 +1,7 @@
-import type { Message } from "@/types";
+import type { FrontendMessage } from "@/types";
 import { useMemo } from "react";
 
-export type GroupedMessage = Message & {
+export type GroupedMessage = FrontendMessage & {
   showHeader: boolean;
   dateString: string;
 };
@@ -12,78 +12,51 @@ export type DateGroup = {
   messages: GroupedMessage[];
 };
 
+const TEN_MIN = 10 * 60 * 1000;
+
 export const useGroupedMessages = (
-  messagesArray: Message[],
-  formatFullDate: (date: Date) => string,
+  entities: Record<string, FrontendMessage>,
+  order: string[],
+  formatFullDate: (date: Date) => string
 ): DateGroup[] => {
-  const groupedMessages = useMemo(() => {
-    if (messagesArray.length === 0) return [];
+  return useMemo(() => {
+    if (!order.length) {
+      return [];
+    }
 
-    const TEN_MIN = 10 * 60 * 1000;
-    const groups: Array<{
-      messages: Message[];
-      dateString: string;
-    }> = [];
+    return order
+      .map(id => entities[id])
+      .filter(Boolean)
+      .reduce<DateGroup[]>((groups, message) => {
+        const messageDate = new Date(message.createdAt);
+        const dateString = messageDate.toDateString();
 
-    messagesArray.forEach((message, index) => {
-      const messageDate = new Date(message.createdAt);
-      const messageTime = messageDate.getTime();
-      const messageDateString = messageDate.toDateString();
+        const lastGroup = groups[groups.length - 1];
+        const lastMessage = lastGroup?.messages[lastGroup.messages.length - 1];
 
-      if (index === 0) {
-        groups.push({
-          messages: [message],
-          dateString: messageDateString,
-        });
-        return;
-      }
+        const showHeader =
+          !lastMessage ||
+          lastMessage.senderId !== message.senderId ||
+          lastMessage?.dateString !== dateString ||
+          Math.abs(messageDate.getTime() - new Date(lastMessage.createdAt).getTime()) > TEN_MIN;
 
-      const prevMessage = messagesArray[index - 1];
-      const lastGroup = groups[groups.length - 1];
-      const prevMessageTime = new Date(prevMessage.createdAt).getTime();
-
-      const timeDiff = Math.abs(messageTime - prevMessageTime);
-      const isSameDate = messageDateString === lastGroup.dateString;
-      const isSameSender = prevMessage.senderId === message.senderId;
-      const isWithinTenMin = timeDiff <= TEN_MIN;
-
-      if (isSameSender && isSameDate && isWithinTenMin) {
-        lastGroup.messages.push(message);
-      } else {
-        groups.push({
-          messages: [message],
-          dateString: messageDateString,
-        });
-      }
-    });
-
-    return groups.flatMap((group) =>
-      group.messages.map((message, indexInGroup) => ({
-        ...message,
-        showHeader: indexInGroup === 0,
-        dateString: group.dateString,
-      })),
-    );
-  }, [messagesArray]);
-
-  const groupsWithDates = useMemo(() => {
-    const result: DateGroup[] = [];
-    let currentGroup: DateGroup | null = null;
-
-    groupedMessages.forEach((message) => {
-      if (!currentGroup || currentGroup.dateString !== message.dateString) {
-        currentGroup = {
-          dateString: message.dateString,
-          formattedDate: formatFullDate(new Date(message.createdAt)),
-          messages: [],
+        const groupedMessage: GroupedMessage = {
+          ...message,
+          showHeader,
+          dateString,
         };
-        result.push(currentGroup);
-      }
-      currentGroup.messages.push(message);
-    });
 
-    return result;
-  }, [groupedMessages, formatFullDate]);
+        if (!lastGroup || lastGroup.dateString !== dateString) {
+          groups.push({
+            dateString,
+            formattedDate: formatFullDate(messageDate),
+            messages: [groupedMessage],
+          });
+        } else {
+          lastGroup.messages.push(groupedMessage);
+        }
 
-  return groupsWithDates;
+        return groups;
+      }, []);
+  }, [entities, order, formatFullDate]);
 };

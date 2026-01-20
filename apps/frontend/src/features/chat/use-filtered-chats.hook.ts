@@ -1,51 +1,33 @@
 import type { ChatType } from "@/enums";
+import type { Store } from "@/features/hooks/use-normalized-store.hook";
 import type { Chat } from "@/types";
 
-import { useCallback, useState } from "react";
+import { useMemo } from "react";
 
 export type FilteredChats = Record<ChatType, Map<string, Chat>>;
 
 export type UseFilteredChatsProps = {
-  chats: Map<string, Chat>;
+  chats: Store<Chat>;
 };
 
 export const useFilteredChats = ({ chats }: UseFilteredChatsProps) => {
-  const [filteredChats, setFilteredChats] = useState<FilteredChats>({
-    DIRECT: new Map(),
-    GROUP: new Map(),
-    SELF: new Map(),
-  });
+  const filteredChats = useMemo(() => {
+    const result: FilteredChats = {
+      DIRECT: new Map(),
+      GROUP: new Map(),
+      SELF: new Map()
+    };
 
-  const filterChats = useCallback(() => {
-    return setFilteredChats((previous) => {
-      const filtered = Object.groupBy(chats.values(), (chat) => chat.type);
-      const data = Object.fromEntries(
-        Object.keys(previous).map((k) => {
-          const key = k as ChatType;
-          const value = filtered[key];
-          if (!value) {
-            return [key, previous[key]];
-          }
-
-          return [key, new Map(value.map((chat) => [chat.id, chat]))] as [
-            ChatType,
-            Map<string, Chat>,
-          ];
-        }),
-      ) as FilteredChats;
-
-      return data;
+    Object.values(chats.entities).forEach((chat) => {
+      if (chat.type in result) {
+        result[chat.type as ChatType].set(chat.id, chat);
+      }
     });
+
+    return result;
   }, [chats]);
 
-  const onChatsChange = useCallback(() => {
-    filterChats();
-  }, [filterChats])
-
   return {
-    filterChats,
-    onChatsChange,
     filteredChats,
-    setFilteredChats,
   };
 };

@@ -1,12 +1,12 @@
 import { useRef } from "react"
-import { useMessagesMap } from "./use-messages-map.hook";
+import { useMessagesStore } from "./use-messages-store.hook";
 
 export const useMessagesState = () => {
   const messagesRef = useRef<HTMLDivElement | null>(null);
-  const map = useMessagesMap();
+  const store = useMessagesStore();
 
   return {
     messagesRef,
-    map
+    store
   };
 }
