@@ -36,8 +36,11 @@ export const useMessagesScroll = ({
         loadOlderMessages().finally(() => {
           toggleOldMessagesLoading(false);
           if (messagesRef.current) {
-            const delta = messagesRef.current.scrollHeight - scrollRef.current.prevScrollHeight;
-            messagesRef.current.scrollTop = scrollRef.current.prevScrollTop + delta;
+            const delta =
+              messagesRef.current.scrollHeight -
+              scrollRef.current.prevScrollHeight;
+            messagesRef.current.scrollTop =
+              scrollRef.current.prevScrollTop + delta;
           }
         });
       }
@@ -46,7 +49,8 @@ export const useMessagesScroll = ({
         return;
       }
 
-      const atBottom = scrollHeight - scrollTop - messagesRef.current.clientHeight < 50;
+      const atBottom =
+        scrollHeight - scrollTop - messagesRef.current.clientHeight < 50;
       if (!atBottom) {
         return;
       }
@@ -61,7 +65,7 @@ export const useMessagesScroll = ({
       loadOlderMessages,
       toggleOldMessagesLoading,
       onMessagesScroll,
-    ]
+    ],
   );
 
   return { handleScroll };

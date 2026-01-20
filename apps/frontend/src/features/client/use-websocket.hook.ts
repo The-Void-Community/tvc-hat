@@ -25,9 +25,7 @@ export type UseWebsocketProps = {
   onRecieveMessage: (message: Message) => unknown;
 };
 
-export const useWebsocket = ({
-  onRecieveMessage,
-}: UseWebsocketProps) => {
+export const useWebsocket = ({ onRecieveMessage }: UseWebsocketProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   const initialize = async () => {
@@ -35,13 +33,13 @@ export const useWebsocket = ({
     if (!token) {
       return;
     }
-  
+
     const websocket = io(WEBSCOKET_URL.href, {
       extraHeaders: {
         authorization: `Bearer ${token}`,
       },
     });
-  
+
     setSocket(websocket);
 
     websocket.on(Gateways.receiveMessage, onRecieveMessage);
@@ -50,7 +48,10 @@ export const useWebsocket = ({
     };
   };
 
-  const handleChatConnection = (chatId: string, type: "disconnect"|"connect") => {
+  const handleChatConnection = (
+    chatId: string,
+    type: "disconnect" | "connect",
+  ) => {
     if (!socket) {
       return;
     }
@@ -60,10 +61,12 @@ export const useWebsocket = ({
     } else {
       socket.emit(Gateways.disconnect, chatId);
     }
-  }
+  };
 
-  const connectToChat = (chatId: string) => handleChatConnection(chatId, "connect");
-  const disconnectFromChat = (chatId: string) => handleChatConnection(chatId, "disconnect");
+  const connectToChat = (chatId: string) =>
+    handleChatConnection(chatId, "connect");
+  const disconnectFromChat = (chatId: string) =>
+    handleChatConnection(chatId, "disconnect");
 
   const emitMessage = (...[message, callback]: EmitMessageParameters) => {
     if (!socket) {
@@ -78,6 +81,6 @@ export const useWebsocket = ({
     initializeWebhook: initialize,
     emitMessage,
     connectToChat,
-    disconnectFromChat
+    disconnectFromChat,
   };
 };

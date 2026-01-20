@@ -16,7 +16,7 @@ type MessagesContextType = {
 
   onMessagesScroll: (event: UIEvent<HTMLDivElement>) => void;
   onTextareaSubmit: (text: string) => void;
-  
+
   messagesLoading: boolean;
   toggleMessagesAvailable: (state?: boolean) => void;
   autoScrollEnabled: boolean;
@@ -27,4 +27,5 @@ type MessagesContextType = {
   toggleOldMessagesLoading: (state?: boolean) => void;
 };
 
-export const [MessagesContext, useMessages] = createContext<MessagesContextType>();
+export const [MessagesContext, useMessages] =
+  createContext<MessagesContextType>();

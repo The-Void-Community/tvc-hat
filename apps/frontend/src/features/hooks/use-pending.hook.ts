@@ -1,6 +1,9 @@
 import { useRef } from "react";
 
-export const useTimeoutPending = <T extends unknown[]>(delay: number, callback: (...parameters: T) => void) => {
+export const useTimeoutPending = <T extends unknown[]>(
+  delay: number,
+  callback: (...parameters: T) => void,
+) => {
   const ref = useRef<Map<string, boolean>>(new Map());
   const timeoutRef = useRef<Map<string, number>>(new Map());
 
@@ -12,9 +15,12 @@ export const useTimeoutPending = <T extends unknown[]>(delay: number, callback: 
   const createPending = (key: string, callbackParameters: T) => {
     ref.current.set(key, true);
 
-    timeoutRef.current.set(key, window.setTimeout(() => {
-      callback(...callbackParameters);
-    }, delay));
+    timeoutRef.current.set(
+      key,
+      window.setTimeout(() => {
+        callback(...callbackParameters);
+      }, delay),
+    );
 
     return true;
   };

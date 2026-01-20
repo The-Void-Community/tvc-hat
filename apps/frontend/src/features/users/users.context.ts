@@ -1,5 +1,5 @@
 import { User } from "@/types";
-import { createContext } from "@/utils/create-context.utils"
+import { createContext } from "@/utils/create-context.utils";
 
 type UsersContextType = {
   me: User;
@@ -7,6 +7,6 @@ type UsersContextType = {
 
   addUser: (key: string, user: User) => void;
   setMe: (user: User) => void;
-}
+};
 
-export const [ UsersContext, useUsers ] = createContext<UsersContextType>();
+export const [UsersContext, useUsers] = createContext<UsersContextType>();

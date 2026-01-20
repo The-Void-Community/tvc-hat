@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef } from "react";
 import { useMessagesStore } from "./use-messages-store.hook";
 
 export const useMessagesState = () => {
@@ -7,6 +7,6 @@ export const useMessagesState = () => {
 
   return {
     messagesRef,
-    store
+    store,
   };
-}
+};

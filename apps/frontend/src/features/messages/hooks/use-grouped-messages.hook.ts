@@ -17,7 +17,7 @@ const TEN_MIN = 10 * 60 * 1000;
 export const useGroupedMessages = (
   entities: Record<string, FrontendMessage>,
   order: string[],
-  formatFullDate: (date: Date) => string
+  formatFullDate: (date: Date) => string,
 ): DateGroup[] => {
   return useMemo(() => {
     if (!order.length) {
@@ -25,7 +25,7 @@ export const useGroupedMessages = (
     }
 
     return order
-      .map(id => entities[id])
+      .map((id) => entities[id])
       .filter(Boolean)
       .reduce<DateGroup[]>((groups, message) => {
         const messageDate = new Date(message.createdAt);
@@ -38,7 +38,9 @@ export const useGroupedMessages = (
           !lastMessage ||
           lastMessage.senderId !== message.senderId ||
           lastMessage?.dateString !== dateString ||
-          Math.abs(messageDate.getTime() - new Date(lastMessage.createdAt).getTime()) > TEN_MIN;
+          Math.abs(
+            messageDate.getTime() - new Date(lastMessage.createdAt).getTime(),
+          ) > TEN_MIN;
 
         const groupedMessage: GroupedMessage = {
           ...message,

@@ -7,8 +7,12 @@ import { ChatsNavigation } from "./chat";
 import { ChatType } from "@/enums";
 
 export type ChatSidebarProps = {
-  UserFindTrigger: ({ children, onClick, ...props }: Partial<ButtonProps>) => JSX.Element;
-}
+  UserFindTrigger: ({
+    children,
+    onClick,
+    ...props
+  }: Partial<ButtonProps>) => JSX.Element;
+};
 
 export const ChatSidebar = ({ UserFindTrigger }: ChatSidebarProps) => {
   return (

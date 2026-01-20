@@ -5,16 +5,14 @@ export type Store<T extends { id: string }> = {
   order: string[];
 };
 
-export const useNormalizedStore = <
-  T extends { id: string }
->() => {
+export const useNormalizedStore = <T extends { id: string }>() => {
   const [state, setState] = useState<Store<T>>({
     entities: {},
     order: [],
   });
 
   const append = useCallback((entity: T) => {
-    setState(previous => {
+    setState((previous) => {
       if (previous.entities[entity.id]) {
         return previous;
       }
@@ -30,10 +28,10 @@ export const useNormalizedStore = <
   }, []);
 
   const prependMany = useCallback((entities: T[]) => {
-    setState(previous => {
+    setState((previous) => {
       const newEntities: Record<string, T> = {};
       const newIds: string[] = [];
-      
+
       for (const entity of entities) {
         if (!previous.entities[entity.id]) {
           newEntities[entity.id] = entity;
@@ -48,61 +46,55 @@ export const useNormalizedStore = <
     });
   }, []);
 
-  const update = useCallback(
-    (id: string, patch: Partial<T>) => {
-      setState(previous => {
-        const current = previous.entities[id];
-        if (!current) {
-          return previous;
-        }
+  const update = useCallback((id: string, patch: Partial<T>) => {
+    setState((previous) => {
+      const current = previous.entities[id];
+      if (!current) {
+        return previous;
+      }
 
-        const changed = (Object.keys(patch) as (keyof T)[]).some(
-          key => current[key] !== patch[key]
-        );
-        if (!changed) {
-          return previous;
-        }
-        
-        const next = {
-          ...current,
-          ...patch,
-        };
+      const changed = (Object.keys(patch) as (keyof T)[]).some(
+        (key) => current[key] !== patch[key],
+      );
+      if (!changed) {
+        return previous;
+      }
 
-        return {
-          ...previous,
-          entities: {
-            ...previous.entities,
-            [id]: next,
-          },
-        };
-      });
-    },
-    [],
-  );
+      const next = {
+        ...current,
+        ...patch,
+      };
 
-  const replaceId = useCallback(
-    (id: string, entity: T) => {
-      setState(previous => {
-        const index = previous.order.indexOf(id);
-        if (index === -1) {
-          return previous;
-        }
+      return {
+        ...previous,
+        entities: {
+          ...previous.entities,
+          [id]: next,
+        },
+      };
+    });
+  }, []);
 
-        const order = [...previous.order];
-        order[index] = entity.id;
+  const replaceId = useCallback((id: string, entity: T) => {
+    setState((previous) => {
+      const index = previous.order.indexOf(id);
+      if (index === -1) {
+        return previous;
+      }
 
-        const entities = { ...previous.entities };
-        delete entities[id];
-        entities[entity.id] = entity;
+      const order = [...previous.order];
+      order[index] = entity.id;
 
-        return { entities, order };
-      });
-    },
-    [],
-  );
+      const entities = { ...previous.entities };
+      delete entities[id];
+      entities[entity.id] = entity;
+
+      return { entities, order };
+    });
+  }, []);
 
   const remove = useCallback((id: string) => {
-    setState(previous => {
+    setState((previous) => {
       if (!previous.entities[id]) {
         return previous;
       }
@@ -112,7 +104,7 @@ export const useNormalizedStore = <
 
       return {
         entities,
-        order: previous.order.filter(x => x !== id),
+        order: previous.order.filter((x) => x !== id),
       };
     });
   }, []);
@@ -123,7 +115,7 @@ export const useNormalizedStore = <
   );
 
   const getAll = useCallback(
-    () => state.order.map(id => state.entities[id]),
+    () => state.order.map((id) => state.entities[id]),
     [state.order, state.entities],
   );
 

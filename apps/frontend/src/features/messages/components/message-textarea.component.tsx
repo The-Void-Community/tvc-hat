@@ -24,7 +24,7 @@ export const MessageTextarea = () => {
 
     textareaRef.current.value = "";
     onTextareaSubmit(text);
-  }
+  };
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key !== "Enter" || event.shiftKey) {
@@ -32,7 +32,7 @@ export const MessageTextarea = () => {
     }
 
     handleSubmit(event);
-  }
+  };
 
   return (
     <form
@@ -46,7 +46,7 @@ export const MessageTextarea = () => {
         placeholder="Ваше сообщение"
         className={[
           "w-full resize-none text-(length:--fs-mini)",
-          "py-2 px-4 min-h-[56px] h-[56px] max-h-[280px]", /* пофиксить высоту */
+          "py-2 px-4 min-h-[56px] h-[56px] max-h-[280px]" /* пофиксить высоту */,
           "focus:outline-0",
         ].join(" ")}
         overwriteClassName
@@ -61,5 +61,5 @@ export const MessageTextarea = () => {
         <HiPaperAirplane size={32} className="rotate-90" />
       </Button>
     </form>
-  )
+  );
 };

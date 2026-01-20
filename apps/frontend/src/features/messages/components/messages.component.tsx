@@ -21,14 +21,14 @@ export const Messages = () => {
     oldMessagesAvailable,
     autoScrollEnabled,
     loadOlderMessages,
-    toggleOldMessagesLoading
+    toggleOldMessagesLoading,
   } = useMessages();
 
   const { formatFullDate } = useDateFormatters();
   const groupsWithDates = useGroupedMessages(
     messagesById,
     order,
-    formatFullDate
+    formatFullDate,
   );
 
   const { handleScroll } = useMessagesScroll({
@@ -38,7 +38,7 @@ export const Messages = () => {
     oldMessagesLoading,
     loadOlderMessages,
     toggleOldMessagesLoading,
-    onMessagesScroll
+    onMessagesScroll,
   });
 
   if (messagesLoading) {
@@ -61,7 +61,7 @@ export const Messages = () => {
         </div>
       )}
 
-      {groupsWithDates.map(group => (
+      {groupsWithDates.map((group) => (
         <div key={group.dateString}>
           <div className="px-4 py-2 my-2 text-center text-mini">
             <span className="bg-(--bg-smooth-light) py-1 px-2 rounded-lg">
@@ -69,7 +69,7 @@ export const Messages = () => {
             </span>
           </div>
 
-          {group.messages.map(message => {
+          {group.messages.map((message) => {
             const sender = users.get(message.senderId);
             if (!sender) {
               return (
@@ -79,7 +79,9 @@ export const Messages = () => {
               );
             }
 
-            return <Message key={message.id} message={message} sender={sender} />;
+            return (
+              <Message key={message.id} message={message} sender={sender} />
+            );
           })}
         </div>
       ))}

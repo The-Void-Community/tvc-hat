@@ -2,17 +2,17 @@ import type {
   FrontendMessage,
   MaybeFrontendMessage,
   MessageBody,
-} from '@/types';
-import type { EmitMessageFunction } from '@/features/client/use-websocket.hook';
+} from "@/types";
+import type { EmitMessageFunction } from "@/features/client/use-websocket.hook";
 
-import { useCallback } from 'react';
-import { v4 as uuid } from 'uuid';
+import { useCallback } from "react";
+import { v4 as uuid } from "uuid";
 
-import { changeFrontendMessageToMessageBody } from '@/utils/delete-properties-from.utils';
-import { revalidateMessages } from '@/api/get-messages';
+import { changeFrontendMessageToMessageBody } from "@/utils/delete-properties-from.utils";
+import { revalidateMessages } from "@/api/get-messages";
 
-import { usePendingMessages } from './use-pending-messages.hook';
-import { useMessagesState } from './use-messages-state.hook';
+import { usePendingMessages } from "./use-pending-messages.hook";
+import { useMessagesState } from "./use-messages-state.hook";
 
 export type UseMessageSenderProps = {
   emitMessage: EmitMessageFunction;
@@ -20,14 +20,18 @@ export type UseMessageSenderProps = {
   state: ReturnType<typeof useMessagesState>;
 };
 
-export const useMessageSender = ({ emitMessage, myId, state }: UseMessageSenderProps) => {
+export const useMessageSender = ({
+  emitMessage,
+  myId,
+  state,
+}: UseMessageSenderProps) => {
   const {
     store: {
       markMessageAsFailed: markAsFailed,
       addMessages,
       entities,
-      updateOneMessage
-    }
+      updateOneMessage,
+    },
   } = state;
 
   const { createPending, clearPending } = usePendingMessages({
@@ -57,7 +61,7 @@ export const useMessageSender = ({ emitMessage, myId, state }: UseMessageSenderP
         markAsFailed(message);
       }
     },
-    [createPending, emitMessage, clearPending, updateOneMessage, markAsFailed]
+    [createPending, emitMessage, clearPending, updateOneMessage, markAsFailed],
   );
 
   const retrySendMessage = useCallback(
@@ -67,7 +71,7 @@ export const useMessageSender = ({ emitMessage, myId, state }: UseMessageSenderP
 
       return trySendMessage(message);
     },
-    [entities, trySendMessage]
+    [entities, trySendMessage],
   );
 
   const sendMessage = useCallback(
@@ -92,7 +96,7 @@ export const useMessageSender = ({ emitMessage, myId, state }: UseMessageSenderP
       addMessages([frontendMessage]);
       trySendMessage(frontendMessage);
     },
-    [addMessages, myId, trySendMessage]
+    [addMessages, myId, trySendMessage],
   );
 
   return {

@@ -29,7 +29,9 @@ const MessageInnerWithHeader = ({
       <IconOrAvatar entity={sender} size={48} />
       <div className="flex flex-col w-full">
         <div className="flex items-center gap-1">
-          <span className="font-semibold">{sender.nickname || sender.username}</span>
+          <span className="font-semibold">
+            {sender.nickname || sender.username}
+          </span>
           <span className="text-mini flex items-center gap-2">
             <span>{time}</span>
             {message.pending && <CircleProgress size={20} />}
@@ -53,7 +55,9 @@ const MessageInnerWithHeader = ({
 export type MessageInnerWithoutHeaderProps = {
   message: FrontendMessage;
 };
-export const MessageInnerWithoutHeader = ({ message }: MessageInnerWithoutHeaderProps) => {
+export const MessageInnerWithoutHeader = ({
+  message,
+}: MessageInnerWithoutHeaderProps) => {
   return (
     <div className="flex flex-col w-full ml-[3.5em]">
       {message.pending ? (
@@ -92,12 +96,14 @@ export const MessageInner = ({ message, sender, showHeader }: MessageProps) => {
 };
 
 export const Message = memo(MessageInner, (previous, next) => {
-  return previous.message.id === next.message.id &&
-         previous.message.text === next.message.text &&
-         previous.message.pending === next.message.pending &&
-         previous.message.failed === next.message.failed &&
-         previous.showHeader === next.showHeader &&
-         previous.sender.id === next.sender.id &&
-         previous.sender.nickname === next.sender.nickname &&
-         previous.sender.username === next.sender.username;
+  return (
+    previous.message.id === next.message.id &&
+    previous.message.text === next.message.text &&
+    previous.message.pending === next.message.pending &&
+    previous.message.failed === next.message.failed &&
+    previous.showHeader === next.showHeader &&
+    previous.sender.id === next.sender.id &&
+    previous.sender.nickname === next.sender.nickname &&
+    previous.sender.username === next.sender.username
+  );
 });

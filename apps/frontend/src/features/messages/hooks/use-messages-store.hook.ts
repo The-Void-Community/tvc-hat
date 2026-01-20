@@ -1,4 +1,8 @@
-import type { FrontendMessage, FrontendMessageProperties, MaybeFrontendMessage } from "@/types";
+import type {
+  FrontendMessage,
+  FrontendMessageProperties,
+  MaybeFrontendMessage,
+} from "@/types";
 
 import { useCallback } from "react";
 import { useNormalizedStore } from "@/features/hooks/use-normalized-store.hook";
@@ -20,19 +24,19 @@ export const useMessagesStore = () => {
   const addMessages = useCallback(
     (messages: FrontendMessage[], to: "start" | "end" = "end") => {
       if (to === "end") {
-        return messages.forEach(msg => append(msg));
+        return messages.forEach((msg) => append(msg));
       }
-      
+
       prependMany(messages);
     },
-    [append, prependMany]
+    [append, prependMany],
   );
 
   const updateOneMessage = useCallback(
     (message: MaybeFrontendMessage) => {
       update(message.id, message);
     },
-    [update]
+    [update],
   );
 
   const setOneMessage = useCallback(
@@ -40,21 +44,21 @@ export const useMessagesStore = () => {
       const patch = options ? { ...message, ...options } : message;
       update(patch.id, patch);
     },
-    [update]
+    [update],
   );
 
   const markMessageAsFailed = useCallback(
     (message: MaybeFrontendMessage) => {
       setOneMessage(message, { failed: true, pending: false });
     },
-    [setOneMessage]
+    [setOneMessage],
   );
 
   const replaceMessageId = useCallback(
     (id: string, message: FrontendMessage) => {
       replaceId(id, message);
     },
-    [replaceId]
+    [replaceId],
   );
 
   return {

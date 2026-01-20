@@ -12,38 +12,47 @@ export type UseChatMessagesProps = {
 };
 
 export type LoadMessagesParameters = {
-  chatId: string,
-  to?: "start"|"end";
-  enableScroll?: boolean
-}
+  chatId: string;
+  to?: "start" | "end";
+  enableScroll?: boolean;
+};
 
 export const useMessagesLoader = ({
   addMessages,
   toggleMessagesLoading,
-  toggleScrollToBottom
+  toggleScrollToBottom,
 }: UseChatMessagesProps) => {
-  const [moreMessagesAvailable, toggleMoreMessagesAvailable] = useToggleState(false);
+  const [moreMessagesAvailable, toggleMoreMessagesAvailable] =
+    useToggleState(false);
   const [oldMessageId, setOldMessageId] = useState<string | null>(null);
 
-  const load = useCallback(async ({
-    chatId,
-    enableScroll = false,
-    to = "end"
-  }: LoadMessagesParameters) => {
-    toggleMessagesLoading(true);
+  const load = useCallback(
+    async ({
+      chatId,
+      enableScroll = false,
+      to = "end",
+    }: LoadMessagesParameters) => {
+      toggleMessagesLoading(true);
 
-    const result = await loadMessages({ chatId });
+      const result = await loadMessages({ chatId });
 
-    addMessages(result.messages, to);
-    setOldMessageId(result.oldMessageId || null);
-    toggleMoreMessagesAvailable(result.moreMessagesAvailable);
+      addMessages(result.messages, to);
+      setOldMessageId(result.oldMessageId || null);
+      toggleMoreMessagesAvailable(result.moreMessagesAvailable);
 
-    if (enableScroll) {
-      toggleScrollToBottom(true);
-    }
+      if (enableScroll) {
+        toggleScrollToBottom(true);
+      }
 
-    toggleMessagesLoading(false);
-  }, [addMessages, toggleMessagesLoading, toggleMoreMessagesAvailable, toggleScrollToBottom]);
+      toggleMessagesLoading(false);
+    },
+    [
+      addMessages,
+      toggleMessagesLoading,
+      toggleMoreMessagesAvailable,
+      toggleScrollToBottom,
+    ],
+  );
 
   const handleChatChange = useCallback(
     (chat: Chat) => {
@@ -51,7 +60,7 @@ export const useMessagesLoader = ({
       toggleMoreMessagesAvailable(false);
       load({
         chatId: chat.id,
-        enableScroll: true
+        enableScroll: true,
       });
     },
     [load, toggleMoreMessagesAvailable],

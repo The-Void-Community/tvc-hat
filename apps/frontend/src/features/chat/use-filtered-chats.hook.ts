@@ -15,7 +15,7 @@ export const useFilteredChats = ({ chats }: UseFilteredChatsProps) => {
     const result: FilteredChats = {
       DIRECT: new Map(),
       GROUP: new Map(),
-      SELF: new Map()
+      SELF: new Map(),
     };
 
     Object.values(chats.entities).forEach((chat) => {
