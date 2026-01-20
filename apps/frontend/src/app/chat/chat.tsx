@@ -96,7 +96,7 @@ const Chat = ({ chatId }: Props) => {
       messagesRef,
     });
 
-  const { Modal: UserFindModal } = useUserFind();
+  const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
 
   const {
     oldestMessageId,
@@ -235,7 +235,7 @@ const Chat = ({ chatId }: Props) => {
         <div className="h-full flex flex-col h-full gap-2">
           <div className="flex flex-1 gap-2">
             <MainNavigation />
-            {sidebarShowed && <ChatSidebar />}
+            {sidebarShowed && <ChatSidebar UserFindTrigger={UserFindTrigger} />}
           </div>
 
           <UserProfileDropdown user={user} />

@@ -18,7 +18,7 @@ export const getMeByToken = cache(
     if (!user) {
       return null;
     }
-    cookie.set("auth", user.auth);
+    cookie.set("auth", JSON.stringify(user.auth));
 
     return user.user;
   },

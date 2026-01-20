@@ -1,12 +1,16 @@
 "use client";
 
+import type { JSX } from "react";
+import type { ButtonProps } from "tvuikit";
+
 import { ChatsNavigation } from "./chat";
 import { ChatType } from "@/enums";
-import { useUserFind } from "@/hooks/use-user-find";
 
-export const ChatSidebar = () => {
-  const { Trigger: UserFindTrigger } = useUserFind();
+export type ChatSidebarProps = {
+  UserFindTrigger: ({ children, onClick, ...props }: Partial<ButtonProps>) => JSX.Element;
+}
 
+export const ChatSidebar = ({ UserFindTrigger }: ChatSidebarProps) => {
   return (
     <nav className="flex flex-col items-center gap-1 bg-(--bg-card) rounded-lg w-48">
       <UserFindTrigger className="mt-2" />

@@ -21,6 +21,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "set NODE_ENV=production&& nest start",
+    "start:dev": "set NODE_ENV=development&& nest start",
     "dev": "set NODE_ENV=development&& nest start --watch",
     "debug": "nest start --debug --watch",
     "docker:build": "docker build -f npm.dockerfile -t bad-template .",
