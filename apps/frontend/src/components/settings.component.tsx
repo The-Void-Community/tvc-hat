@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 import { Button, CircleProgress, Input } from "tvuikit";
 import { HiUser, HiPencilAlt, HiX, HiCheck } from "react-icons/hi";
 
-import { IconOrAvatar } from "./chat/icon";
+import { IconOrAvatar } from "./icon";
 
 import { useChat } from "@/contexts/chat.context";
 import { patchMe } from "@/api/patch-user";

@@ -5,12 +5,19 @@ import type { Store } from "../hooks/use-normalized-store.hook";
 import { createContext } from "@/utils/create-context.utils";
 
 type ChatContextType = {
+  store: Store<Chat>;
+  
   currentChat: Chat | null;
-  chats: Store<Chat>;
   filteredChats: FilteredChats;
 
   setCurrentChat: (chat: Chat) => void;
   onChangeChat: (chat: Chat) => void;
+
+  sidebarShowed: boolean;
+  toggleSidebar: (state: boolean) => unknown;
+
+  createModalShowed: boolean;
+  toggleCreateModal: (state: boolean) => unknown;
 };
 
 export const [ChatContext, useChat] = createContext<ChatContextType>();

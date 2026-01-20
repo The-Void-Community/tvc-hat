@@ -4,7 +4,7 @@ import { useChat } from "@/contexts/chat.context";
 import { memo, useMemo } from "react";
 import { CircleProgress } from "tvuikit";
 
-import { IconOrAvatar } from "./icon";
+import { IconOrAvatar } from "../icon";
 import { useDateFormatters } from "@/hooks/use-date-formatters.hook";
 
 export type MessageProps = {

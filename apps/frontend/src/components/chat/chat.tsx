@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 import { ChatType } from "@/enums";
 import { useChat } from "@/contexts/chat.context";
-import { IconOrAvatar } from "./icon";
+import { IconOrAvatar } from "../icon";
 import {
   useDirectChatAvatar,
   useDirectChatName,

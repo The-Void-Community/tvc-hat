@@ -1,17 +1,18 @@
 "use client";
 
 import { CircleProgress } from "tvuikit";
-import { Message } from "./message.component";
+
 import { useMessagesStore } from "../hooks/use-messages-store.hook";
 import { useGroupedMessages } from "../hooks/use-grouped-messages.hook";
 import { useDateFormatters } from "@/hooks/use-date-formatters.hook";
-
 import { useMessagesScroll } from "../hooks/use-messages-scroll.hook";
+
 import { useMessages } from "../messages.context";
 import { useUsers } from "@/features/users/users.context";
+import { Message } from "./message.component";
 
 export const Messages = () => {
-  const { entities: messagesById, order } = useMessagesStore();
+  const { entities, order } = useMessagesStore();
   const { users } = useUsers();
   const {
     messagesRef,
@@ -22,14 +23,11 @@ export const Messages = () => {
     autoScrollEnabled,
     loadOlderMessages,
     toggleOldMessagesLoading,
+    retrySendMessage
   } = useMessages();
 
   const { formatFullDate } = useDateFormatters();
-  const groupsWithDates = useGroupedMessages(
-    messagesById,
-    order,
-    formatFullDate,
-  );
+  const groupsWithDates = useGroupedMessages(entities, order, formatFullDate);
 
   const { handleScroll } = useMessagesScroll({
     messagesRef,
@@ -80,7 +78,13 @@ export const Messages = () => {
             }
 
             return (
-              <Message key={message.id} message={message} sender={sender} />
+              <Message
+                key={message.id}
+                message={message}
+                sender={sender}
+                showHeader={message.showHeader}
+                retrySendMessage={retrySendMessage}
+              />
             );
           })}
         </div>

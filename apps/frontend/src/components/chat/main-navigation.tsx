@@ -1,7 +1,7 @@
 import { useChat } from "@/contexts/chat.context";
 
 import { HiPlusCircle } from "react-icons/hi";
-import { IconOrAvatar } from "./icon";
+import { IconOrAvatar } from "../icon";
 import { ChatsNavigation } from "./chat";
 
 import { ChatType } from "@/enums";

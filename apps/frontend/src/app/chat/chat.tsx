@@ -31,6 +31,8 @@ import { useUserFind } from "@/hooks/use-user-find";
 import { ChatType } from "@/enums";
 
 import { ChatContext } from "@/contexts/chat.context";
+import { MessagesContext } from "@/features/messages/messages.context";
+import { UsersContext } from "@/features/users/users.context";
 
 type Props = {
   chatId?: string;

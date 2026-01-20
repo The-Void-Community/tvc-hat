@@ -2,7 +2,7 @@
 
 import type { User } from "@/types";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "tvuikit";
-import { IconOrAvatar } from "./icon";
+import { IconOrAvatar } from "../icon";
 
 import { HiCog } from "react-icons/hi";
 import { useSettings } from "@/hooks/use-settings.hook";
