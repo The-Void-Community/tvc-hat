@@ -1,7 +1,6 @@
 import { getChat, getChats } from "@/api/get-chats";
 import { getMe } from "@/api/get-user";
-import { useToggleState } from "@/hooks/use-toggle.hook";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export type UseChatUserProps = {
   chatId?: string;
@@ -9,35 +8,29 @@ export type UseChatUserProps = {
 };
 
 export const useChatUser = ({ chatId, loadMessages }: UseChatUserProps) => {
-  /* НЕ ТЕСТИРОВАЛОСЬ */
-  /* ВОЗМОЖНО НУЖНО БУДЕТ ПОМЕНЯТЬ */
-  /* НА useState */
-  const [loaded, toggleLoaded] = useToggleState();
+  const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
-    const gettedUser = getMe();
-    if (!gettedUser) {
-      return null;
-    }
+    const user = await getMe();
+    if (!user) return null;
 
-    const gettedChat = chatId ? await getChat(chatId) : null;
-    const gettedChats = (await getChats()) || [];
+    const chat = chatId ? await getChat(chatId) : null;
+    const chats = (await getChats()) ?? [];
 
     if (chatId) {
       await loadMessages(chatId);
     }
 
-    toggleLoaded(true);
-
     return {
-      user: gettedUser,
-      chat: gettedChat,
-      chats: gettedChats,
+      user,
+      initialChat: chat,
+      chats,
     };
-  }, [chatId, loadMessages, toggleLoaded]);
+  }, [chatId, loadMessages]);
 
   return {
     load,
     loaded,
+    setLoaded,
   };
 };

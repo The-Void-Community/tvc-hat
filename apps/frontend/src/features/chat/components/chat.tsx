@@ -1,7 +1,7 @@
 "use client";
 
 import type { Chat } from "@/types";
-import type { DetailedHTMLProps, HTMLAttributes } from "react";
+import { useMemo, type DetailedHTMLProps, type HTMLAttributes } from "react";
 
 import { ChatType } from "@/enums";
 import { IconOrAvatar } from "@/components/icon";
@@ -62,7 +62,10 @@ type ChatsNavigationProps = {
 export const ChatsNavigation = ({ type, full }: ChatsNavigationProps) => {
   const { filteredChats } = useChat();
 
-  const chats = Array.from(filteredChats[type].values());
+  const chats = useMemo(
+    () => Array.from(filteredChats[type].values()),
+    [filteredChats, type],
+  );
 
   return (
     <div className="flex flex-col items-center gap-1">

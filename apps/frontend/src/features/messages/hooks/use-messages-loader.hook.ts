@@ -1,75 +1,89 @@
-import type { Chat, Message } from "@/types";
+import type { Chat, MaybeFrontendMessage } from "@/types";
 
 import { useCallback, useState } from "react";
 import { loadMessages } from "@/features/messages/load-messages";
-
 import { useToggleState } from "@/hooks/use-toggle.hook";
 
 export type UseChatMessagesProps = {
-  addMessages: (messages: Message[], to?: "start" | "end") => void;
+  addMessages: (messages: MaybeFrontendMessage[], to?: "start" | "end") => void;
   toggleScrollToBottom: (enabled: boolean) => void;
-  toggleMessagesLoading: (loading: boolean) => void;
 };
 
 export type LoadMessagesParameters = {
   chatId: string;
   to?: "start" | "end";
   enableScroll?: boolean;
+  isOldMessages?: boolean;
+  positionMessageId?: string;
+  count?: number;
+  sort?: "asc" | "desc"
 };
 
 export const useMessagesLoader = ({
   addMessages,
-  toggleMessagesLoading,
   toggleScrollToBottom,
 }: UseChatMessagesProps) => {
-  const [moreMessagesAvailable, toggleMoreMessagesAvailable] =
-    useToggleState(false);
+  const [oldMessagesAvailable, toggleOldMessagesAvailable] = useToggleState(false);
   const [oldMessageId, setOldMessageId] = useState<string | null>(null);
+  const [messagesLoading, toggleMessagesLoading] = useToggleState(false);
+  const [oldMessagesLoading, toggleOldMessagesLoading] = useToggleState(false);
 
   const load = useCallback(
     async ({
       chatId,
       enableScroll = false,
       to = "end",
+      isOldMessages = false,
+      positionMessageId,
+      count = 100,
+      sort = "desc"
     }: LoadMessagesParameters) => {
-      toggleMessagesLoading(true);
+      if (isOldMessages) {
+        toggleOldMessagesLoading(true);
+      } else {
+        toggleMessagesLoading(true);
+      }
 
-      const result = await loadMessages({ chatId });
+      const result = await loadMessages({ chatId, positionMessageId, count, sort });
 
       addMessages(result.messages, to);
       setOldMessageId(result.oldMessageId || null);
-      toggleMoreMessagesAvailable(result.moreMessagesAvailable);
+      toggleOldMessagesAvailable(result.moreMessagesAvailable);
 
       if (enableScroll) {
         toggleScrollToBottom(true);
       }
 
-      toggleMessagesLoading(false);
+      if (isOldMessages) {
+        toggleOldMessagesLoading(false);
+      } else {
+        toggleMessagesLoading(false);
+      }
     },
-    [
-      addMessages,
-      toggleMessagesLoading,
-      toggleMoreMessagesAvailable,
-      toggleScrollToBottom,
-    ],
+    [addMessages, toggleMessagesLoading, toggleOldMessagesAvailable, toggleOldMessagesLoading, toggleScrollToBottom],
   );
 
   const handleChatChange = useCallback(
     (chat: Chat) => {
       setOldMessageId(null);
-      toggleMoreMessagesAvailable(false);
+      toggleOldMessagesAvailable(false);
       load({
         chatId: chat.id,
         enableScroll: true,
       });
     },
-    [load, toggleMoreMessagesAvailable],
+    [load, toggleOldMessagesAvailable],
   );
 
   return {
     oldMessageId,
-    moreMessagesAvailable,
+    oldMessagesAvailable,
     loadMessages: load,
     handleChatChange,
+    oldMessagesLoading,
+    messagesLoading,
+    toggleOldMessagesAvailable,
+    toggleMessagesLoading,
+    toggleOldMessagesLoading,
   };
 };

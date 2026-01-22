@@ -9,7 +9,7 @@ import { HiUser, HiPencilAlt, HiX, HiCheck } from "react-icons/hi";
 
 import { IconOrAvatar } from "./icon";
 
-import { useChat } from "@/contexts/chat.context";
+import { useUsers } from "@/features/users/users.context";
 import { patchMe } from "@/api/patch-user";
 
 type DivProps = DetailedHTMLProps<
@@ -40,7 +40,7 @@ const EditableUserSettingsPropetryItem = ({
   const [pending, setPending] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { setUser, addUser } = useChat();
+  const { setMe, addUser } = useUsers();
 
   const handleSubmit = async () => {
     if (!inputRef.current) {
@@ -59,7 +59,7 @@ const EditableUserSettingsPropetryItem = ({
       return setPending(false);
     }
 
-    setUser(newUser);
+    setMe(newUser);
     addUser(newUser.id, newUser);
 
     setPending(false);
@@ -144,7 +144,7 @@ const UserSettings = () => {
   };
 
   const Component = () => {
-    const { me } = useChat();
+    const { me } = useUsers();
 
     return (
       <div>

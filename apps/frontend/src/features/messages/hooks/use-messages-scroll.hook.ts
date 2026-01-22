@@ -1,26 +1,28 @@
+import type { MessagesContextType } from "../messages.context";
 import type { UIEvent, RefObject } from "react";
 import { useRef, useCallback } from "react";
 
 type Params = {
   messagesRef: RefObject<HTMLDivElement | null>;
-  autoScrollEnabled: boolean;
+  store: MessagesContextType["store"];
+  currentChatId: string;
+  autoScrollEnabled: RefObject<boolean>;
   oldMessagesAvailable: boolean;
-  oldMessagesLoading: boolean;
-  loadOlderMessages: () => Promise<boolean>;
-  toggleOldMessagesLoading: (state?: boolean) => void;
+  oldMessagesLoading: MessagesContextType["oldMessagesLoading"];
+  loadMessages: MessagesContextType["loadMessages"];
   onMessagesScroll?: (event: UIEvent<HTMLDivElement>) => void;
 };
 
 export const useMessagesScroll = ({
   messagesRef,
-  autoScrollEnabled,
+  currentChatId,
   oldMessagesAvailable,
   oldMessagesLoading,
-  loadOlderMessages,
-  toggleOldMessagesLoading,
+  loadMessages,
   onMessagesScroll,
+  store
 }: Params) => {
-  const scrollRef = useRef({ prevScrollHeight: 0, prevScrollTop: 0 });
+  const scrollRef = useRef({ previousScrollHeight: 0, previousScrollTop: 0 });
 
   const handleScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
@@ -29,43 +31,27 @@ export const useMessagesScroll = ({
 
       const { scrollTop, scrollHeight } = messagesRef.current;
       if (scrollTop < 200 && oldMessagesAvailable && !oldMessagesLoading) {
-        toggleOldMessagesLoading(true);
-        scrollRef.current.prevScrollHeight = scrollHeight;
-        scrollRef.current.prevScrollTop = scrollTop;
+        scrollRef.current.previousScrollHeight = scrollHeight;
+        scrollRef.current.previousScrollTop = scrollTop;
 
-        loadOlderMessages().finally(() => {
-          toggleOldMessagesLoading(false);
+        loadMessages({
+          chatId: currentChatId,
+          enableScroll: false,
+          to: "start",
+          isOldMessages: true,
+          positionMessageId: store.order.at(0),
+        }).finally(() => {
           if (messagesRef.current) {
             const delta =
               messagesRef.current.scrollHeight -
-              scrollRef.current.prevScrollHeight;
+              scrollRef.current.previousScrollHeight;
             messagesRef.current.scrollTop =
-              scrollRef.current.prevScrollTop + delta;
+              scrollRef.current.previousScrollTop + delta;
           }
         });
       }
-
-      if (!autoScrollEnabled) {
-        return;
-      }
-
-      const atBottom =
-        scrollHeight - scrollTop - messagesRef.current.clientHeight < 50;
-      if (!atBottom) {
-        return;
-      }
-
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     },
-    [
-      messagesRef,
-      autoScrollEnabled,
-      oldMessagesAvailable,
-      oldMessagesLoading,
-      loadOlderMessages,
-      toggleOldMessagesLoading,
-      onMessagesScroll,
-    ],
+    [onMessagesScroll, messagesRef, oldMessagesAvailable, oldMessagesLoading, loadMessages, currentChatId, store.order],
   );
 
   return { handleScroll };

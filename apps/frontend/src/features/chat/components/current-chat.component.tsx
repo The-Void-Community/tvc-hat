@@ -1,7 +1,7 @@
 import type { Chat } from "@/types";
 import { memo } from "react";
 
-import { useChat } from "@/contexts/chat.context";
+import { useChat } from "@/features/chat/chat.context";
 
 import { useUsers } from "@/features/users/users.context";
 import { Messages } from "@/features/messages/components/messages.component";

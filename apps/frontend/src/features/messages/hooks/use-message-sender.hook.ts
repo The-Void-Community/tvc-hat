@@ -34,7 +34,7 @@ export const useMessageSender = ({
     },
   } = state;
 
-  const { createPending, clearPending } = usePendingMessages({
+  const { createPending, clearPending, pendingRef: pendingMessages } = usePendingMessages({
     onTimeout: markAsFailed,
   });
 
@@ -99,8 +99,21 @@ export const useMessageSender = ({
     [addMessages, myId, trySendMessage],
   );
 
+  const onSubmit = useCallback((chatId: string|null, toggleScrollToBottom: (newState?: boolean | undefined) => void) => {
+    return (text: string) => {
+      if (!chatId) {
+        return;
+      }
+
+      sendMessage(text, chatId);
+      toggleScrollToBottom(true);
+    }
+  }, [sendMessage])
+
   return {
     sendMessage,
     retrySendMessage,
+    onSubmit,
+    pendingMessages
   };
 };

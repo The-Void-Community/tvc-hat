@@ -1,4 +1,4 @@
-import type { FrontendMessage, User } from "@/types";
+import type { MaybeFrontendMessagePartial, User } from "@/types";
 
 import { memo } from "react";
 import { CircleProgress } from "tvuikit";
@@ -6,15 +6,20 @@ import { CircleProgress } from "tvuikit";
 import { IconOrAvatar } from "@/components/icon";
 
 export type MessageProps = {
-  message: FrontendMessage;
+  message: MaybeFrontendMessagePartial & { showHeader: boolean };
   sender: User;
-  showHeader?: boolean;
   retrySendMessage?: (id: string) => void;
 };
 
-const MessageInner = ({ message, sender, showHeader, retrySendMessage }: MessageProps) => {
+const MessageInner = ({ message, sender, retrySendMessage }: MessageProps) => {
+  const { showHeader } = message;
+
   return (
-    <div className={`flex ${showHeader ? "flex-row" : "flex-col ml-[3.5em]"}`}>
+    <div className={[
+        "flex items-start gap-2 px-4 rounded-md",
+        "hover:bg-(--bg-component) duration-100",
+        showHeader ? "py-1" : "ml-[3.5em]",
+      ].join(" ")}>
       {showHeader && (
         <IconOrAvatar entity={sender} size={48} />
       )}
@@ -50,6 +55,6 @@ export const Message = memo(MessageInner, (previous, next) => {
     previous.message.text === next.message.text &&
     previous.message.pending === next.message.pending &&
     previous.message.failed === next.message.failed &&
-    previous.showHeader === next.showHeader
+    previous.message.showHeader === next.message.showHeader
   );
 });

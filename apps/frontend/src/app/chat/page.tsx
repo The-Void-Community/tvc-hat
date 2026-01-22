@@ -1,6 +1,6 @@
 "use client";
 
-import Chat from "./chat";
+import Chat from "./chat.refactoring";
 
 const Page = () => {
   return <Chat />;

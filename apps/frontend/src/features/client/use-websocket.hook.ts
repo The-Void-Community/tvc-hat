@@ -78,7 +78,7 @@ export const useWebsocket = ({ onRecieveMessage }: UseWebsocketProps) => {
 
   return {
     socket,
-    initializeWebhook: initialize,
+    initializeWebsocket: initialize,
     emitMessage,
     connectToChat,
     disconnectFromChat,

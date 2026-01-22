@@ -12,6 +12,7 @@ export const useMessagesStore = () => {
     entities,
     order,
     store,
+    clear,
     append,
     prependMany,
     update,
@@ -19,10 +20,10 @@ export const useMessagesStore = () => {
     remove,
     getById,
     getAll,
-  } = useNormalizedStore<FrontendMessage>();
+  } = useNormalizedStore<MaybeFrontendMessage>();
 
   const addMessages = useCallback(
-    (messages: FrontendMessage[], to: "start" | "end" = "end") => {
+    (messages: MaybeFrontendMessage[], to: "start" | "end" = "end") => {
       if (to === "end") {
         return messages.forEach((msg) => append(msg));
       }
@@ -73,5 +74,6 @@ export const useMessagesStore = () => {
     getById,
     getAll,
     remove,
+    clear
   };
 };

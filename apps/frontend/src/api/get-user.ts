@@ -24,8 +24,8 @@ export const getMeByToken = cache(
   },
 );
 
-export const getMeByCookie = cache(async (): Promise<User | null> => {
-  const token = await getToken();
+export const getMeByCookieToken = cache(async (cookieToken?: string): Promise<User | null> => {
+  const token = cookieToken ? cookieToken : await getToken();
   if (!token) {
     return null;
   }
@@ -64,7 +64,7 @@ export const getMe = cache(
       cookie.set("token", token);
     }
 
-    const user = await (token ? getMeByToken(token, cookie) : getMeByCookie());
+    const user = await (token ? getMeByToken(token, cookie) : getMeByCookieToken(cookie.get("token")?.value));
     if (!user) {
       return null;
     }

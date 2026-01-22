@@ -27,7 +27,7 @@ const Home = ({ query }: Props) => {
       }
 
       setLoaded(true);
-    })().then(() => {});
+    })();
   }, [router, token]);
 
   if (!loaded) {

@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 export const useToggleRef = (initialValue: boolean = false) => {
   const ref = useRef<boolean>(initialValue);
 
-  const toggle = useCallback((state: boolean) => {
+  const toggle = useCallback((state?: boolean) => {
     ref.current = state === undefined ? !ref.current : state;
   }, []);
 

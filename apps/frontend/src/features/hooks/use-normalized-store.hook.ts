@@ -119,10 +119,19 @@ export const useNormalizedStore = <T extends { id: string }>() => {
     [state.order, state.entities],
   );
 
+  const clear = useCallback(() => {
+    setState({
+      entities: {},
+      order: []
+    })
+  }, []);
+
   return {
     entities: state.entities,
     order: state.order,
     store: state,
+
+    clear,
 
     append,
     prependMany,

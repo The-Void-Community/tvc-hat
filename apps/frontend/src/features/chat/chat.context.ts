@@ -4,7 +4,7 @@ import type { Store } from "../hooks/use-normalized-store.hook";
 
 import { createContext } from "@/utils/create-context.utils";
 
-type ChatContextType = {
+export type ChatContextType = {
   store: Store<Chat>;
   
   currentChat: Chat | null;

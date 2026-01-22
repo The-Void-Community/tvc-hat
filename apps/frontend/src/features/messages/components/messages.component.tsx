@@ -2,7 +2,6 @@
 
 import { CircleProgress } from "tvuikit";
 
-import { useMessagesStore } from "../hooks/use-messages-store.hook";
 import { useGroupedMessages } from "../hooks/use-grouped-messages.hook";
 import { useDateFormatters } from "@/hooks/use-date-formatters.hook";
 import { useMessagesScroll } from "../hooks/use-messages-scroll.hook";
@@ -10,33 +9,35 @@ import { useMessagesScroll } from "../hooks/use-messages-scroll.hook";
 import { useMessages } from "../messages.context";
 import { useUsers } from "@/features/users/users.context";
 import { Message } from "./message.component";
+import { useChat } from "@/features/chat/chat.context";
 
 export const Messages = () => {
-  const { entities, order } = useMessagesStore();
   const { users } = useUsers();
+  const { currentChat } = useChat();
   const {
+    store,
     messagesRef,
     onMessagesScroll,
     oldMessagesLoading,
     messagesLoading,
     oldMessagesAvailable,
     autoScrollEnabled,
-    loadOlderMessages,
-    toggleOldMessagesLoading,
+    loadMessages,
     retrySendMessage
   } = useMessages();
 
   const { formatFullDate } = useDateFormatters();
-  const groupsWithDates = useGroupedMessages(entities, order, formatFullDate);
+  const groupsWithDates = useGroupedMessages(store.entities, store.order, formatFullDate);
 
   const { handleScroll } = useMessagesScroll({
+    currentChatId: currentChat?.id || "",
     messagesRef,
     autoScrollEnabled,
     oldMessagesAvailable,
     oldMessagesLoading,
-    loadOlderMessages,
-    toggleOldMessagesLoading,
+    loadMessages,
     onMessagesScroll,
+    store
   });
 
   if (messagesLoading) {
@@ -68,7 +69,7 @@ export const Messages = () => {
           </div>
 
           {group.messages.map((message) => {
-            const sender = users.get(message.senderId);
+            const sender = users.entities[message.senderId];
             if (!sender) {
               return (
                 <span key={message.id}>
@@ -82,7 +83,6 @@ export const Messages = () => {
                 key={message.id}
                 message={message}
                 sender={sender}
-                showHeader={message.showHeader}
                 retrySendMessage={retrySendMessage}
               />
             );

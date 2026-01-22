@@ -1,8 +1,9 @@
 import type { RefObject, UIEvent } from "react";
 import { createContext } from "@/utils/create-context.utils";
 import { useMessagesStore } from "./hooks/use-messages-store.hook";
+import { LoadMessagesParameters } from "./hooks/use-messages-loader.hook";
 
-type MessagesContextType = {
+export type MessagesContextType = {
   store: ReturnType<typeof useMessagesStore>;
 
   messagesRef: RefObject<HTMLDivElement | null>;
@@ -12,14 +13,14 @@ type MessagesContextType = {
 
   sendMessage: (text: string, chatId: string) => void;
   retrySendMessage: (id: string) => void;
-  loadOlderMessages: () => Promise<boolean>;
+  loadMessages: (parameters: LoadMessagesParameters) => Promise<void>;
 
   onMessagesScroll: (event: UIEvent<HTMLDivElement>) => void;
   onTextareaSubmit: (text: string) => void;
 
   messagesLoading: boolean;
-  toggleMessagesAvailable: (state?: boolean) => void;
-  autoScrollEnabled: boolean;
+  toggleMessagesLoading: (state?: boolean) => void;
+  autoScrollEnabled: RefObject<boolean>;
 
   oldMessagesAvailable: boolean;
   toggleOldMessagesAvailable: (state?: boolean) => void;

@@ -1,6 +1,6 @@
 import type { Chat, User } from "@/types";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 import { ChatType } from "@/enums";
 import { getUser } from "@/api/get-user";
@@ -13,20 +13,30 @@ export type UseDirectChatProps = {
 
 export const useDirectChat = ({ chat, myId }: UseDirectChatProps): User | null => {
   const { users, addUser } = useUsers();
+  const [ user, setUser ] = useState<User | null>(null);
 
-  return useMemo(() => {
-    if (chat.type !== ChatType.direct) return null;
+  useEffect(() => {
+    (async () => {
+      if (chat.type !== ChatType.direct) return null;
 
-    const [id1, id2] = chat.name.split(":");
-    const otherUserId = id1 === myId ? id2 : id1;
+      const [id1, id2] = chat.name.split(":");
+      const otherUserId = id1 === myId ? id2 : id1;
 
-    const user = users.get(otherUserId) ?? null;
-    if (!user) {
-      getUser(otherUserId).then((fetchedUser) => fetchedUser && addUser(fetchedUser.id, fetchedUser));
-    }
+      const user = users.entities[otherUserId] ?? null;
+      if (user) {
+        setUser(user);
+        return user;
+      }
 
-    return user;
-  }, [chat, myId, users, addUser]);
+      const gettedUser = await getUser(otherUserId);
+      setUser(gettedUser);
+      if (gettedUser) {
+        addUser(gettedUser);
+      }
+    })();
+  }, [addUser, chat.name, chat.type, myId, users.entities]);
+
+  return user;
 };
 
 export const useDirectChatName = ({ chat, myId }: UseDirectChatProps): string => {

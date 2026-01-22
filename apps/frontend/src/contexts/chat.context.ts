@@ -4,7 +4,7 @@ import type { Chat, Message, User } from "@/types";
 import type { RefObject, UIEvent } from "react";
 import { createContext, useContext } from "react";
 
-type ChatContextType = {
+export type ChatContextType = {
   messages: Map<string, Message>;
   users: Map<string, User>;
   me: User;

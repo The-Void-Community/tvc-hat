@@ -1,7 +1,7 @@
-import type { FrontendMessage } from "@/types";
+import type { MaybeFrontendMessage } from "@/types";
 import { useMemo } from "react";
 
-export type GroupedMessage = FrontendMessage & {
+export type GroupedMessage = MaybeFrontendMessage & {
   showHeader: boolean;
   dateString: string;
 };
@@ -15,7 +15,7 @@ export type DateGroup = {
 const TEN_MIN = 10 * 60 * 1000;
 
 export const useGroupedMessages = (
-  entities: Record<string, FrontendMessage>,
+  entities: Record<string, MaybeFrontendMessage>,
   order: string[],
   formatFullDate: (date: Date) => string,
 ): DateGroup[] => {
