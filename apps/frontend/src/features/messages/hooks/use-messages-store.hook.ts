@@ -74,6 +74,6 @@ export const useMessagesStore = () => {
     getById,
     getAll,
     remove,
-    clear
+    clear,
   };
 };

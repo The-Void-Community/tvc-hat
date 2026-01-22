@@ -15,19 +15,21 @@ const MessageInner = ({ message, sender, retrySendMessage }: MessageProps) => {
   const { showHeader } = message;
 
   return (
-    <div className={[
+    <div
+      className={[
         "flex items-start gap-2 px-4 rounded-md",
         "hover:bg-(--bg-component) duration-100",
         showHeader ? "py-1" : "ml-[3.5em]",
-      ].join(" ")}>
-      {showHeader && (
-        <IconOrAvatar entity={sender} size={48} />
-      )}
+      ].join(" ")}
+    >
+      {showHeader && <IconOrAvatar entity={sender} size={48} />}
 
       <div className="flex flex-col w-full">
         {showHeader && (
           <div className="flex items-center gap-1">
-            <span className="font-semibold">{sender.nickname || sender.username}</span>
+            <span className="font-semibold">
+              {sender.nickname || sender.username}
+            </span>
             <span className="text-mini flex items-center gap-2">
               <span>{new Date(message.createdAt).toLocaleTimeString()}</span>
               {message.pending && <CircleProgress size={20} />}

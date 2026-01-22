@@ -23,27 +23,27 @@ export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
     [messagesRef],
   );
 
-  const handleScroll = useCallback(
-    (event: UIEvent<HTMLDivElement>) => {
-      const element = event.currentTarget;
+  const handleScroll = useCallback((event: UIEvent<HTMLDivElement>) => {
+    const element = event.currentTarget;
 
-      const distanceFromBottom =
-        element.scrollHeight - element.scrollTop - element.clientHeight;
+    const distanceFromBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight;
 
-      autoScrollEnabled.current = distanceFromBottom < 100;
+    autoScrollEnabled.current = distanceFromBottom < 100;
+  }, []);
+
+  const maybeScrollToBottom = useCallback(
+    (behavior: ScrollBehavior = "instant") => {
+      if (!autoScrollEnabled.current) {
+        return;
+      }
+
+      scrollToBottom(behavior);
     },
-    [],
+    [scrollToBottom],
   );
 
-  const maybeScrollToBottom = useCallback((behavior: ScrollBehavior = "instant") => {
-    if (!autoScrollEnabled.current) {
-      return;
-    }
-
-    scrollToBottom(behavior);
-  }, [scrollToBottom]);
-
-   const handleMessagesLoad = useCallback(() => {
+  const handleMessagesLoad = useCallback(() => {
     maybeScrollToBottom();
     toggleScrollToBottom(false);
   }, [maybeScrollToBottom, toggleScrollToBottom]);
@@ -60,6 +60,6 @@ export const useChatScroll = ({ messagesRef }: UseChatScrollProps) => {
     autoScrollEnabled,
     scrollToBottomEnabled,
     toggleScrollToBottom,
-    handleMessagesLoad
+    handleMessagesLoad,
   };
 };

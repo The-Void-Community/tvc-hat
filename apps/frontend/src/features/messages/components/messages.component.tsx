@@ -23,11 +23,15 @@ export const Messages = () => {
     oldMessagesAvailable,
     autoScrollEnabled,
     loadMessages,
-    retrySendMessage
+    retrySendMessage,
   } = useMessages();
 
   const { formatFullDate } = useDateFormatters();
-  const groupsWithDates = useGroupedMessages(store.entities, store.order, formatFullDate);
+  const groupsWithDates = useGroupedMessages(
+    store.entities,
+    store.order,
+    formatFullDate,
+  );
 
   const { handleScroll } = useMessagesScroll({
     currentChatId: currentChat?.id || "",
@@ -37,7 +41,7 @@ export const Messages = () => {
     oldMessagesLoading,
     loadMessages,
     onMessagesScroll,
-    store
+    store,
   });
 
   if (messagesLoading) {

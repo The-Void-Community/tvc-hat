@@ -16,14 +16,15 @@ export type LoadMessagesParameters = {
   isOldMessages?: boolean;
   positionMessageId?: string;
   count?: number;
-  sort?: "asc" | "desc"
+  sort?: "asc" | "desc";
 };
 
 export const useMessagesLoader = ({
   addMessages,
   toggleScrollToBottom,
 }: UseChatMessagesProps) => {
-  const [oldMessagesAvailable, toggleOldMessagesAvailable] = useToggleState(false);
+  const [oldMessagesAvailable, toggleOldMessagesAvailable] =
+    useToggleState(false);
   const [oldMessageId, setOldMessageId] = useState<string | null>(null);
   const [messagesLoading, toggleMessagesLoading] = useToggleState(false);
   const [oldMessagesLoading, toggleOldMessagesLoading] = useToggleState(false);
@@ -36,7 +37,7 @@ export const useMessagesLoader = ({
       isOldMessages = false,
       positionMessageId,
       count = 100,
-      sort = "desc"
+      sort = "desc",
     }: LoadMessagesParameters) => {
       if (isOldMessages) {
         toggleOldMessagesLoading(true);
@@ -44,7 +45,12 @@ export const useMessagesLoader = ({
         toggleMessagesLoading(true);
       }
 
-      const result = await loadMessages({ chatId, positionMessageId, count, sort });
+      const result = await loadMessages({
+        chatId,
+        positionMessageId,
+        count,
+        sort,
+      });
 
       addMessages(result.messages, to);
       setOldMessageId(result.oldMessageId || null);
@@ -60,7 +66,13 @@ export const useMessagesLoader = ({
         toggleMessagesLoading(false);
       }
     },
-    [addMessages, toggleMessagesLoading, toggleOldMessagesAvailable, toggleOldMessagesLoading, toggleScrollToBottom],
+    [
+      addMessages,
+      toggleMessagesLoading,
+      toggleOldMessagesAvailable,
+      toggleOldMessagesLoading,
+      toggleScrollToBottom,
+    ],
   );
 
   const handleChatChange = useCallback(

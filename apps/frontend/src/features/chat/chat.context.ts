@@ -6,7 +6,7 @@ import { createContext } from "@/utils/create-context.utils";
 
 export type ChatContextType = {
   store: Store<Chat>;
-  
+
   currentChat: Chat | null;
   filteredChats: FilteredChats;
 

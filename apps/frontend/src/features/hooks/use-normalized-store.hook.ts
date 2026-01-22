@@ -122,8 +122,8 @@ export const useNormalizedStore = <T extends { id: string }>() => {
   const clear = useCallback(() => {
     setState({
       entities: {},
-      order: []
-    })
+      order: [],
+    });
   }, []);
 
   return {

@@ -43,29 +43,38 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, toggleSidebar] = useToggleState(false);
   const [createModalShowed, toggleCreateModal] = useToggleState(false);
 
-  
   /* ---------------- messages ---------------- */
   const { store: messagesStore, messagesRef, textareaRef } = useMessagesState();
 
   /* ---------------- websocket ---------------- */
-  const { connectToChat, disconnectFromChat, initializeWebsocket, emitMessage } = useWebsocket({
-    onRecieveMessage: useCallback(async (message) => {
-      if (message.senderId === me?.id) {
-        return;
-      }
+  const {
+    connectToChat,
+    disconnectFromChat,
+    initializeWebsocket,
+    emitMessage,
+  } = useWebsocket({
+    onRecieveMessage: useCallback(
+      async (message) => {
+        if (message.senderId === me?.id) {
+          return;
+        }
 
-      const sender = usersStore.getById(message.senderId) || await getUser(message.senderId);
-      if (!sender) {
-        return;
-      };
+        const sender =
+          usersStore.getById(message.senderId) ||
+          (await getUser(message.senderId));
+        if (!sender) {
+          return;
+        }
 
-      messagesStore.addMessages([message]);
-      usersStore.append(sender);
-      
-      if (currentChat) {
-        revalidateMessages(currentChat.id);
-      }
-    }, [me?.id, currentChat, messagesStore, usersStore])
+        messagesStore.addMessages([message]);
+        usersStore.append(sender);
+
+        if (currentChat) {
+          revalidateMessages(currentChat.id);
+        }
+      },
+      [me?.id, currentChat, messagesStore, usersStore],
+    ),
   });
 
   const { autoScrollEnabled, handleScroll, toggleScrollToBottom } =
@@ -81,23 +90,19 @@ const Chat = ({ chatId }: Props) => {
     oldMessagesLoading,
     toggleMessagesLoading,
     toggleOldMessagesAvailable,
-    toggleOldMessagesLoading
+    toggleOldMessagesLoading,
   } = useMessagesLoader({
     addMessages: messagesStore.addMessages,
-    toggleScrollToBottom
+    toggleScrollToBottom,
   });
 
-  const {
-    retrySendMessage,
-    sendMessage,
-    onSubmit,
-    pendingMessages
-  } = useMessageSender({
-    emitMessage,
-    myId: me?.id || null,
-    state: { messagesRef, textareaRef, store: messagesStore }
-  })
-  
+  const { retrySendMessage, sendMessage, onSubmit, pendingMessages } =
+    useMessageSender({
+      emitMessage,
+      myId: me?.id || null,
+      state: { messagesRef, textareaRef, store: messagesStore },
+    });
+
   /* ---------------- initializing ---------------- */
   const { load, loaded, setLoaded } = useChatUser({
     chatId,
@@ -125,30 +130,33 @@ const Chat = ({ chatId }: Props) => {
       toggleMessagesLoading(false);
       setLoaded(true);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /** Работает не так, как надо */
   useEffect(() => {
-    chatsStore.order.forEach(c => connectToChat(c));
-    
+    chatsStore.order.forEach((c) => connectToChat(c));
+
     return () => {
-      chatsStore.order.forEach(c => disconnectFromChat(c));
-    }
+      chatsStore.order.forEach((c) => disconnectFromChat(c));
+    };
   }, []);
 
-  const onChangeChat = useCallback((chat: Chat) => {
-    window.history.replaceState(null, "", `/chat/${chat.id}`);
-    
-    messagesStore.clear();
+  const onChangeChat = useCallback(
+    (chat: Chat) => {
+      window.history.replaceState(null, "", `/chat/${chat.id}`);
 
-    loadMessages({
-      chatId: chat.id,
-      enableScroll: true,
-    });
+      messagesStore.clear();
 
-    handleChatChange(chat);
-  }, [handleChatChange, loadMessages, messagesStore]);
+      loadMessages({
+        chatId: chat.id,
+        enableScroll: true,
+      });
+
+      handleChatChange(chat);
+    },
+    [handleChatChange, loadMessages, messagesStore],
+  );
 
   const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
 
@@ -182,14 +190,17 @@ const Chat = ({ chatId }: Props) => {
         oldMessagesAvailable,
         oldMessagesLoading,
         onMessagesScroll: handleScroll,
-        onTextareaSubmit: onSubmit(currentChat?.id || null, toggleScrollToBottom),
+        onTextareaSubmit: onSubmit(
+          currentChat?.id || null,
+          toggleScrollToBottom,
+        ),
         pendingMessages,
         retrySendMessage,
         sendMessage,
         textareaRef,
         toggleMessagesLoading,
         toggleOldMessagesAvailable,
-        toggleOldMessagesLoading
+        toggleOldMessagesLoading,
       }}
       users={{
         me,

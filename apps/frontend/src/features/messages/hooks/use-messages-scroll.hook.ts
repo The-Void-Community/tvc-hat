@@ -20,7 +20,7 @@ export const useMessagesScroll = ({
   oldMessagesLoading,
   loadMessages,
   onMessagesScroll,
-  store
+  store,
 }: Params) => {
   const scrollRef = useRef({ previousScrollHeight: 0, previousScrollTop: 0 });
 
@@ -51,7 +51,15 @@ export const useMessagesScroll = ({
         });
       }
     },
-    [onMessagesScroll, messagesRef, oldMessagesAvailable, oldMessagesLoading, loadMessages, currentChatId, store.order],
+    [
+      onMessagesScroll,
+      messagesRef,
+      oldMessagesAvailable,
+      oldMessagesLoading,
+      loadMessages,
+      currentChatId,
+      store.order,
+    ],
   );
 
   return { handleScroll };

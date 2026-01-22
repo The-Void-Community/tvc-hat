@@ -4,7 +4,7 @@ import { getMessages } from "@/api/get-messages";
 export type LoadMessagesParameters = {
   chatId: string;
   positionMessageId?: string;
-  sort?: "asc"|"desc"
+  sort?: "asc" | "desc";
   count?: number;
 };
 
@@ -18,7 +18,7 @@ export const loadMessages = async ({
   chatId,
   count = 100,
   positionMessageId,
-  sort = "desc"
+  sort = "desc",
 }: LoadMessagesParameters): Promise<LoadMessagesResult> => {
   const gettedMessages = await getMessages({
     chatId,

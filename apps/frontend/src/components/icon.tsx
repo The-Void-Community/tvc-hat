@@ -32,10 +32,7 @@ const renderInitial = (char: string, key: string, size: number) => {
   const bgColor = getColorClass(key);
   return (
     <div
-      className={[
-        "noselect p-4 rounded-full flex-center",
-        bgColor
-      ].join(" ")}
+      className={["noselect p-4 rounded-full flex-center", bgColor].join(" ")}
       style={{
         height: `${size}px`,
         width: `${size}px`,
@@ -66,9 +63,10 @@ export const IconOrAvatar = ({ entity, size = 40 }: Props) => {
   if ("icon" in entity && entity.icon) return renderImg(entity.icon);
   if ("avatar" in entity && entity.avatar) return renderImg(entity.avatar);
 
-  const entityName = "name" in entity
-    ? (entity.chatname || entity.name || "?unknown")
-    : (entity.nickname || entity.username || "?unknown");
+  const entityName =
+    "name" in entity
+      ? entity.chatname || entity.name || "?unknown"
+      : entity.nickname || entity.username || "?unknown";
 
   return renderInitial(entityName[0], entityName, size);
 };

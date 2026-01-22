@@ -6,7 +6,10 @@ import { useMemo, type DetailedHTMLProps, type HTMLAttributes } from "react";
 import { ChatType } from "@/enums";
 import { IconOrAvatar } from "@/components/icon";
 
-import { useDirectChatAvatar, useDirectChatName } from "@/features/chat/hooks/use-direct-chat.hook";
+import {
+  useDirectChatAvatar,
+  useDirectChatName,
+} from "@/features/chat/hooks/use-direct-chat.hook";
 
 import { useUsers } from "@/features/users/users.context";
 import { useChat } from "@/features/chat/chat.context";
@@ -16,7 +19,11 @@ type ChatNavigationProps = {
   full?: boolean;
 } & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
-export const ChatNavigation = ({ chat, className, full = false }: ChatNavigationProps) => {
+export const ChatNavigation = ({
+  chat,
+  className,
+  full = false,
+}: ChatNavigationProps) => {
   const { currentChat, setCurrentChat, onChangeChat } = useChat();
   const { me } = useUsers();
 

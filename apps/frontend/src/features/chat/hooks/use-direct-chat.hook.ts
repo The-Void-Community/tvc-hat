@@ -11,9 +11,12 @@ export type UseDirectChatProps = {
   myId: string;
 };
 
-export const useDirectChat = ({ chat, myId }: UseDirectChatProps): User | null => {
+export const useDirectChat = ({
+  chat,
+  myId,
+}: UseDirectChatProps): User | null => {
   const { users, addUser } = useUsers();
-  const [ user, setUser ] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -39,7 +42,10 @@ export const useDirectChat = ({ chat, myId }: UseDirectChatProps): User | null =
   return user;
 };
 
-export const useDirectChatName = ({ chat, myId }: UseDirectChatProps): string => {
+export const useDirectChatName = ({
+  chat,
+  myId,
+}: UseDirectChatProps): string => {
   const user = useDirectChat({ chat, myId });
 
   if (chat.type !== ChatType.direct) return chat.name;
@@ -48,7 +54,10 @@ export const useDirectChatName = ({ chat, myId }: UseDirectChatProps): string =>
   return user.nickname || user.username;
 };
 
-export const useDirectChatAvatar = ({ chat, myId }: UseDirectChatProps): User | Chat => {
+export const useDirectChatAvatar = ({
+  chat,
+  myId,
+}: UseDirectChatProps): User | Chat => {
   const user = useDirectChat({ chat, myId });
 
   if (chat.type !== ChatType.direct || !user) {

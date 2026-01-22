@@ -18,7 +18,7 @@ export const ChatHeader = memo(({ chat }: ChatContentProps) => {
 
   const chatName = useDirectChatName({
     myId: me.id,
-    chat
+    chat,
   });
 
   return (

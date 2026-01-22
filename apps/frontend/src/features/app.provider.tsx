@@ -9,11 +9,11 @@ import { MessagesContext } from "./messages/messages.context";
 import { UsersContext } from "./users/users.context";
 
 export type AppProvidersProps = {
-  chat: ChatContextType,
-  messages: MessagesContextType,
-  users: UsersContextType,
+  chat: ChatContextType;
+  messages: MessagesContextType;
+  users: UsersContextType;
   children: ReactNode;
-}
+};
 
 export const AppProviders = ({ children, ...props }: AppProvidersProps) => {
   return (

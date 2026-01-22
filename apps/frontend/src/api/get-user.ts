@@ -24,19 +24,21 @@ export const getMeByToken = cache(
   },
 );
 
-export const getMeByCookieToken = cache(async (cookieToken?: string): Promise<User | null> => {
-  const token = cookieToken ? cookieToken : await getToken();
-  if (!token) {
-    return null;
-  }
+export const getMeByCookieToken = cache(
+  async (cookieToken?: string): Promise<User | null> => {
+    const token = cookieToken ? cookieToken : await getToken();
+    if (!token) {
+      return null;
+    }
 
-  const user = await endpointRequestOrNull({ endpoint: "/auth/@me", token });
-  if (!user) {
-    return null;
-  }
+    const user = await endpointRequestOrNull({ endpoint: "/auth/@me", token });
+    if (!user) {
+      return null;
+    }
 
-  return user.user;
-});
+    return user.user;
+  },
+);
 
 export const getUser = cache(async (slug: string): Promise<User | null> => {
   const user = await endpointRequestOrNull({ endpoint: `/users/${slug}` });
@@ -64,7 +66,9 @@ export const getMe = cache(
       cookie.set("token", token);
     }
 
-    const user = await (token ? getMeByToken(token, cookie) : getMeByCookieToken(cookie.get("token")?.value));
+    const user = await (token
+      ? getMeByToken(token, cookie)
+      : getMeByCookieToken(cookie.get("token")?.value));
     if (!user) {
       return null;
     }
