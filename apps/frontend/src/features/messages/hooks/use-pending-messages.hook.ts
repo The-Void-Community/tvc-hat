@@ -1,5 +1,5 @@
 import type { MaybeFrontendMessage } from "@/types";
-import { useTimeoutPending } from "@/features/hooks/use-pending.hook";
+import { useTimeoutPending } from "@/hooks/use-pending.hook";
 
 export type UsePendingMessagesProps = {
   onTimeout: (message: MaybeFrontendMessage) => void;

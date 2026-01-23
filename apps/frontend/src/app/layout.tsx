@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import { Human } from "@/components/human.component";
-import { HeaderLayout } from "@/layout/header.layout";
-import { FooterLayout } from "@/layout/footer.layout";
+import { Human } from "@/components/layout/human.layout";
+import { HeaderLayout } from "@/components/layout/header.layout";
+import { FooterLayout } from "@/components/layout/footer.layout";
 
 import { usePathname } from "next/navigation";
 

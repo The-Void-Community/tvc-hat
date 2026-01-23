@@ -5,7 +5,7 @@ export type Store<T extends { id: string }> = {
   order: string[];
 };
 
-export const useNormalizedStore = <T extends { id: string }>() => {
+export const useStore = <T extends { id: string }>() => {
   const [state, setState] = useState<Store<T>>({
     entities: {},
     order: [],

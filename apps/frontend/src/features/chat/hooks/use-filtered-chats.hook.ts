@@ -1,5 +1,5 @@
 import type { ChatType } from "@/enums";
-import type { Store } from "@/features/hooks/use-normalized-store.hook";
+import type { Store } from "@/hooks/use-store.hook";
 import type { Chat } from "@/types";
 
 import { useMemo } from "react";

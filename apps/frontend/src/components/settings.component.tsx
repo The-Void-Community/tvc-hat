@@ -2,7 +2,10 @@
 
 import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from "react";
 import type { User } from "@/types";
+
 import { useRef, useState } from "react";
+
+import { patchMe } from "@/api/patch-user";
 
 import { Button, CircleProgress, Input } from "tvuikit";
 import { HiUser, HiPencilAlt, HiX, HiCheck } from "react-icons/hi";
@@ -10,7 +13,6 @@ import { HiUser, HiPencilAlt, HiX, HiCheck } from "react-icons/hi";
 import { IconOrAvatar } from "./icon";
 
 import { useUsers } from "@/features/users/users.context";
-import { patchMe } from "@/api/patch-user";
 
 type DivProps = DetailedHTMLProps<
   HTMLAttributes<HTMLDivElement>,
@@ -60,7 +62,7 @@ const EditableUserSettingsPropetryItem = ({
     }
 
     setMe(newUser);
-    addUser(newUser.id, newUser);
+    addUser(newUser);
 
     setPending(false);
   };

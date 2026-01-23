@@ -1,6 +1,6 @@
 import { User } from "@/types";
 import { createContext } from "@/utils/create-context.utils";
-import { Store } from "../hooks/use-normalized-store.hook";
+import { Store } from "@/hooks/use-store.hook";
 
 export type UsersContextType = {
   me: User;
@@ -10,4 +10,4 @@ export type UsersContextType = {
   setMe: (user: User) => void;
 };
 
-export const [UsersContext, useUsers] = createContext<UsersContextType>();
+export const [UsersContext, useUsers] = createContext<UsersContextType>("UsersContext");

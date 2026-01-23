@@ -29,4 +29,4 @@ export type MessagesContextType = {
 };
 
 export const [MessagesContext, useMessages] =
-  createContext<MessagesContextType>();
+  createContext<MessagesContextType>("MessagesContext");

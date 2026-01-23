@@ -7,21 +7,21 @@ import { useCallback, useEffect, useState } from "react";
 import { getUser } from "@/api/get-user";
 import { revalidateMessages } from "@/api/get-messages";
 
-import { AppProviders } from "@/features/app.provider";
+import { ChatProviders } from "@/providers/chat.provider";
 
 import { ChatSidebar } from "@/features/chat/components/chat-sidebar";
 import { CurrentChat } from "@/features/chat/components/current-chat.component";
 import { MainNavigation } from "@/features/chat/components/main-navigation";
-import { CreateChatModal } from "@/components/chat/create-chat";
-import { UserProfileDropdown } from "@/components/chat/user-profile-dropdown";
+import { CreateChatModal } from "@/features/chat/components/create-chat.modal";
+import { UserProfileDropdown } from "@/features/users/user-profile-dropdown";
 
-import { useChatUser } from "@/features/client/use-chat-user.hook";
+import { useChatClient } from "@/features/client/use-chat-client.hook";
 import { useWebsocket } from "@/features/client/use-websocket.hook";
 
 import { useFilteredChats } from "@/features/chat/hooks/use-filtered-chats.hook";
 import { useChatScroll } from "@/features/chat/hooks/use-chat-scroll.hook";
 
-import { useNormalizedStore } from "@/features/hooks/use-normalized-store.hook";
+import { useStore } from "@/hooks/use-store.hook";
 import { useUserFind } from "@/hooks/use-user-find";
 import { useToggleState } from "@/hooks/use-toggle.hook";
 
@@ -36,10 +36,10 @@ type Props = {
 const Chat = ({ chatId }: Props) => {
   /* ---------------- users ---------------- */
   const [me, setMe] = useState<User | null>(null);
-  const usersStore = useNormalizedStore<User>();
+  const usersStore = useStore<User>();
 
   /* ---------------- chats ---------------- */
-  const chatsStore = useNormalizedStore<Chat>();
+  const chatsStore = useStore<Chat>();
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const { filteredChats } = useFilteredChats({ chats: chatsStore });
 
@@ -107,7 +107,7 @@ const Chat = ({ chatId }: Props) => {
     });
 
   /* ---------------- initializing ---------------- */
-  const { load, loaded, setLoaded } = useChatUser({
+  const { load, loaded, setLoaded } = useChatClient({
     chatId,
     loadMessages: async (chatId) => {
       await loadMessages({
@@ -176,7 +176,7 @@ const Chat = ({ chatId }: Props) => {
   }
 
   return (
-    <AppProviders
+    <ChatProviders
       chat={{
         store: chatsStore,
         currentChat,
@@ -237,7 +237,7 @@ const Chat = ({ chatId }: Props) => {
           toggle={toggleCreateModal}
         />
       </div>
-    </AppProviders>
+    </ChatProviders>
   );
 };
 

@@ -5,7 +5,7 @@ import type {
 } from "@/types";
 
 import { useCallback } from "react";
-import { useNormalizedStore } from "@/features/hooks/use-normalized-store.hook";
+import { useStore } from "@/hooks/use-store.hook";
 
 export const useMessagesStore = () => {
   const {
@@ -20,7 +20,7 @@ export const useMessagesStore = () => {
     remove,
     getById,
     getAll,
-  } = useNormalizedStore<MaybeFrontendMessage>();
+  } = useStore<MaybeFrontendMessage>();
 
   const addMessages = useCallback(
     (messages: MaybeFrontendMessage[], to: "start" | "end" = "end") => {

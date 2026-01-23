@@ -3,12 +3,12 @@ import {
   useContext as useReactContext,
 } from "react";
 
-export const createContext = <T>() => {
+export const createContext = <T>(name: string = "context") => {
   const context = createReactContext<T | null>(null);
   const useContext = () => {
     const reactContext = useReactContext(context);
     if (!reactContext) {
-      throw new Error("useChat must be used within ChatProvider");
+      throw new Error(name + " must be used within ChatProvider");
     }
 
     return reactContext;

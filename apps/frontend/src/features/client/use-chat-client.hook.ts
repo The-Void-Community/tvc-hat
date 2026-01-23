@@ -2,12 +2,12 @@ import { getChat, getChats } from "@/api/get-chats";
 import { getMe } from "@/api/get-user";
 import { useCallback, useState } from "react";
 
-export type UseChatUserProps = {
+export type UseChatClientProps = {
   chatId?: string;
   loadMessages: (chatId: string) => Promise<void>;
 };
 
-export const useChatUser = ({ chatId, loadMessages }: UseChatUserProps) => {
+export const useChatClient = ({ chatId, loadMessages }: UseChatClientProps) => {
   const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
