@@ -20,4 +20,5 @@ export type ChatContextType = {
   toggleCreateModal: (state: boolean) => unknown;
 };
 
-export const [ChatContext, useChat] = createContext<ChatContextType>("ChatContext");
+export const [ChatContext, useChat] =
+  createContext<ChatContextType>("ChatContext");

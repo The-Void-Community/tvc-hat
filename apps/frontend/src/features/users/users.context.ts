@@ -10,4 +10,5 @@ export type UsersContextType = {
   setMe: (user: User) => void;
 };
 
-export const [UsersContext, useUsers] = createContext<UsersContextType>("UsersContext");
+export const [UsersContext, useUsers] =
+  createContext<UsersContextType>("UsersContext");
