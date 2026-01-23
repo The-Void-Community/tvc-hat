@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Chat from "../chat.refactoring";
+import Chat from "../chat";
 
 const Page = () => {
   const { chatId } = useParams<{ chatId: string }>();

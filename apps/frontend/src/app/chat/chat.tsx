@@ -1,234 +1,219 @@
 "use client";
 
-import type { Chat, Message, User } from "@/types";
+import type { Chat, User } from "@/types";
+
+import { useCallback, useEffect, useState } from "react";
 
 import { getUser } from "@/api/get-user";
 import { revalidateMessages } from "@/api/get-messages";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { AppProviders } from "@/features/app.provider";
 
-import { CurrentChat } from "@/components/chat/current-chat";
+import { ChatSidebar } from "@/features/chat/components/chat-sidebar";
+import { CurrentChat } from "@/features/chat/components/current-chat.component";
+import { MainNavigation } from "@/features/chat/components/main-navigation";
 import { CreateChatModal } from "@/components/chat/create-chat";
-import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { UserProfileDropdown } from "@/components/chat/user-profile-dropdown";
-import { MainNavigation } from "@/components/chat/main-navigation";
 
-import { useWebsocket } from "@/hooks/use-websocket.hook";
+import { useChatUser } from "@/features/client/use-chat-user.hook";
+import { useWebsocket } from "@/features/client/use-websocket.hook";
 
-import { useMessages } from "@/hooks/use-messages.hook";
-import { useMessagePagination } from "@/hooks/use-message-pagination.hook";
+import { useFilteredChats } from "@/features/chat/hooks/use-filtered-chats.hook";
+import { useChatScroll } from "@/features/chat/hooks/use-chat-scroll.hook";
 
-import { useChatMessages } from "@/hooks/use-chat-messages.hook";
-
-import { useChatScroll } from "@/hooks/use-chat-scroll.hook";
-import { useFilteredChats } from "@/hooks/use-filtered-chats.hook";
-import { useChatInitialization } from "@/hooks/use-chat-initialization.hook";
-
-import { useToggleRef, useToggleState } from "@/hooks/use-toggle.hook";
-import { useMap } from "@/hooks/use-map.hook";
+import { useNormalizedStore } from "@/features/hooks/use-normalized-store.hook";
 import { useUserFind } from "@/hooks/use-user-find";
+import { useToggleState } from "@/hooks/use-toggle.hook";
 
-import { ChatType } from "@/enums";
-
-import { ChatContext } from "@/contexts/chat.context";
+import { useMessagesLoader } from "@/features/messages/hooks/use-messages-loader.hook";
+import { useMessagesState } from "@/features/messages/hooks/use-messages-state.hook";
+import { useMessageSender } from "@/features/messages/hooks/use-message-sender.hook";
 
 type Props = {
   chatId?: string;
 };
 
 const Chat = ({ chatId }: Props) => {
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  /* ---------------- users ---------------- */
+  const [me, setMe] = useState<User | null>(null);
+  const usersStore = useNormalizedStore<User>();
+
+  /* ---------------- chats ---------------- */
+  const chatsStore = useNormalizedStore<Chat>();
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
+  const { filteredChats } = useFilteredChats({ chats: chatsStore });
 
-  const [sidebarShowed, toggleSidebar] = useToggleState();
-  const [createModalShowed, toggleCreateModal] = useToggleState();
-  const [messagesLoading, toggleMessagesLoading] = useToggleRef();
-  const { map: chats, addMany: addChats } = useMap<Chat>();
-  const { map: users, add: addUser } = useMap<User>();
-  const { filteredChats } = useFilteredChats({ chats });
+  const [sidebarShowed, toggleSidebar] = useToggleState(false);
+  const [createModalShowed, toggleCreateModal] = useToggleState(false);
 
-  const addMessagesRef = useRef<((messages: Message[]) => void) | null>(null);
-  const addUserRef = useRef<((id: string, user: User) => void) | null>(null);
+  /* ---------------- messages ---------------- */
+  const { store: messagesStore, messagesRef, textareaRef } = useMessagesState();
 
-  const memoizedOnRecieveMessage = useCallback(
-    async (message: Message) => {
-      if (message.senderId === user?.id) {
-        return;
-      }
-
-      const sender =
-        users.get(message.senderId) || (await getUser(message.senderId));
-      if (!sender) {
-        return;
-      }
-
-      addMessagesRef.current?.([message]);
-      addUserRef.current?.(sender.id, sender);
-
-      if (currentChat) {
-        revalidateMessages(currentChat.id);
-      }
-    },
-    [currentChat, user?.id, users],
-  );
-
-  const { emitMessage, socket } = useWebsocket({
-    chats,
-    onRecieveMessage: memoizedOnRecieveMessage,
-  });
-
+  /* ---------------- websocket ---------------- */
   const {
-    addMessages,
-    sendMessage,
-    retrySendMessage,
-    setMessages,
-    pendingMessagesRef,
-    messagesRef,
-    messages,
-  } = useMessages({
-    myId: user?.id || null,
+    connectToChat,
+    disconnectFromChat,
+    initializeWebsocket,
     emitMessage,
+  } = useWebsocket({
+    onRecieveMessage: useCallback(
+      async (message) => {
+        if (message.senderId === me?.id) {
+          return;
+        }
+
+        const sender =
+          usersStore.getById(message.senderId) ||
+          (await getUser(message.senderId));
+        if (!sender) {
+          return;
+        }
+
+        messagesStore.addMessages([message]);
+        usersStore.append(sender);
+
+        if (currentChat) {
+          revalidateMessages(currentChat.id);
+        }
+      },
+      [me?.id, currentChat, messagesStore, usersStore],
+    ),
   });
 
-  const { handleScroll, autoScrollEnabled, toggleScrollToBottom } =
+  const { autoScrollEnabled, handleScroll, toggleScrollToBottom } =
     useChatScroll({
       messagesRef,
     });
 
-  const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
-
   const {
-    oldestMessageId,
-    hasMore: hasMoreMessages,
+    loadMessages,
     handleChatChange,
-    loadStartMessages,
-  } = useChatMessages({
-    setMessages,
+    oldMessagesAvailable,
+    messagesLoading,
+    oldMessagesLoading,
     toggleMessagesLoading,
+    toggleOldMessagesAvailable,
+    toggleOldMessagesLoading,
+  } = useMessagesLoader({
+    addMessages: messagesStore.addMessages,
     toggleScrollToBottom,
   });
 
-  const { loaded, load } = useChatInitialization({
+  const { retrySendMessage, sendMessage, onSubmit, pendingMessages } =
+    useMessageSender({
+      emitMessage,
+      myId: me?.id || null,
+      state: { messagesRef, textareaRef, store: messagesStore },
+    });
+
+  /* ---------------- initializing ---------------- */
+  const { load, loaded, setLoaded } = useChatUser({
     chatId,
-    loadStartMessages,
+    loadMessages: async (chatId) => {
+      await loadMessages({
+        chatId,
+        enableScroll: true,
+      });
+    },
   });
 
-  const {
-    loadOlderMessages,
-    hasMore,
-    loading: loadingOlder,
-  } = useMessagePagination({
-    chatId: currentChat?.id || "",
-    addMessages,
-    toggleMessagesLoading,
-    oldestMessageId,
-    hasMore: hasMoreMessages,
-  });
+  useEffect(() => {
+    initializeWebsocket();
 
-  const onSubmit = useCallback(
-    (text: string) => {
-      if (!currentChat) {
+    load().then((data) => {
+      if (data === null) {
         return;
       }
 
-      sendMessage(text, currentChat.id);
-      toggleScrollToBottom(true);
-    },
-    [currentChat, sendMessage, toggleScrollToBottom],
-  );
-
-  const showSidebar = useCallback(
-    (chatType: ChatType) => {
-      const isSelf = chatType === ChatType.self;
-      const isDirect = chatType === ChatType.direct;
-
-      if ((isSelf || isDirect) && !sidebarShowed) {
-        toggleSidebar(true);
-      }
-    },
-    [sidebarShowed, toggleSidebar],
-  );
-
-  const updateUrlState = useCallback((newChatId: string) => {
-    window.history.replaceState(null, "", `/chat/${newChatId}`);
-  }, []);
-
-  const onChangeChat = useCallback(
-    (chat: Chat | null) => {
-      if (!chat) {
-        return toggleSidebar(false);
-      }
-
-      handleChatChange(chat);
-      updateUrlState(chat.id);
-      showSidebar(chat.type);
-
-      if (chat.type === ChatType.group) {
-        return toggleSidebar(false);
-      }
-
-      toggleSidebar(true);
-    },
-    [handleChatChange, showSidebar, toggleSidebar, updateUrlState],
-  );
-
-  useEffect(() => {
-    addMessagesRef.current = addMessages;
-    addUserRef.current = addUser;
-  }, [addMessages, addUser]);
-
-  useEffect(() => {
-    (async () => {
-      const data = await load();
-      if (!data) {
-        return;
-      }
-
-      setUser(data.user);
-      addChats(data.chats, "id");
+      setMe(data.user);
+      chatsStore.prependMany(data.chats);
+      usersStore.append(data.user);
       setCurrentChat(data.initialChat);
-      addUser(data.user.id, data.user);
 
-      if (data.initialChat) {
-        showSidebar(data.initialChat.type);
-      }
-    })();
+      toggleMessagesLoading(false);
+      setLoaded(true);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!user || !socket || !loaded) {
+  /** Работает не так, как надо */
+  /** Работает не так, как надо */
+  /** Работает не так, как надо */
+  /** Работает не так, как надо */
+  /** Работает не так, как надо */
+  useEffect(() => {
+    chatsStore.order.forEach((c) => connectToChat(c));
+
+    return () => {
+      chatsStore.order.forEach((c) => disconnectFromChat(c));
+    };
+  }, []);
+
+  const onChangeChat = useCallback(
+    (chat: Chat) => {
+      window.history.replaceState(null, "", `/chat/${chat.id}`);
+
+      messagesStore.clear();
+
+      loadMessages({
+        chatId: chat.id,
+        enableScroll: true,
+      });
+
+      handleChatChange(chat);
+    },
+    [handleChatChange, loadMessages, messagesStore],
+  );
+
+  const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
+
+  if (!loaded) {
     return <div>loading...</div>;
   }
 
+  if (!me) {
+    return <div>unauthorized</div>;
+  }
+
   return (
-    <ChatContext.Provider
-      value={{
+    <AppProviders
+      chat={{
+        store: chatsStore,
+        currentChat,
+        filteredChats,
+        setCurrentChat,
+        onChangeChat,
+        sidebarShowed,
+        toggleSidebar,
+        createModalShowed,
+        toggleCreateModal,
+      }}
+      messages={{
+        store: messagesStore,
+        autoScrollEnabled,
+        loadMessages,
+        messagesLoading,
+        messagesRef,
+        oldMessagesAvailable,
+        oldMessagesLoading,
+        onMessagesScroll: handleScroll,
+        onTextareaSubmit: onSubmit(
+          currentChat?.id || null,
+          toggleScrollToBottom,
+        ),
+        pendingMessages,
         retrySendMessage,
         sendMessage,
-        onSubmit,
-        onScroll: handleScroll,
-        setCurrentChat,
-        toggleCreateModal,
-        toggleSidebar,
-        onChangeChat,
-        addUser,
-        setUser,
-        createModalShowed,
-        sidebarShowed,
-        messagesLoading,
-        filteredChats,
-        autoScrollEnabled,
-        me: user,
-        messages,
-        messagesRef,
-        pendingMessages: pendingMessagesRef,
         textareaRef,
-        currentChat,
-        users,
-        loadOlderMessages: currentChat ? loadOlderMessages : undefined,
-        hasMoreMessages: hasMore,
-        loadingOlderMessages: loadingOlder,
+        toggleMessagesLoading,
+        toggleOldMessagesAvailable,
+        toggleOldMessagesLoading,
+      }}
+      users={{
+        me,
+        users: usersStore,
+        addUser: usersStore.append,
+        setMe,
       }}
     >
       <div className="relative h-screen w-screen flex gap-2 p-8">
@@ -238,7 +223,7 @@ const Chat = ({ chatId }: Props) => {
             {sidebarShowed && <ChatSidebar UserFindTrigger={UserFindTrigger} />}
           </div>
 
-          <UserProfileDropdown user={user} />
+          <UserProfileDropdown user={me} />
         </div>
 
         <div className="bg-(--bg-card) rounded-lg flex-1 flex flex-col">
@@ -252,7 +237,7 @@ const Chat = ({ chatId }: Props) => {
           toggle={toggleCreateModal}
         />
       </div>
-    </ChatContext.Provider>
+    </AppProviders>
   );
 };
 
