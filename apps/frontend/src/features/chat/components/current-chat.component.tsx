@@ -9,12 +9,15 @@ import { MessageTextarea } from "@/features/messages/components/message-textarea
 
 import { useDirectChatName } from "@/features/chat/hooks/use-direct-chat.hook";
 
+import { HiArrowSmLeft } from "react-icons/hi"
+
 type ChatContentProps = {
   chat: Chat;
 };
 
 export const ChatHeader = memo(({ chat }: ChatContentProps) => {
   const { me } = useUsers();
+  const { handleSidebarInSmallScreen } = useChat();
 
   const chatName = useDirectChatName({
     myId: me.id,
@@ -23,7 +26,12 @@ export const ChatHeader = memo(({ chat }: ChatContentProps) => {
 
   return (
     <div className="bg-(--bg-smooth) rounded-t-lg py-3 px-4 border-(--bg-component)">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <HiArrowSmLeft
+          size={24}
+          className="hidden max-sm:block"
+          onClick={() => handleSidebarInSmallScreen(true)}
+        />
         <div>
           <h5 className="text-lg">{chatName}</h5>
           <span className="text-mini text-muted">

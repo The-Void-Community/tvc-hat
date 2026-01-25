@@ -18,6 +18,8 @@ export type ChatContextType = {
 
   createModalShowed: boolean;
   toggleCreateModal: (state: boolean) => unknown;
+
+  handleSidebarInSmallScreen: (visible: boolean) => void;
 };
 
 export const [ChatContext, useChat] =

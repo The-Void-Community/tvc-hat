@@ -2,7 +2,7 @@
 
 import type { Chat, User } from "@/types";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getUser } from "@/api/get-user";
 import { revalidateMessages } from "@/api/get-messages";
@@ -28,6 +28,10 @@ import { useToggleState } from "@/hooks/use-toggle.hook";
 import { useMessagesLoader } from "@/features/messages/hooks/use-messages-loader.hook";
 import { useMessagesState } from "@/features/messages/hooks/use-messages-state.hook";
 import { useMessageSender } from "@/features/messages/hooks/use-message-sender.hook";
+
+import { useMedia } from "@/hooks/use-media.hook";
+
+import { useSwipeable } from 'react-swipeable';
 
 type Props = {
   chatId?: string;
@@ -151,7 +155,70 @@ const Chat = ({ chatId }: Props) => {
   );
 
   const { Modal: UserFindModal, Trigger: UserFindTrigger } = useUserFind();
+  
+  const isSmall = useMedia("(max-width: 768px)");
+  const navigationRef = useRef<HTMLDivElement | null>(null);
+  const handleSidebarInSmallScreen = useCallback((visible: boolean) => {
+    if (!isSmall) {
+      return;
+    }
 
+    if (!navigationRef.current) {
+      return;
+    }
+
+    const rect = navigationRef.current.getBoundingClientRect();
+    
+    const minLeft = -(rect.width - 22);
+    const maxLeft = 32;
+
+    if (visible) {
+      navigationRef.current.style.left = maxLeft + "px";
+    } else {
+      navigationRef.current.style.left = minLeft + "px";
+    }
+  }, [isSmall, navigationRef]);
+
+  const handlers = useSwipeable({
+    onSwiping: (event) => {
+      if (event.dir !== "Left" && event.dir !== "Right") {
+        return;
+      }
+    
+      const navigation = event.event.currentTarget as HTMLDivElement;
+      const rect = navigation.getBoundingClientRect();
+
+      const minLeft = -(rect.width - 22);
+      const maxLeft = 32;
+
+      if (event.deltaX < minLeft || event.deltaX > maxLeft) {
+        return;
+      }
+
+      navigation.style.left = event.deltaX + "px";
+    },
+    onSwiped: (event) => {
+      if (event.dir !== "Left" && event.dir !== "Right") {
+        return;
+      }
+
+      const element = event.event.currentTarget as HTMLDivElement;
+      const rect = element.getBoundingClientRect();
+
+      const minLeft = -(rect.width - 22);
+      const maxLeft = 32;
+
+      const distantToMin = Math.abs(minLeft - rect.left);
+      const distantToMax = Math.abs(maxLeft - rect.left);
+
+      handleSidebarInSmallScreen(distantToMax === Math.min(distantToMin, distantToMax));
+    }
+  });
+
+  if (isSmall) {
+    handlers.ref(navigationRef.current);
+  }
+  
   if (!loaded) {
     return <div>loading...</div>;
   }
@@ -172,6 +239,7 @@ const Chat = ({ chatId }: Props) => {
         toggleSidebar,
         createModalShowed,
         toggleCreateModal,
+        handleSidebarInSmallScreen
       }}
       messages={{
         store: messagesStore,
@@ -202,8 +270,16 @@ const Chat = ({ chatId }: Props) => {
       }}
     >
       <div className="relative h-screen w-screen flex gap-2 p-8">
-        <div className="h-full flex flex-col h-full gap-2">
-          <div className="flex flex-1 gap-2">
+        <div
+          className={[
+            "h-full flex flex-col h-full gap-2",
+            "max-sm:absolute max-sm:h-[calc(100%_-_calc(var(--spacing)_*_16))]"
+          ].join(" ")}
+          ref={navigationRef}
+        >
+          <div className={[
+            "flex flex-1 gap-2",
+          ].join(" ")}>
             <MainNavigation />
             {sidebarShowed && <ChatSidebar UserFindTrigger={UserFindTrigger} />}
           </div>

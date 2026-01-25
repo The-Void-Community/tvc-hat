@@ -22,7 +22,7 @@ const RootLayout = ({
 
   if (hideLayout) {
     return (
-      <html data-shiftshift-theme="system" lang="ru">
+      <html lang="ru">
         <title>Hat</title>
         <meta name="description" content="The Void Chat" />
         <body>
