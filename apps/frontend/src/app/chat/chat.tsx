@@ -46,16 +46,11 @@ const Chat = ({ chatId }: Props) => {
   const [sidebarShowed, toggleSidebar] = useToggleState(false);
   const [createModalShowed, toggleCreateModal] = useToggleState(false);
 
-  /* ---------------- messages ---------------- */
+  /* ---------------- messages store ---------------- */
   const { store: messagesStore, messagesRef, textareaRef } = useMessagesState();
 
   /* ---------------- websocket ---------------- */
-  const {
-    connectToChat,
-    disconnectFromChat,
-    initializeWebsocket,
-    emitMessage,
-  } = useWebsocket({
+  const { initializeWebsocket, emitMessage } = useWebsocket({
     onRecieveMessage: useCallback(
       async (message) => {
         if (message.senderId === me?.id) {
@@ -80,11 +75,13 @@ const Chat = ({ chatId }: Props) => {
     ),
   });
 
+  /* ---------------- scrolling ---------------- */
   const { autoScrollEnabled, handleScroll, toggleScrollToBottom } =
     useChatScroll({
       messagesRef,
     });
 
+  /* ---------------- messages loader ---------------- */
   const {
     loadMessages,
     handleChatChange,
@@ -99,6 +96,7 @@ const Chat = ({ chatId }: Props) => {
     toggleScrollToBottom,
   });
 
+  /* ---------------- messages sender ---------------- */
   const { retrySendMessage, sendMessage, onSubmit, pendingMessages } =
     useMessageSender({
       emitMessage,
@@ -134,19 +132,6 @@ const Chat = ({ chatId }: Props) => {
       setLoaded(true);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /** Работает не так, как надо */
-  /** Работает не так, как надо */
-  /** Работает не так, как надо */
-  /** Работает не так, как надо */
-  /** Работает не так, как надо */
-  useEffect(() => {
-    chatsStore.order.forEach((c) => connectToChat(c));
-
-    return () => {
-      chatsStore.order.forEach((c) => disconnectFromChat(c));
-    };
   }, []);
 
   const onChangeChat = useCallback(

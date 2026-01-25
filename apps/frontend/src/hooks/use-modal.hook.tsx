@@ -13,10 +13,6 @@ export const useModal = (initialProps?: Partial<ModalProps>) => {
         return;
       }
 
-      if (!event.key) {
-        return;
-      }
-
       if (event.key.toLowerCase() === "escape") {
         toggleOpened(false);
       }

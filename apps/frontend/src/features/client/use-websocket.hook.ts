@@ -6,7 +6,7 @@ import type { Socket } from "socket.io-client";
 import { getToken } from "@/api/get-token";
 
 import { io } from "socket.io-client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Gateways } from "@/enums";
 import { WEBSCOKET_URL } from "@/constants/url";
@@ -48,20 +48,20 @@ export const useWebsocket = ({ onRecieveMessage }: UseWebsocketProps) => {
     };
   };
 
-  const handleChatConnection = (
-    chatId: string,
-    type: "disconnect" | "connect",
-  ) => {
-    if (!socket) {
-      return;
-    }
+  const handleChatConnection = useCallback(
+    (chatId: string, type: "disconnect" | "connect") => {
+      if (!socket) {
+        return;
+      }
 
-    if (type === "connect") {
-      socket.emit(Gateways.connect, chatId);
-    } else {
-      socket.emit(Gateways.disconnect, chatId);
-    }
-  };
+      if (type === "connect") {
+        socket.emit(Gateways.connect, chatId);
+      } else {
+        socket.emit(Gateways.disconnect, chatId);
+      }
+    },
+    [socket],
+  );
 
   const connectToChat = (chatId: string) =>
     handleChatConnection(chatId, "connect");
