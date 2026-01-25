@@ -54,7 +54,7 @@ const Chat = ({ chatId }: Props) => {
   const { store: messagesStore, messagesRef, textareaRef } = useMessagesState();
 
   /* ---------------- websocket ---------------- */
-  const { initializeWebsocket, emitMessage } = useWebsocket({
+  const { initializeWebsocket, emitMessage, connectToChat } = useWebsocket({
     onRecieveMessage: useCallback(
       async (message) => {
         if (message.senderId === me?.id) {
@@ -131,6 +131,8 @@ const Chat = ({ chatId }: Props) => {
       chatsStore.prependMany(data.chats);
       usersStore.append(data.user);
       setCurrentChat(data.initialChat);
+
+      chatsStore.order.forEach(c => connectToChat(c));
 
       toggleMessagesLoading(false);
       setLoaded(true);
