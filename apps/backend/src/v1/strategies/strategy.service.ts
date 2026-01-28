@@ -50,12 +50,12 @@ export class AuthStrategyService {
     username,
     password,
     prisma,
-    nickname
+    nickname,
   }: {
-    username: string,
-    nickname?: string,
-    password: string,
-    prisma: PrismaService,
+    username: string;
+    nickname?: string;
+    password: string;
+    prisma: PrismaService;
   }) {
     const hash = new Hash().execute(password);
     const serviceId = uuid();
@@ -74,16 +74,21 @@ export class AuthStrategyService {
     accessToken,
     prisma,
     profile,
-    refreshToken
+    refreshToken,
   }: {
-    profile: Profile,
-    accessToken: string,
+    profile: Profile;
+    accessToken: string;
     refreshToken?: string;
-    prisma: PrismaService
+    prisma: PrismaService;
   }) {
-    const profileUsername = (profile.username || profile.displayName).toLowerCase();
+    const profileUsername = (
+      profile.username || profile.displayName
+    ).toLowerCase();
     const nickname = profile.displayName;
-    const username = await prisma.user.findUnique({ where: { username: profileUsername }, select: { username: true }})
+    const username = (await prisma.user.findUnique({
+      where: { username: profileUsername },
+      select: { username: true },
+    }))
       ? uuid()
       : profileUsername;
 
@@ -93,25 +98,28 @@ export class AuthStrategyService {
       nickname: nickname,
       refreshToken: refreshToken,
       serviceId: profile.id,
-      prisma
+      prisma,
     });
   }
 
   public static async signInByPassword({
     password,
     prisma,
-    username
+    username,
   }: {
-    username: string,
-    password: string,
-    prisma: PrismaService,
+    username: string;
+    password: string;
+    prisma: PrismaService;
   }) {
     const user = await prisma.user.findUnique({
       where: { username: UsernamePipe.validate(username) },
     });
 
     if (!user) {
-      throw new HttpException(`User with username ${username} is a Teapot (user not found)`, HttpStatus.I_AM_A_TEAPOT);
+      throw new HttpException(
+        `User with username ${username} is a Teapot (user not found)`,
+        HttpStatus.I_AM_A_TEAPOT,
+      );
     }
 
     const auth = await prisma.authUser.findUnique({
@@ -119,11 +127,17 @@ export class AuthStrategyService {
     });
 
     if (!auth) {
-      throw new HttpException(`Auth user not found`, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        `Auth user not found`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     if (!auth.password) {
-      throw new HttpException("Auth user does not have password", HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        "Auth user does not have password",
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const hashedPassword = new Hash().execute(password);
@@ -138,17 +152,17 @@ export class AuthStrategyService {
     accessToken,
     prisma,
     profile,
-    refreshToken
+    refreshToken,
   }: {
-    profile: Profile,
-    accessToken: string,
+    profile: Profile;
+    accessToken: string;
     refreshToken?: string;
-    prisma: PrismaService
+    prisma: PrismaService;
   }) {
     const auth = await prisma.authUser.findUnique({
       where: {
-        serviceId: profile.id
-      }
+        serviceId: profile.id,
+      },
     });
 
     if (!auth) {
@@ -157,11 +171,14 @@ export class AuthStrategyService {
 
     const user = await prisma.user.findUnique({
       where: {
-        id: auth.profileId
-      }
+        id: auth.profileId,
+      },
     });
     if (!user) {
-      throw new HttpException("user not found", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        "user not found",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const newAuth = await prisma.authUser.update({
@@ -169,13 +186,13 @@ export class AuthStrategyService {
       data: {
         accessToken,
         refreshToken,
-      }
+      },
     });
 
     return {
       auth: newAuth,
-      user
-    }
+      user,
+    };
   }
 
   public execute(): this {
@@ -203,12 +220,15 @@ export class AuthStrategyService {
         ) => {
           try {
             const parameters = {
-              accessToken, refreshToken,
+              accessToken,
+              refreshToken,
               profile,
-              prisma: this.prisma
-            }
+              prisma: this.prisma,
+            };
 
-            const data = await AuthStrategyService.signInByService(parameters) || await AuthStrategyService.signUpByService(parameters);
+            const data =
+              (await AuthStrategyService.signInByService(parameters)) ||
+              (await AuthStrategyService.signUpByService(parameters));
 
             return done(false, data);
           } catch (error) {
@@ -231,30 +251,35 @@ export class AuthStrategyService {
     nickname,
     password,
     serviceId = uuid(),
-    refreshToken
+    refreshToken,
   }: {
-    username: string,
-    nickname?: string,
-    accessToken: string,
-    refreshToken?: string,
-    password?: string,
-    serviceId?: string
-    prisma: PrismaService
+    username: string;
+    nickname?: string;
+    accessToken: string;
+    refreshToken?: string;
+    password?: string;
+    serviceId?: string;
+    prisma: PrismaService;
   }) {
     const existedUser = await prisma.user.findUnique({
       where: {
-        username: UsernamePipe.validate(username)
-      }
+        username: UsernamePipe.validate(username),
+      },
     });
 
     if (existedUser) {
-      throw new HttpException(`User with username "${username}" is exists`, HttpStatus.CONFLICT);
+      throw new HttpException(
+        `User with username "${username}" is exists`,
+        HttpStatus.CONFLICT,
+      );
     }
 
-    const passwordData = password ? {
-      password: password,
-      tokenHashed: password === accessToken
-    } : {};
+    const passwordData = password
+      ? {
+          password: password,
+          tokenHashed: password === accessToken,
+        }
+      : {};
 
     const userId = uuid();
 
@@ -265,7 +290,7 @@ export class AuthStrategyService {
         serviceId,
         refreshToken: refreshToken,
         ...passwordData,
-      }
+      },
     });
 
     const user = await prisma.user.create({
@@ -273,12 +298,12 @@ export class AuthStrategyService {
         id: userId,
         nickname: nickname || username,
         username: username.toLowerCase(),
-      }
+      },
     });
 
     return {
       auth,
-      user
+      user,
     };
   }
 }

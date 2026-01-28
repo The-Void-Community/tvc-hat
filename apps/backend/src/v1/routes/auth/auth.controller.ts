@@ -62,7 +62,7 @@ export class Controller {
     return this.service.postUser({
       nickname: body.nickname || body.username,
       username: body.username,
-      password: password
+      password: password,
     });
   }
 
@@ -74,7 +74,7 @@ export class Controller {
   ) {
     return this.service.getUserByPassowrd({
       username: body.username,
-      password: password
+      password: password,
     });
   }
 
@@ -84,7 +84,7 @@ export class Controller {
     @Req() request: Request,
     @Res() response: Response,
     @Next() next: NextFunction,
-    @Param("method") method: string
+    @Param("method") method: string,
   ) {
     if (method !== "@me") {
       return new AuthService(method).auth(request, response, next);
@@ -101,23 +101,18 @@ export class Controller {
     @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
-    @Param("method") method: string
+    @Param("method") method: string,
   ) {
-    return new AuthService(method).callback(
-      req,
-      res,
-      next,
-      (...args) => {
-        const data = args[1];
+    return new AuthService(method).callback(req, res, next, (...args) => {
+      const data = args[1];
 
-        try {
-          const redirectUrl = this.service.getRedirectString(data);
-          return res.redirect(redirectUrl);
-        } catch (error) {
-          return res.status(500).send(error);
-        }
-      },
-    );
+      try {
+        const redirectUrl = this.service.getRedirectString(data);
+        return res.redirect(redirectUrl);
+      } catch (error) {
+        return res.status(500).send(error);
+      }
+    });
   }
 }
 

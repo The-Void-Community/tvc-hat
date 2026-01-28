@@ -16,7 +16,7 @@ export class Service {
 
   public getAllMethods() {
     const { abbreviations, methods } = AuthService.methods;
-    
+
     return {
       stringMethods: toStr(methods),
       stringAbbreviations: toStr(abbreviations),
@@ -26,7 +26,9 @@ export class Service {
   }
 
   public async getMe(authId: string, userId: string) {
-    const auth = await this.prisma.authUser.findUnique({ where: { id: authId } });
+    const auth = await this.prisma.authUser.findUnique({
+      where: { id: authId },
+    });
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -37,35 +39,35 @@ export class Service {
   public async postUser({
     username,
     nickname,
-    password
+    password,
   }: {
-    username: string,
-    nickname: string,
-    password: string
+    username: string;
+    nickname: string;
+    password: string;
   }) {
     return AuthStrategyService.signUpByPassword({
       password,
       prisma: this.prisma,
       username,
-      nickname
+      nickname,
     });
   }
 
   public async getUserByPassowrd({
     username,
-    password
+    password,
   }: {
-    username: string,
-    password: string
+    username: string;
+    password: string;
   }) {
     return AuthStrategyService.signInByPassword({
       password,
       username,
-      prisma: this.prisma
-    })
+      prisma: this.prisma,
+    });
   }
 
-  public getRedirectString(data: { auth: AuthUser, user: User} | null) {
+  public getRedirectString(data: { auth: AuthUser; user: User } | null) {
     if (!data || !data.auth) {
       throw new HttpException("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }

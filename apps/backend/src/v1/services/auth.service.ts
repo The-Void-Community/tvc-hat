@@ -51,7 +51,9 @@ export class AuthApi {
     @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
-    callback: (...args: [false, { auth: AuthUser; user: User } | null]) => unknown,
+    callback: (
+      ...args: [false, { auth: AuthUser; user: User } | null]
+    ) => unknown,
   ): unknown {
     const { successed, method, body } = this.getMethod();
     if (!successed) {
