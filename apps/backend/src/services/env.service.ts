@@ -18,6 +18,7 @@ export const REQUIRED = [
   "HASH_KEY",
   "DATABASE_URL",
   "SENTRY_URL",
+  "AVAILABLE_USERNAME_SYMBOLS"
 ] as const;
 
 export const ALL = [

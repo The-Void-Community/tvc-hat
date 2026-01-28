@@ -2,13 +2,14 @@
 CREATE TYPE "UserStatus" AS ENUM ('OFFLINE', 'INACTIVE', 'DONOTDISTURB', 'ONLINE');
 
 -- CreateEnum
-CREATE TYPE "ChatType" AS ENUM ('DIRECT', 'GROUP');
+CREATE TYPE "ChatType" AS ENUM ('DIRECT', 'GROUP', 'SELF');
 
 -- CreateTable
 CREATE TABLE "AuthUser" (
     "id" TEXT NOT NULL,
     "serviceId" TEXT NOT NULL,
     "profileId" TEXT NOT NULL,
+    "tokenHashed" BOOLEAN NOT NULL DEFAULT false,
     "accessToken" TEXT NOT NULL,
     "refreshToken" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -27,6 +28,7 @@ CREATE TABLE "User" (
     "isProfilePublic" BOOLEAN NOT NULL DEFAULT true,
     "status" "UserStatus" NOT NULL DEFAULT 'OFFLINE',
     "lastSeenAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "chats" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
 
@@ -38,8 +40,12 @@ CREATE TABLE "Chat" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "chatname" TEXT,
+    "ownerId" TEXT NOT NULL,
+    "icon" TEXT,
     "type" "ChatType" NOT NULL DEFAULT 'GROUP',
-    "rights" JSONB,
+    "rights" JSONB NOT NULL DEFAULT '{}',
+    "members" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "messages" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -52,20 +58,10 @@ CREATE TABLE "Message" (
     "text" TEXT NOT NULL,
     "senderId" TEXT NOT NULL,
     "chatId" TEXT NOT NULL,
-    "deliveredTo" TEXT[],
-    "readedBy" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "_ChatToUser" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
-
-    CONSTRAINT "_ChatToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateIndex
@@ -85,15 +81,3 @@ CREATE INDEX "Message_chatId_createdAt_idx" ON "Message"("chatId", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "Message_senderId_createdAt_idx" ON "Message"("senderId", "createdAt");
-
--- CreateIndex
-CREATE INDEX "_ChatToUser_B_index" ON "_ChatToUser"("B");
-
--- AddForeignKey
-ALTER TABLE "Message" ADD CONSTRAINT "Message_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ChatToUser" ADD CONSTRAINT "_ChatToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Chat"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ChatToUser" ADD CONSTRAINT "_ChatToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

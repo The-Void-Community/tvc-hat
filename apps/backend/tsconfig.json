@@ -53,6 +53,6 @@
       "@1/types": ["./src/v1/types"]
     }
   },
-  "include": ["./**/*.ts", "./prisma.config.ts"],
+  "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

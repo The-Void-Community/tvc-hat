@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Chat" ALTER COLUMN "members" SET DEFAULT ARRAY[]::TEXT[],
-ALTER COLUMN "messages" SET DEFAULT ARRAY[]::TEXT[];
