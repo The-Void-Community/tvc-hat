@@ -42,18 +42,25 @@ export const endpointRequest = async ({
     });
 
     if (response.status !== statusResponse) {
+      const { statusCode, message } = JSON.parse(await response.text());
+
       return {
+        type: "status",
         response,
+        statusCode,
+        message,
         data: null,
       } as const;
     }
 
     return {
       data: await response.json(),
+      type: "successed"
     } as const;
   } catch (error) {
     console.error(error);
     return {
+      type: "error",
       error,
       data: null,
     } as const;

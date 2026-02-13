@@ -40,6 +40,7 @@ const Home = ({ query }: Props) => {
         <span>Добро пожаловать в Hat! — приложения для чаттинга</span>
 
         <Button
+          tabIndex={2}
           className="bg-(--bg-smooth)"
           onClick={() => {
             window.location.href = API_AUTH_URL.href;
@@ -47,6 +48,15 @@ const Home = ({ query }: Props) => {
         >
           Войти с помощью Google
         </Button>
+        <span
+          tabIndex={1}
+          className="py-1 px-2 cursor-pointer"
+          onClick={() => {
+            router.push("/register");
+          }}
+        >
+          Зарегистрироваться
+        </span>
       </div>
     </div>
   );

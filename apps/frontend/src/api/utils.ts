@@ -1,4 +1,4 @@
-import type { Nullable, UrlType } from "@/constants/url";
+import type { Nullable, UrlType } from "@/utils";
 import { BASE_PATH_NAME, API_ORIGIN } from "@/constants/url";
 
 export type AvailableQueryTypes =
