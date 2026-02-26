@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import type { AuthUser, AuthTypes, User } from "@1/types";
+import type { Auth, AuthTypes, User } from "@1/types";
 import { AUTH_TYPES } from "@1/types";
 
 import { Next, Req, Res } from "@nestjs/common";
@@ -52,7 +52,7 @@ export class AuthApi {
     @Res() res: Response,
     @Next() next: NextFunction,
     callback: (
-      ...args: [false, { auth: AuthUser; user: User } | null]
+      ...args: [false, { auth: Auth; user: User } | null]
     ) => unknown,
   ): unknown {
     const { successed, method, body } = this.getMethod();

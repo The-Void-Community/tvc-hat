@@ -1,7 +1,7 @@
 export * from "./auth.types";
 
 export type {
-  AuthUser,
+  Auth,
   Chat,
   Message,
   User,

@@ -3,7 +3,7 @@ import { AuthStrategyService } from "@/v1/strategies";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 
 import AuthService from "@1/services/auth.service";
-import { AuthUser, User } from "@/v1/types";
+import { Auth, User } from "@/v1/types";
 import { compressToEncodedURIComponent } from "lz-string";
 import Hash from "@/v1/services/hash.service";
 import { env } from "@/services";
@@ -26,7 +26,7 @@ export class Service {
   }
 
   public async getMe(authId: string, userId: string) {
-    const auth = await this.prisma.authUser.findUnique({
+    const auth = await this.prisma.auth.findUnique({
       where: { id: authId },
     });
     const user = await this.prisma.user.findUnique({
@@ -67,7 +67,7 @@ export class Service {
     });
   }
 
-  public getRedirectString(data: { auth: AuthUser; user: User } | null) {
+  public getRedirectString(data: { auth: Auth; user: User } | null) {
     if (!data || !data.auth) {
       throw new HttpException("Server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -75,7 +75,7 @@ export class Service {
     const token = compressToEncodedURIComponent(
       JSON.stringify({
         id: data.auth.id,
-        profileId: data.auth.profileId,
+        userId: data.auth.userId,
         accessToken: new Hash().execute(data.auth.accessToken),
       }),
     );
