@@ -10,14 +10,14 @@ import { HttpException, HttpStatus } from "@nestjs/common";
 const PARSE_ERROR = {
   successed: false,
   id: false,
-  profileId: false,
+  userId: false,
   token: false,
 } as const;
 
 type SuccessedParseReturnType = Readonly<{
   successed: true;
   id: string;
-  profileId: string;
+  userId: string;
   token: string;
 }>;
 
@@ -45,11 +45,11 @@ export class Hash {
     }
 
     if (method === "Bearer") {
-      const { id, profileId, accessToken } = JSON.parse(
+      const { id, userId, accessToken } = JSON.parse(
         decompressFromEncodedURIComponent(hash),
       );
 
-      const valided = id && profileId && accessToken;
+      const valided = id && userId && accessToken;
       if (!valided) {
         return PARSE_ERROR;
       }
@@ -57,7 +57,7 @@ export class Hash {
       return {
         successed: true,
         id,
-        profileId,
+        userId: userId,
         token: accessToken,
       };
     } else {

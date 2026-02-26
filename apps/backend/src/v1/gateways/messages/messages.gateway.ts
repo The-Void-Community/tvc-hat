@@ -59,7 +59,7 @@ export class Gateway
       throw new WsException("Client is not valided user");
     }
 
-    const { profileId } = Hash.parseOrThrow(client.request);
+    const { userId: profileId } = Hash.parseOrThrow(client.request);
     this.validated.clients.set(client.id, profileId);
     return profileId;
   }

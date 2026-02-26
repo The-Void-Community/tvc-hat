@@ -84,7 +84,7 @@ export class Controller {
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
   ) {
     if (slug.type === "me") {
-      const { profileId } = Hash.parseOrThrow(req);
+      const { userId: profileId } = Hash.parseOrThrow(req);
       return this.service.getUserChats(profileId);
     }
 
@@ -103,7 +103,7 @@ export class Controller {
       throw new HttpException('Slug can not be "@me"', HttpStatus.BAD_REQUEST);
     }
 
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
     const user = await this.usersService.getOne(slug.value);
     if (!user) {
       throw new HttpException("User not found", HttpStatus.BAD_REQUEST);
@@ -124,7 +124,7 @@ export class Controller {
       throw new HttpException('Slug can not be "@me"', HttpStatus.BAD_REQUEST);
     }
 
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
     const user = await this.usersService.getOne(slug.value);
     if (!user) {
       throw new HttpException("User not found", HttpStatus.BAD_REQUEST);
@@ -138,7 +138,7 @@ export class Controller {
   })
   @Post(ROUTES.POST)
   public post(@Req() req: Request, @Body() data: ChatCreateDto) {
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
 
     return this.service.post(data, profileId);
   }
@@ -152,7 +152,7 @@ export class Controller {
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
     @Body(new ValidationPipe()) data: ChatUpdateDto,
   ) {
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
 
     return this.service.put(SlugPipe.resolve(req, slug), data, profileId);
   }
@@ -166,7 +166,7 @@ export class Controller {
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
     @Body(new ValidationPipe()) data: ChatUpdateDto,
   ) {
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
     return this.service.patch(SlugPipe.resolve(req, slug), data, profileId);
   }
 
@@ -179,7 +179,7 @@ export class Controller {
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
     @Body(new ValidationPipe()) data: RightsUpdateDto,
   ) {
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
     return this.service.patchRights(
       SlugPipe.resolve(req, slug),
       data,
@@ -195,7 +195,7 @@ export class Controller {
     @Req() req: Request,
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
   ) {
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
     return this.service.patchJoin(SlugPipe.resolve(req, slug), profileId);
   }
 
@@ -207,7 +207,7 @@ export class Controller {
     @Req() req: Request,
     @Param("slug", ChatSlugPipe) slug: ChatSlug,
   ) {
-    const { profileId } = Hash.parseOrThrow(req);
+    const { userId: profileId } = Hash.parseOrThrow(req);
     return this.service.delete(SlugPipe.resolve(req, slug), profileId);
   }
 }

@@ -12,6 +12,7 @@ import Hash from "../services/hash.service";
 import { getPassportEnv } from "f@/env";
 import { v4 as uuid } from "uuid";
 import { UsernamePipe } from "../pipes/username.pipe";
+import { compressToEncodedURIComponent } from "lz-string";
 
 type Strategies = Map<AuthTypes, OAuth2Strategy>;
 type OAuth2ServiceProperties = {
@@ -122,8 +123,8 @@ export class AuthStrategyService {
       );
     }
 
-    const auth = await prisma.authUser.findUnique({
-      where: { profileId: user.id },
+    const auth = await prisma.auth.findUnique({
+      where: { userId: user.id },
     });
 
     if (!auth) {
@@ -159,7 +160,7 @@ export class AuthStrategyService {
     refreshToken?: string;
     prisma: PrismaService;
   }) {
-    const auth = await prisma.authUser.findUnique({
+    const auth = await prisma.auth.findUnique({
       where: {
         serviceId: profile.id,
       },
@@ -171,7 +172,7 @@ export class AuthStrategyService {
 
     const user = await prisma.user.findUnique({
       where: {
-        id: auth.profileId,
+        id: auth.userId,
       },
     });
     if (!user) {
@@ -181,7 +182,7 @@ export class AuthStrategyService {
       );
     }
 
-    const newAuth = await prisma.authUser.update({
+    const newAuth = await prisma.auth.update({
       where: { id: auth.id },
       data: {
         accessToken,
@@ -283,10 +284,10 @@ export class AuthStrategyService {
 
     const userId = uuid();
 
-    const auth = await prisma.authUser.create({
+    const auth = await prisma.auth.create({
       data: {
         accessToken: accessToken,
-        profileId: userId,
+        userId,
         serviceId,
         refreshToken: refreshToken,
         ...passwordData,
@@ -301,9 +302,18 @@ export class AuthStrategyService {
       },
     });
 
+    const token = compressToEncodedURIComponent(
+      JSON.stringify({
+        id: auth.id,
+        userId: auth.userId,
+        token: new Hash().execute(auth.accessToken),
+      }),
+    );
+
     return {
       auth,
       user,
+      token
     };
   }
 }

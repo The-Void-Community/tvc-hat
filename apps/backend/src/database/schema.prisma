@@ -8,10 +8,10 @@ datasource db {
   provider = "postgresql"
 }
 
-model AuthUser {
+model Auth {
   id        String @id @default(uuid())
+  userId    String @unique
   serviceId String @unique
-  profileId String @unique
 
   tokenHashed Boolean @default(false)
 

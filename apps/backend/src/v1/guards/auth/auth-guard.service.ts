@@ -12,7 +12,7 @@ export class Service {
     req: Request | IncomingMessage,
     prisma: PrismaService,
   ) {
-    const { successed, id, token, profileId } = Hash.parse(req);
+    const { successed, id, token, userId } = Hash.parse(req);
 
     if (!successed) {
       throw new HttpException(
@@ -21,14 +21,14 @@ export class Service {
       );
     }
 
-    const findedUser = await prisma.authUser.findUnique({
+    const findedUser = await prisma.auth.findUnique({
       where: { id },
     });
     if (!findedUser) {
       throw new HttpException(authErrors.userNotFound, HttpStatus.UNAUTHORIZED);
     }
 
-    if (findedUser.profileId !== profileId) {
+    if (findedUser.userId !== userId) {
       throw new HttpException(
         authErrors.profileIdError,
         HttpStatus.UNAUTHORIZED,
@@ -41,7 +41,7 @@ export class Service {
 
     const profileUser = prisma.user.findUnique({
       where: {
-        id: findedUser.profileId,
+        id: findedUser.userId,
       },
     });
     if (!profileUser) {

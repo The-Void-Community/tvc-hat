@@ -48,7 +48,7 @@ export class SlugPipe<T extends Slugs> implements PipeTransform {
     slug: Slug<T>,
   ): IdOrValue<T> {
     if (slug.type === "me") {
-      return { id: Hash.parseOrThrow(req).profileId };
+      return { id: Hash.parseOrThrow(req).userId };
     }
 
     return slug.value as IdOrValue<T>;

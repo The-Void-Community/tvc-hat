@@ -90,7 +90,7 @@ export class Controller {
       return new AuthService(method).auth(request, response, next);
     }
 
-    const { id, profileId } = Hash.parseOrThrow(request);
+    const { id, userId: profileId } = Hash.parseOrThrow(request);
     const me = await this.service.getMe(id, profileId);
     return response.send(me);
   }
